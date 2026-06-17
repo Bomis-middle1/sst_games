@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Map & Globe Adventure Quest</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
+body{background:linear-gradient(135deg,#4facfe,#00f2fe);min-height:100vh;overflow-x:hidden}
+#splash{position:fixed;inset:0;background:#fff;display:flex;justify-content:center;align-items:center;z-index:9999}
+.splash-content{text-align:center}
+.splash-logo{width:260px;max-width:80%}
+.hidden{display:none!important}
+.container{max-width:900px;margin:auto;padding:20px}
+.panel{background:#fff;border-radius:20px;padding:25px;box-shadow:0 10px 25px rgba(0,0,0,.15)}
+.center{text-align:center}
+.top{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:10px}
+.progress{height:18px;background:#e5e7eb;border-radius:999px;overflow:hidden}
+.bar{height:100%;width:0;background:linear-gradient(90deg,#10b981,#22c55e)}
+.option{background:#f3f4f6;padding:12px;border-radius:10px;margin:10px 0;cursor:pointer}
+.option:hover{background:#dbeafe}
+button{padding:12px 20px;border:none;border-radius:10px;background:#2563eb;color:#fff;cursor:pointer}
+.feedback{margin-top:10px;padding:10px;border-radius:10px}
+.good{background:#dcfce7}.bad{background:#fee2e2}
+.bg-star{position:fixed;color:rgba(255,255,255,.35);animation:float 15s linear infinite}
+@keyframes float{from{transform:translateY(100vh)}to{transform:translateY(-20vh)}}
+#cross{position:fixed;right:20px;top:20px;font-size:60px;opacity:0}
+.flash{animation:f .8s}@keyframes f{50%{opacity:1}}
+.confetti{position:fixed;animation:up 1.2s forwards}
+@keyframes up{to{transform:translateY(-220px) scale(1.8);opacity:0}}
+</style>
+</head>
+<body>
+
+<div id="splash">
+ <div class="splash-content">
+  <img src="assets/innovine-logo.png" class="splash-logo" alt="Innovine Logo">
+  <h2>Innovine Learning Adventure</h2>
+ </div>
+</div>
+
+<div id="cross">❌</div>
+
+<audio id="correctSound" src="assets/correct.mp3"></audio>
+<audio id="wrongSound" src="assets/wrong.mp3"></audio>
+<audio id="clapSound" src="assets/freesound_community-claps-44774.mp3"></audio>
+
+<div id="intro" class="container hidden">
+<div class="panel center">
+<h1>🌍 Map & Globe Adventure Quest</h1>
+<p>Help the explorer travel around the world by answering geography challenges!</p>
+<br><div style="font-size:70px">🧭</div><br>
+<button onclick="startGame()">Start Adventure</button>
+</div></div>
+
+<div id="game" class="container hidden">
+<div class="panel">
+<div class="top">
+<div>⭐ Score: <span id="score">0</span></div>
+<div>⏱️ Time: <span id="time">45</span>s</div>
+<div>Question <span id="qnum">1</span>/10</div>
+</div>
+<div class="progress"><div id="bar" class="bar"></div></div><br>
+<h2 id="question"></h2>
+<div id="options"></div>
+<div id="feedback"></div>
+<button id="nextBtn" class="hidden" onclick="nextQ()">Next</button>
+</div></div>
+
+<div id="challenge" class="container hidden">
+<div class="panel center">
+<h2>🏁 Final Challenge</h2>
+<p>Which map element helps us find the exact location of a place on Earth?</p><br>
+<button onclick="finishChallenge(true)">Latitude & Longitude</button>
+<button onclick="finishChallenge(false)">Map Border</button>
+</div></div>
+
+<div id="result" class="container hidden">
+<div class="panel center">
+<h1 id="title"></h1>
+<h2 id="finalScore"></h2><br>
+<button onclick="location.reload()">Play Again</button>
+</div></div>
+
+<script>
+for(let i=0;i<20;i++){let s=document.createElement('div');s.className='bg-star';s.innerHTML='⭐';s.style.left=Math.random()*100+'vw';s.style.animationDuration=(10+Math.random()*8)+'s';document.body.appendChild(s);}
+
+window.addEventListener('load',()=>{
+ setTimeout(()=>{
+   document.getElementById('splash').style.display='none';
+   document.getElementById('intro').classList.remove('hidden');
+ },5000);
+});
+
+const qs=[
+{q:"Riya wants to see the true shape of the Earth and understand how continents are arranged. Which tool should she use?",o:["Atlas","Globe","Road Sign","Calendar"],a:1,e:"A globe shows Earth's spherical shape."},
+{q:"Your teacher asks you to draw the route from your classroom to the playground on paper. Which would be more useful?",o:["Globe","Telescope","Map","Compass only"],a:2,e:"Maps are ideal for routes."},
+{q:"A globe falls and breaks. What important feature will a map not show correctly?",o:["Earth's spherical shape","Names of countries","Oceans","Continents"],a:0,e:"Maps flatten the Earth."},
+{q:"The library is directly to the right of your school on a map. Which direction is it?",o:["North","South","East","West"],a:2,e:"Right side is east."},
+{q:"A scientist wants to show where different crops are grown in India.",o:["Political Map","Physical Map","Thematic Map","Road Map"],a:2,e:"Thematic maps show specific topics."},
+{q:"A traveler wants to know whether a place is north or south of the Equator.",o:["Longitude","Latitude","Ocean","Scale"],a:1,e:"Latitude measures north/south."},
+{q:"A map shows mountains in brown and rivers in blue.",o:["Political Map","Physical Map","Weather Map","Railway Map"],a:1,e:"Physical maps show natural features."},
+{q:"Meera wants to understand the meaning of map symbols.",o:["Compass","Scale","Legend/Key","Border"],a:2,e:"The legend explains symbols."},
+{q:"Latitude and longitude lines meet at a point. What does this help us find?",o:["Rainfall","Exact location","Population","Roads"],a:1,e:"Coordinates identify exact locations."},
+{q:"You need to know the distance between two cities on a map.",o:["Symbol","Direction","Scale","Colour"],a:2,e:"Scale helps calculate distance."}
+];
+let c=0,score=0,retry=0,t=45,timer;
+
+function startGame(){intro.classList.add('hidden');game.classList.remove('hidden');loadQ();}
+function loadQ(){
+retry=0;t=45;time.textContent=t;qnum.textContent=c+1;bar.style.width=(c/qs.length*100)+'%';
+question.textContent=qs[c].q;options.innerHTML='';feedback.innerHTML='';nextBtn.classList.add('hidden');
+qs[c].o.forEach((op,i)=>{let d=document.createElement('div');d.className='option';d.textContent=op;d.onclick=()=>choose(i);options.appendChild(d);});
+clearInterval(timer);timer=setInterval(()=>{t--;time.textContent=t;if(t<=0){clearInterval(timer);showAnswer();}},1000);
+}
+function choose(i){
+if(i===qs[c].a){score++;scoreEl();correctSound.play().catch(()=>{});feedback.innerHTML='<div class="feedback good">Correct!</div>';confetti();disable();nextBtn.classList.remove('hidden');clearInterval(timer);}
+else if(retry===0){retry=1;wrongSound.play().catch(()=>{});feedback.innerHTML='<div class="feedback bad">Try once more!</div>';cross.classList.add('flash');setTimeout(()=>cross.classList.remove('flash'),800);}
+else showAnswer();
+}
+function showAnswer(){disable();clearInterval(timer);feedback.innerHTML='<div class="feedback bad">Correct Answer: <b>'+qs[c].o[qs[c].a]+'</b><br>'+qs[c].e+'</div>';nextBtn.classList.remove('hidden');}
+function disable(){document.querySelectorAll('.option').forEach(x=>x.onclick=null)}
+function nextQ(){c++;if(c<qs.length)loadQ();else{game.classList.add('hidden');challenge.classList.remove('hidden');}}
+function finishChallenge(ok){if(ok)score++;challenge.classList.add('hidden');result.classList.remove('hidden');if(score>=9){title.textContent='🏆 Master Explorer';clapSound.play().catch(()=>{});}else if(score>=6){title.textContent='🧭 Smart Navigator';}else{title.textContent='🌎 Young Cartographer';}finalScore.textContent='You scored '+score+' points.';}
+function scoreEl(){score.textContent=score}
+function confetti(){for(let i=0;i<10;i++){let s=document.createElement('div');s.className='confetti';s.innerHTML='⭐';s.style.left=Math.random()*innerWidth+'px';s.style.top=(innerHeight-80)+'px';document.body.appendChild(s);setTimeout(()=>s.remove(),1200);}}
+</script>
+</body>
+</html>
