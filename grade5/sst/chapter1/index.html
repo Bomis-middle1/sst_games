@@ -3,658 +3,160 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Map & Globe Adventure Quest</title>
-
+<title>Map Castle Escape Adventure</title>
 <style>
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial,sans-serif;
-}
-
-body{
-background:linear-gradient(135deg,#4facfe,#00f2fe);
-min-height:100vh;
-overflow-x:hidden;
-}
-
-#splash{
-position:fixed;
-inset:0;
-background:linear-gradient(135deg,#2563eb,#06b6d4);
-display:flex;
-justify-content:center;
-align-items:center;
-z-index:9999;
-}
-
-.splash-content{
-text-align:center;
-color:white;
-animation:fadeIn 1s ease;
-}
-
-.splash-logo{
-width:260px;
-max-width:80%;
-margin-bottom:20px;
-}
-
-@keyframes fadeIn{
-from{
-opacity:0;
-transform:scale(.9);
-}
-to{
-opacity:1;
-transform:scale(1);
-}
-}
-
-.hidden{
-display:none!important;
-}
-
-.container{
-max-width:900px;
-margin:auto;
-padding:20px;
-}
-
-.panel{
-background:white;
-border-radius:20px;
-padding:25px;
-box-shadow:0 10px 25px rgba(0,0,0,.15);
-}
-
-.center{
-text-align:center;
-}
-
-.top{
-display:flex;
-justify-content:space-between;
-flex-wrap:wrap;
-gap:10px;
-margin-bottom:10px;
-}
-
-.progress{
-height:18px;
-background:#e5e7eb;
-border-radius:999px;
-overflow:hidden;
-}
-
-.bar{
-height:100%;
-width:0;
-background:linear-gradient(90deg,#10b981,#22c55e);
-}
-
-.option{
-background:#f3f4f6;
-padding:12px;
-border-radius:10px;
-margin:10px 0;
-cursor:pointer;
-transition:.3s;
-}
-
-.option:hover{
-background:#dbeafe;
-}
-
-button{
-padding:12px 20px;
-border:none;
-border-radius:10px;
-background:#2563eb;
-color:white;
-cursor:pointer;
-font-size:16px;
-}
-
-.feedback{
-margin-top:10px;
-padding:10px;
-border-radius:10px;
-}
-
-.good{
-background:#dcfce7;
-}
-
-.bad{
-background:#fee2e2;
-}
-
-.bg-star{
-position:fixed;
-color:rgba(255,255,255,.35);
-animation:float 15s linear infinite;
-}
-
-@keyframes float{
-from{
-transform:translateY(100vh);
-}
-to{
-transform:translateY(-20vh);
-}
-}
-
-#cross{
-position:fixed;
-right:20px;
-top:20px;
-font-size:60px;
-opacity:0;
-}
-
-.flash{
-animation:f .8s;
-}
-
-@keyframes f{
-50%{
-opacity:1;
-}
-}
-
-.confetti{
-position:fixed;
-animation:up 1.2s forwards;
-}
-
-@keyframes up{
-to{
-transform:translateY(-220px) scale(1.8);
-opacity:0;
-}
-}
+*{margin:0;padding:0;box-sizing:border-box;font-family:Trebuchet MS,sans-serif}
+body{background:linear-gradient(180deg,#0f172a,#1e3a8a);min-height:100vh;color:#fff;overflow-x:hidden}
+.hidden{display:none!important}
+#splash{position:fixed;inset:0;background:#fff;display:flex;justify-content:center;align-items:center;z-index:9999}
+#splash img{max-width:320px;width:80%}
+.container{max-width:1100px;margin:auto;padding:20px}
+.topbar{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:15px}
+.stat{background:#1e293b;padding:10px 15px;border-radius:12px}
+.progress{height:18px;background:#334155;border-radius:999px;overflow:hidden}
+.bar{height:100%;width:0;background:#22c55e}
+.castle{background:rgba(255,255,255,.08);border-radius:20px;padding:20px;backdrop-filter:blur(4px)}
+.scroll{background:#f5e6b3;color:#3b2f1a;padding:25px;border-radius:18px;margin:15px 0;text-align:center;box-shadow:0 8px 20px rgba(0,0,0,.3)}
+.doors{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:20px;margin-top:20px}
+.door{height:220px;perspective:1000px;cursor:pointer}
+.door-inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:1s}
+.door.open .door-inner{transform:rotateY(-75deg)}
+.panel{position:absolute;inset:0;background:linear-gradient(#8b5a2b,#6b4423);border:6px solid #3b2412;border-radius:12px;display:flex;align-items:center;justify-content:center;text-align:center;padding:10px;font-weight:bold}
+.feedback{margin-top:15px;padding:12px;border-radius:12px}
+.good{background:#14532d}.bad{background:#7f1d1d}
+button{padding:12px 20px;border:none;border-radius:10px;background:#22c55e;color:#fff;cursor:pointer}
+.center{text-align:center}
 </style>
 </head>
-
 <body>
 
-<!-- Splash Screen -->
-
-<div id="splash">
-<div class="splash-content">
-
-<img
-src="assets/innovine-logo.png"
-class="splash-logo"
-alt="Innovine Logo">
-
-</div>
-</div>
-
-<div id="cross">❌</div>
+<div id="splash"><img src="assets/innovine-logo.png"></div>
 
 <audio id="correctSound" src="assets/correct.mp3"></audio>
 <audio id="wrongSound" src="assets/wrong.mp3"></audio>
 <audio id="clapSound" src="assets/freesound_community-claps-44774.mp3"></audio>
 
-<!-- Instructions Screen -->
-
 <div id="intro" class="container hidden">
-<div class="panel center">
-
-<h1>🌍 Map & Globe Adventure Quest</h1>
-
-<br>
-
-<h3>📝 Instructions</h3>
-
-<br>
-
-<p>
-🧭 Answer all 10 geography challenges.<br><br>
-
-✅ Correct Answer = 1 Point<br>
-❌ Wrong Answer = One Extra Attempt<br>
-⏱️ 45 Seconds Per Question<br>
-🏁 Final Challenge Gives 1 Bonus Point<br>
-🏆 Score 9+ To Become A Master Explorer
-</p>
-
-<br>
-
-<div style="font-size:70px">🧭</div>
-
-<br>
-
-<button onclick="startGame()">
-Start Adventure
-</button>
-
+<div class="castle center">
+<h1>🏰 Map Castle Escape Adventure</h1><br>
+<p>Escape 10 rooms of the Ancient Geography Castle. Collect keys by opening the correct door.</p><br>
+<button onclick="startGame()">Begin Adventure</button>
 </div>
 </div>
-
-<!-- Game Screen -->
 
 <div id="game" class="container hidden">
-<div class="panel">
-
-<div class="top">
-<div>⭐ Score: <span id="score">0</span></div>
-<div>⏱️ Time: <span id="time">45</span>s</div>
-<div>Question <span id="qnum">1</span>/10</div>
+<div class="topbar">
+<div class="stat">🏰 Room <span id="roomNum">1</span>/10</div>
+<div class="stat">🔑 Keys: <span id="keys">0</span></div>
+<div class="stat">⭐ Score: <span id="score">0</span></div>
 </div>
+<div class="progress"><div class="bar" id="bar"></div></div>
 
-<div class="progress">
-<div id="bar" class="bar"></div>
+<div class="castle">
+<div class="scroll">
+<h2 id="title"></h2>
+<p id="question"></p>
 </div>
-
-<br>
-
-<h2 id="question"></h2>
-
-<div id="options"></div>
-
-<div id="feedback"></div>
-
-<button id="nextBtn" class="hidden" onclick="nextQ()">
-Next
-</button>
-
+<div id="doors" class="doors"></div>
+<div id="feedback"></div><br>
+<button id="nextBtn" class="hidden" onclick="nextRoom()">Enter Next Room</button>
 </div>
 </div>
-
-<!-- Final Challenge -->
-
-<div id="challenge" class="container hidden">
-<div class="panel center">
-
-<h2>🏁 Final Challenge</h2>
-
-<p>
-Which map element helps us find the exact location of a place on Earth?
-</p>
-
-<br>
-
-<button onclick="finishChallenge(true)">
-Latitude & Longitude
-</button>
-
-<button onclick="finishChallenge(false)">
-Map Border
-</button>
-
-</div>
-</div>
-
-<!-- Result -->
 
 <div id="result" class="container hidden">
-<div class="panel center">
-
-<h1 id="title"></h1>
-
-<h2 id="finalScore"></h2>
-
-<br>
-
-<button onclick="location.reload()">
-Play Again
-</button>
-
+<div class="castle center">
+<h1>🚪✨ THE FINAL GATE OPENS! ✨🚪</h1><br>
+<h2 id="rank"></h2><br>
+<h3 id="final"></h3><br>
+<button onclick="location.reload()">Play Again</button>
 </div>
 </div>
 
 <script>
+setTimeout(()=>{splash.style.display='none';intro.classList.remove('hidden');},5000);
 
-// Background stars
-
-for(let i=0;i<20;i++){
-let s=document.createElement('div');
-s.className='bg-star';
-s.innerHTML='⭐';
-s.style.left=Math.random()*100+'vw';
-s.style.animationDuration=(10+Math.random()*8)+'s';
-document.body.appendChild(s);
-}
-
-// Splash Screen
-
-window.addEventListener('load',()=>{
-
-setTimeout(()=>{
-
-document.getElementById('splash').classList.add('hidden');
-
-document.getElementById('intro').classList.remove('hidden');
-
-},5000);
-
-});
-
-// Questions
-
-const qs=[
-
-{
-q:"Riya wants to see the true shape of the Earth and understand how continents are arranged. Which tool should she use?",
-o:["Atlas","Globe","Road Sign","Calendar"],
-a:1,
-e:"A globe shows Earth's spherical shape."
-},
-
-{
-q:"Your teacher asks you to draw the route from your classroom to the playground on paper. Which would be more useful?",
-o:["Globe","Telescope","Map","Compass only"],
-a:2,
-e:"Maps are ideal for routes."
-},
-
-{
-q:"A globe falls and breaks. What important feature will a map not show correctly?",
-o:["Earth's spherical shape","Names of countries","Oceans","Continents"],
-a:0,
-e:"Maps flatten the Earth."
-},
-
-{
-q:"The library is directly to the right of your school on a map. Which direction is it?",
-o:["North","South","East","West"],
-a:2,
-e:"Right side is east."
-},
-
-{
-q:"A scientist wants to show where different crops are grown in India.",
-o:["Political Map","Physical Map","Thematic Map","Road Map"],
-a:2,
-e:"Thematic maps show specific topics."
-},
-
-{
-q:"A traveler wants to know whether a place is north or south of the Equator.",
-o:["Longitude","Latitude","Ocean","Scale"],
-a:1,
-e:"Latitude measures north/south."
-},
-
-{
-q:"A map shows mountains in brown and rivers in blue.",
-o:["Political Map","Physical Map","Weather Map","Railway Map"],
-a:1,
-e:"Physical maps show natural features."
-},
-
-{
-q:"Meera wants to understand the meaning of map symbols.",
-o:["Compass","Scale","Legend/Key","Border"],
-a:2,
-e:"The legend explains symbols."
-},
-
-{
-q:"Latitude and longitude lines meet at a point. What does this help us find?",
-o:["Rainfall","Exact location","Population","Roads"],
-a:1,
-e:"Coordinates identify exact locations."
-},
-
-{
-q:"You need to know the distance between two cities on a map.",
-o:["Symbol","Direction","Scale","Colour"],
-a:2,
-e:"Scale helps calculate distance."
-}
-
+const rooms=[
+{t:"Room 1",q:"Riya wants to see the true shape of Earth.",o:["Atlas","Globe","Calendar","Road Sign"],a:1},
+{t:"Room 2",q:"Draw the route from classroom to playground.",o:["Globe","Map","Telescope","Compass Only"],a:1},
+{t:"Room 3",q:"A globe breaks. What important feature is lost?",o:["Earth's spherical shape","Countries","Oceans","Continents"],a:0},
+{t:"Room 4",q:"Library is directly right of school.",o:["North","South","East","West"],a:2},
+{t:"Room 5",q:"Show where crops are grown in India.",o:["Political","Physical","Thematic","Road"],a:2},
+{t:"Room 6",q:"Find north or south of Equator.",o:["Latitude","Longitude","Ocean","Scale"],a:0},
+{t:"Room 7",q:"Mountains brown and rivers blue.",o:["Political","Physical","Weather","Railway"],a:1},
+{t:"Room 8",q:"Meaning of map symbols?",o:["Compass","Scale","Legend/Key","Border"],a:2},
+{t:"Room 9",q:"Latitude and longitude help find?",o:["Rainfall","Exact Location","Population","Roads"],a:1},
+{t:"Room 10",q:"Need distance between cities.",o:["Symbol","Direction","Scale","Colour"],a:2}
 ];
 
-let c=0;
-let score=0;
-let retry=0;
-let t=45;
-let timer;
+let current=0,score=0,keysCollected=0,retry=0;
 
-// Shuffle Questions
+function startGame(){intro.classList.add('hidden');game.classList.remove('hidden');loadRoom();}
 
-function shuffleQuestions(){
-
-for(let i=qs.length-1;i>0;i--){
-
-let j=Math.floor(Math.random()*(i+1));
-
-[qs[i],qs[j]]=[qs[j],qs[i]];
-
-}
-
-}
-
-function startGame(){
-
-shuffleQuestions();
-
-document.getElementById('intro').classList.add('hidden');
-
-document.getElementById('game').classList.remove('hidden');
-
-loadQ();
-
-}
-
-function loadQ(){
-
+function loadRoom(){
 retry=0;
-
-t=45;
-
-time.textContent=t;
-
-qnum.textContent=c+1;
-
-bar.style.width=(c/qs.length*100)+'%';
-
-question.textContent=qs[c].q;
-
-options.innerHTML='';
-
+roomNum.textContent=current+1;
+title.textContent=rooms[current].t;
+question.textContent=rooms[current].q;
+bar.style.width=(current/rooms.length*100)+'%';
+doors.innerHTML='';
 feedback.innerHTML='';
-
 nextBtn.classList.add('hidden');
 
-qs[c].o.forEach((op,i)=>{
-
-let d=document.createElement('div');
-
-d.className='option';
-
-d.textContent=op;
-
-d.onclick=()=>choose(i);
-
-options.appendChild(d);
-
+rooms[current].o.forEach((txt,i)=>{
+const d=document.createElement('div');
+d.className='door';
+d.innerHTML='<div class="door-inner"><div class="panel">🚪 '+txt+'</div></div>';
+d.onclick=()=>choose(i,d);
+doors.appendChild(d);
 });
-
-clearInterval(timer);
-
-timer=setInterval(()=>{
-
-t--;
-
-time.textContent=t;
-
-if(t<=0){
-
-clearInterval(timer);
-
-showAnswer();
-
 }
 
-},1000);
-
-}
-
-function choose(i){
-
-if(i===qs[c].a){
-
-score++;
-
+function choose(i,door){
+if(i===rooms[current].a){
+door.classList.add('open');
+score++; keysCollected++;
 scoreEl();
-
-correctSound.currentTime=0;
 correctSound.play().catch(()=>{});
-
-clapSound.currentTime=0;
 clapSound.play().catch(()=>{});
-
-feedback.innerHTML=
-'<div class="feedback good">✅ Correct!</div>';
-
-confetti();
-
-disable();
-
+feedback.innerHTML='<div class="feedback good">🔑 Correct! The castle door swings open.</div>';
+disableDoors();
 nextBtn.classList.remove('hidden');
-
-clearInterval(timer);
-
-}
-
-else if(retry===0){
-
+}else if(retry===0){
 retry=1;
-
-wrongSound.currentTime=0;
 wrongSound.play().catch(()=>{});
-
-feedback.innerHTML=
-'<div class="feedback bad">Try once more!</div>';
-
-cross.classList.add('flash');
-
-setTimeout(()=>{
-
-cross.classList.remove('flash');
-
-},800);
-
-}
-
-else{
-
-showAnswer();
-
-}
-
-}
-
-function showAnswer(){
-
-disable();
-
-clearInterval(timer);
-
-feedback.innerHTML=
-'<div class="feedback bad">Correct Answer: <b>'
-+qs[c].o[qs[c].a]+
-'</b><br>'+qs[c].e+
-'</div>';
-
+feedback.innerHTML='<div class="feedback bad">🚫 Wrong door. One final attempt remains.</div>';
+}else{
+wrongSound.play().catch(()=>{});
+feedback.innerHTML='<div class="feedback bad">The correct door was: '+rooms[current].o[rooms[current].a]+'</div>';
+disableDoors();
 nextBtn.classList.remove('hidden');
-
+}
 }
 
-function disable(){
-
-document.querySelectorAll('.option').forEach(x=>x.onclick=null);
-
-}
-
-function nextQ(){
-
-c++;
-
-if(c<qs.length){
-
-loadQ();
-
-}
-else{
-
-game.classList.add('hidden');
-
-challenge.classList.remove('hidden');
-
-}
-
-}
-
-function finishChallenge(ok){
-
-if(ok){
-
-score++;
-
-}
-
-challenge.classList.add('hidden');
-
-result.classList.remove('hidden');
-
-if(score>=9){
-
-title.textContent='🏆 Master Explorer';
-
-clapSound.play().catch(()=>{});
-
-}
-else if(score>=6){
-
-title.textContent='🧭 Smart Navigator';
-
-}
-else{
-
-title.textContent='🌎 Young Cartographer';
-
-}
-
-finalScore.textContent='You scored '+score+' points.';
-
-}
+function disableDoors(){document.querySelectorAll('.door').forEach(x=>x.onclick=null);}
 
 function scoreEl(){
-
 score.textContent=score;
-
+keys.textContent=keysCollected;
 }
 
-function confetti(){
-
-for(let i=0;i<10;i++){
-
-let s=document.createElement('div');
-
-s.className='confetti';
-
-s.innerHTML='⭐';
-
-s.style.left=Math.random()*innerWidth+'px';
-
-s.style.top=(innerHeight-80)+'px';
-
-document.body.appendChild(s);
-
-setTimeout(()=>s.remove(),1200);
-
+function nextRoom(){
+current++;
+if(current<rooms.length) loadRoom();
+else finish();
 }
 
+function finish(){
+game.classList.add('hidden');
+result.classList.remove('hidden');
+if(score>=9) rank.textContent='🏆 MASTER MAP EXPLORER';
+else if(score>=6) rank.textContent='🧭 SMART NAVIGATOR';
+else rank.textContent='🌎 YOUNG EXPLORER';
+final.textContent='You escaped all 10 rooms with '+score+' keys collected!';
 }
-
 </script>
-
 </body>
 </html>
+
+
+
