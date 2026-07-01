@@ -2,1494 +2,663 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Growth Tower: Our World Edition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Chronicles of the Cosmos: World Explorer</title>
     <style>
-        /* CSS resets and base styles */
         :root {
-            --primary: #4A90E2;
-            --secondary: #67B26F;
-            --background: #111;
-            --text-on-light: #333;
-            --text-on-dark: #eee;
-            --border: #444;
-            --accent: #FFD700;
+            --space-bg: #060713;
+            --panel-bg: rgba(16, 20, 43, 0.85);
+            --neon-blue: #00f3ff;
+            --neon-green: #39ff14;
+            --neon-pink: #ff007f;
+            --text-light: #f0f4f8;
+            --glass-border: rgba(255, 255, 255, 0.1);
         }
 
-        body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden; /* Prevent page scrolling */
-            font-family: 'Poppins', sans-serif; /* A more game-like font */
-            background-color: var(--background);
-            color: var(--text-on-dark);
-        }
-
-        /* Standard Game Font - Using Poppins from Google Fonts for a modern, gamey feel */
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
-
-        /* Utility classes */
-        .hidden { display: none !important; }
-
-        /* Main Game Layout */
-        #game-interface {
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-            height: 100%;
-        }
-
-        /* --- Global Header (Desktop) --- */
-        #game-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 20px;
-            background: linear-gradient(180deg, #222, #111);
-            border-bottom: 2px solid var(--border);
-            z-index: 100;
-        }
-
-        #game-logo {
-            height: 40px;
-            pointer-events: none;
-        }
-
-        #tower-progress-header {
-            font-size: 1.1rem;
-            color: var(--text-on-dark);
-            font-weight: 600;
-        }
-
-        #current-floor-span {
-            font-weight: 700;
-            color: var(--accent);
-        }
-
-        #game-menu-btn {
-            background: none;
-            border: 2px solid var(--border);
-            color: var(--text-on-dark);
-            border-radius: 5px;
-            padding: 5px 15px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        #game-menu-btn:hover {
-            border-color: var(--primary);
-            color: var(--primary);
-        }
-
-        /* --- Split Layout: Tower Left, Question Right --- */
-        #split-content {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-        }
-
-        /* Left Side: Tower Building Canvas */
-        #tower-section {
-            flex: 1.5; /* Larger share for the main visual */
-            position: relative;
-            background: #222; /* Darker back for tower contrast */
-            border-right: 2px solid var(--border);
-            overflow: hidden;
-        }
-
-        #tower-canvas {
-            display: flex;
-            flex-direction: column-reverse; /* Build from bottom up */
-            align-items: center;
-            position: absolute;
-            bottom: 20px; /* Start building a bit from the bottom edge */
-            left: 50%;
-            transform: translateX(-50%);
-            width: 80%; /* Width of the tower */
-            height: calc(100% - 40px); /* Height of the build area */
-            transition: bottom 0.5s ease-out; /* Pan up on new floor */
-        }
-
-        .tower-base {
-            width: 250px;
-            height: 30px;
-            background-color: #555;
-            border: 2px solid #333;
-            border-radius: 10px;
-            margin-top: -5px; /* Offset for block connection */
-            z-index: 50;
-        }
-
-        .tower-block {
-            width: 200px;
-            height: 50px;
-            position: relative;
-            background-color: #444; /* Placeholder color, set by JS */
-            border: 2px solid #222;
-            border-radius: 8px;
-            transform: translateY(-200px); /* Start high for drop animation */
-            opacity: 0;
-            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Dynamic drop/bounce */
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-            z-index: 10;
-        }
-
-        /* Trigger for adding the floor */
-        .tower-block.add-floor {
-            transform: translateY(0);
-            opacity: 1;
-        }
-
-        .block-info-label {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 0.8rem;
-            text-align: center;
-            color: white;
-            font-weight: 600;
-            width: 90%;
-            pointer-events: none;
-        }
-
-        /* --- Tower Milestone Markers (like "Climate Zone unlocked") --- */
-        .milestone-marker {
-            position: absolute;
-            left: calc(100% + 10px);
-            top: 0;
-            background: rgba(var(--accent), 0.2);
-            color: var(--accent);
-            border: 1px solid var(--accent);
-            border-radius: 5px;
-            padding: 2px 5px;
-            font-size: 0.7rem;
-            width: max-content;
-        }
-
-        /* Right Side: Interactive Question Panel */
-        #question-panel {
-            flex: 1;
-            padding: 40px;
-            background: var(--text-on-dark);
-            color: var(--text-on-light);
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto; /* Scrollable questions */
-            z-index: 90;
-        }
-
-        /* Game Progress Bar (above question) */
-        #progress-header {
-            margin-bottom: 30px;
-        }
-
-        #progress-bar-container {
-            width: 100%;
-            height: 10px;
-            background-color: #ddd;
-            border-radius: 5px;
-            overflow: hidden;
-            border: 1px solid #ccc;
-        }
-
-        #progress-bar {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            border-radius: 5px;
-            transition: width 0.3s ease;
-        }
-
-        /* --- Question Elements --- */
-        #question-text {
-            font-size: 1.8rem;
-            margin-bottom: 40px;
-            color: var(--text-on-light);
-            line-height: 1.4;
-            font-weight: 700;
-        }
-
-        /* Special icons for question types */
-        .question-icon {
-            margin-right: 15px;
-            vertical-align: middle;
-            color: var(--primary);
-        }
-
-        /* --- Options Grid --- */
-        #options-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 40px;
-        }
-
-        .option-card {
-            background-color: white;
-            border: 2px solid #ccc;
-            padding: 25px;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.2s ease-out;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-        }
-
-        /* Desktop specific option hover effects */
-        .option-card:not(.disabled):hover {
-            border-color: var(--primary);
-            box-shadow: 0 10px 20px rgba(74,144,226,0.15);
-            transform: translateY(-3px);
-        }
-
-        /* The invisible radio button for selection */
-        .option-radio {
-            display: none;
-        }
-
-        /* Visual cue for selection - the dot */
-        .option-select-visual {
-            width: 25px;
-            height: 25px;
-            border-radius: 50%;
-            border: 3px solid #ccc;
-            margin-right: 20px;
-            background-color: white;
-            position: relative;
-            transition: all 0.2s;
-        }
-
-        /* Styling for the dot when selected */
-        .option-radio:checked + .option-card .option-select-visual::after {
-            content: '';
-            position: absolute;
-            top: 5px;
-            left: 5px;
-            width: 15px;
-            height: 15px;
-            border-radius: 50%;
-            background-color: var(--primary);
-        }
-
-        /* Disabled state after submitting */
-        .option-card.disabled {
-            cursor: default;
-            opacity: 0.6;
-        }
-
-        /* --- Feedback Box (Correct/Wrong) --- */
-        #feedback-box {
-            position: fixed;
-            top: 80px;
-            right: 40px;
-            padding: 20px 30px;
-            border-radius: 8px;
-            color: white;
-            z-index: 1000;
-            transform: translateY(-100%);
-            opacity: 0;
-            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-            font-weight: 600;
-        }
-
-        #feedback-box.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
-
-        #feedback-box.correct {
-            background-color: var(--secondary);
-            border: 2px solid #fff;
-        }
-
-        #feedback-box.wrong {
-            background-color: #E53935;
-            border: 2px solid #fff;
-        }
-
-        /* Icons for feedback */
-        .feedback-icon {
-            font-size: 1.5rem;
-            margin-right: 10px;
-            vertical-align: middle;
-        }
-
-        /* --- Next Level Button (always visible, updates context) --- */
-        #game-controls {
-            display: flex;
-            justify-content: flex-end;
-            margin-top: auto;
-            border-top: 2px solid #ccc;
-            padding-top: 20px;
-        }
-
-        .game-btn {
-            padding: 15px 30px;
-            font-size: 1.2rem;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            border: none;
-            transition: all 0.2s;
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-
-        .next-floor-btn {
-            background-color: var(--primary);
-            color: white;
-        }
-
-        .next-floor-btn:not(.disabled):hover {
-            background-color: #357ABD;
-            transform: translateY(-2px);
-        }
-
-        .next-floor-btn.disabled {
-            background-color: #ccc;
-            cursor: default;
-        }
-
-        .next-floor-btn.ready {
-            box-shadow: 0 0 15px rgba(74,144,226,0.6);
-            animation: pulse-border 1s infinite;
-        }
-
-        /* Keyframes for the ready button pulse */
-        @keyframes pulse-border {
-            0% { box-shadow: 0 0 0 0 rgba(74,144,226,0.7); }
-            70% { box-shadow: 0 0 15px 15px rgba(74,144,226,0); }
-            100% { box-shadow: 0 0 0 0 rgba(74,144,226,0); }
-        }
-
-        /* Mobile specific adjustments: Stack the layout */
-        @media (max-width: 768px) {
-            #game-header {
-                flex-wrap: wrap;
-                padding: 5px;
-            }
-
-            #game-logo { height: 25px; margin-bottom: 5px; }
-
-            #split-content { flex-direction: column; }
-
-            #tower-section { flex: 0 0 200px; order: 2; border-right: none; border-top: 2px solid var(--border); overflow: hidden; }
-
-            #tower-canvas { width: 90%; bottom: 10px; }
-
-            #question-panel { flex: 1; order: 1; padding: 20px; min-height: calc(100vh - 200px - 50px); /* Height minus tower & header */ scrollbar-width: none; }
-
-            #question-text { font-size: 1.4rem; margin-bottom: 20px; }
-
-            #options-grid { grid-template-columns: 1fr; gap: 10px; }
-
-            .option-card { padding: 15px; }
-
-            #game-controls { position: relative; margin-top: 20px; border: none; padding-top: 0; display: block; text-align: center; }
-
-            .game-btn { width: 100%; display: block; margin-top: 10px; }
-        }
-
-        /* --- Specific styles for True/False options --- */
-        .option-true-visual {
-            background-color: #C8E6C9; /* Soft green */
-            color: #1B5E20; /* Dark green */
-            font-weight: bold;
-            font-size: 1.2rem;
-        }
-
-        .option-false-visual {
-            background-color: #FFCDD2; /* Soft red */
-            color: #B71C1C; /* Dark red */
-            font-weight: bold;
-            font-size: 1.2rem;
-        }
-
-        /* The invisible radio, again */
-        .option-radio.true-false:checked + .option-card .option-select-visual {
-            background-color: #388E3C;
-            border-color: #388E3C;
-        }
-
-        .option-radio.true-false:not(:checked) + .option-card .option-select-visual {
-            background-color: #D32F2F;
-            border-color: #D32F2F;
-        }
-
-        /* Style the select visual directly for T/F on smaller screens */
-        @media (max-width: 768px) {
-            .option-radio.true-false + .option-card .option-select-visual {
-                border-radius: 5px;
-                border: none;
-                width: auto;
-                height: auto;
-                padding: 10px;
-                margin: 0;
-            }
-        }
-
-        /* Final Scene styles */
-        #game-completed {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0,0,0,0.9);
-            z-index: 999;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            color: var(--text-on-dark);
-            text-align: center;
-        }
-
-        #game-completed.show { display: flex; }
-
-        #completed-logo { height: 100px; margin-bottom: 30px; animation: scale-in 0.5s ease-out; }
-
-        @keyframes scale-in { 0% { transform: scale(0); } 100% { transform: scale(1); } }
-
-        #game-completed h1 { font-size: 3rem; color: var(--accent); margin-bottom: 20px; font-weight: 800; text-shadow: 0 0 10px var(--accent); }
-
-        #final-score { font-size: 2rem; margin-bottom: 40px; }
-
-        .score-correct { color: var(--secondary); font-weight: bold; }
-
-        .game-over-btn { background-color: var(--primary); color: white; padding: 20px 40px; font-size: 1.5rem; }
-
-    </style>
-</head>
-<body>
-
-    <audio id="audioCorrect" preload="auto" src="assets/correct.mp3"></audio>
-    <audio id="audioWrong" preload="auto" src="assets/wrong.mp3"></audio>
-    <audio id="audioFinal" preload="auto" src="assets/freesound_community-claps-44774.mp3"></audio>
-
-    <link rel="preload" as="image" href="assets/innovine-logo.png">
-
-    <div id="game-interface">
-
-        <header id="game-header">
-            <img src="assets/innovine-logo.png" alt="Innovine Logo" id="game-logo">
-            <div id="tower-progress-header">
-                Tower Height: <span id="current-floor-span">Ground Level</span>
-            </div>
-            <button id="game-menu-btn" onclick="toggleMenu()">Pause/Menu</button>
-        </header>
-
-        <main id="split-content">
-
-            <section id="tower-section">
-                <div id="tower-canvas">
-                    <div class="tower-base"></div>
-                </div>
-            </section>
-
-            <section id="question-panel">
-                <div id="progress-header">
-                    <div id="progress-bar-container">
-                        <div id="progress-bar"></div>
-                    </div>
-                </div>
-
-                <div id="question-container">
-                    <h1 id="question-text">
-                        <span id="question-icon-span"></span>
-                        <span id="question-title-span"></span>
-                    </h1>
-                    <div id="options-grid">
-                        </div>
-                </div>
-
-                <div id="feedback-box"></div>
-
-                <footer id="game-controls">
-                    <button class="game-btn next-floor-btn disabled" id="next-level-btn" onclick="submitAnswer()">Submit</button>
-                </footer>
-            </section>
-
-        </main>
-    </div>
-
-    <div id="game-completed">
-        <img src="assets/innovine-logo.png" alt="Innovine Logo" id="completed-logo">
-        <h1>Tower Building Master! 🏆</h1>
-        <p id="final-score">Your final score: <span class="score-correct"></span> / 20</p>
-        <button class="game-btn game-over-btn" onclick="location.reload()">Play Again</button>
-    </div>
-
-    <script>
-        // Data Structure for the Entire Chapter's Questions
-        const chapterQuestions = [
-            // --- Fill in the Blanks (Level 1-5) ---
-            { id: 1, floorName: "Rotation 101", type: "blank", icon: "🌐", question: "The Earth rotates from the _______ to the _______ direction.", options: ["East", "West", "North", "South"], correct: [1, 0] },
-            { id: 2, floorName: "The Path", type: "blank", icon: "☀️", question: "The path the Earth follows around the Sun is called an _______. ", options: ["Orbit", "Axis", "Satellite", "Tide"], correct: [0] },
-            { id: 3, floorName: "Equinox (March)", type: "blank", icon: "🌸", question: "In _______ the Northern Hemisphere experiences spring, and the Southern Hemisphere experiences autumn.", options: ["June", "December", "March", "September"], correct: [2] },
-            { id: 4, floorName: "Sahara Zone", type: "blank", icon: "🏜️", question: "The Sahara Desert is an example of a _______ climate.", options: ["Tropical", "Dry", "Polar", "Temperate"], correct: [1] },
-            { id: 5, floorName: "Brasilia Tower", type: "blank", icon: "🏢", question: "The capital of Brazil is ______.", options: ["Rio", "Sao Paulo", "Brasilia", "Buenos Aires"], correct: [2] },
-
-            // --- True or False (Level 6-10) ---
-            { id: 6, floorName: "Leap Year Theory", type: "tf", icon: "📅", question: "The Earth takes 365 days to complete one revolution around the Sun.", options: ["True", "False"], correct: "True" },
-            { id: 7, floorName: "Kilt Fashion", type: "tf", icon: "🏴󠁧󠁢󠁳󠁣󠁴󠁿", question: "Kilts are traditional clothing often worn in India.", options: ["True", "False"], correct: "False" },
-            { id: 8, floorName: "Festival Lights", type: "tf", icon: "🪔", question: "Diwali is a festival celebrated with lights and fireworks in India.", options: ["True", "False"], correct: "True" },
-            { id: 9, floorName: "Golf Stream Mystery", type: "tf", icon: "🌊", question: "The Gulf Stream affects the weather in Europe by carrying warm water from the Gulf of Mexico.", options: ["True", "False"], correct: "True" },
-            { id: 10, floorName: "Amazon Myth", type: "tf", icon: "🌴", question: "The Amazon Rainforest has a polar climate.", options: ["True", "False"], correct: "False" },
-
-            // --- MCQs (Level 11-15) ---
-            { id: 11, floorName: "Rotation Force", type: "mcq", icon: "🔄", question: "What does rotation of the Earth cause?", options: ["Seasons", "Day and Night", "Climate", "Tides"], correct: 1 },
-            { id: 12, floorName: "French Capital", type: "mcq", icon: "🗼", question: "Which city is known for the Eiffel Tower?", options: ["London", "Rome", "Paris", "Berlin"], correct: 2 },
-            { id: 13, floorName: "Light Festival", type: "mcq", icon: "🪔", question: "Which festival is known as the festival of lights in India?", options: ["Holi", "Eid-ul-Fitr", "Diwali", "Christmas"], correct: 2 },
-            { id: 14, floorName: "Rainforest Zone", type: "mcq", icon: "🌳", question: "What type of climate does the Amazon Rainforest have?", options: ["Dry", "Temperate", "Polar", "Tropical"], correct: 3 },
-            { id: 15, floorName: "Japan Tower", type: "mcq", icon: "🇯🇵", question: "Which country’s capital is Tokyo?", options: ["China", "Japan", "South Korea", "Thailand"], correct: 1 },
-
-            // --- One Words (Level 16-20) ---
-            { id: 16, floorName: "D.C. Capitol", type: "mcq", icon: "🇺🇸", question: "Which of these is the capital of the United States?", options: ["New York City", "Washington, D.C.", "Los Angeles", "Chicago"], correct: 1 },
-            { id: 17, floorName: "Spin Line", type: "mcq", icon: "📍", question: "What do we call the Earth’s imaginary line it spins around?", options: ["Orbit", "Axis", "Equator", "Latitude"], correct: 1 },
-            { id: 18, floorName: "Chinese New Year", type: "mcq", icon: "🐉", question: "Major festival celebrated with dragon dances in China:", options: ["Diwali", "Holi", "Chinese New Year", "Lantern Festival"], correct: 2 },
-            { id: 19, floorName: "Desert Zone", type: "blank", icon: "🏜️", question: "Climate with very little rain, found in deserts: _______", options: ["Dry", "Wet", "Temperate", "Polar"], correct: [0] },
-            { id: 20, floorName: "Saree Collection", type: "blank", icon: "👗", question: "Traditional Indian clothing often worn by women: _______", options: ["Turban", "Dhoti", "Saree", "Kilt"], correct: [2] }
-        ];
-
-        // Global Game States
-        let currentQuestionIndex = 0;
-        let score = 0;
-        let selectedOptionIndices = [];
-        let submitted = false;
-
-        // Visual states for tower building
-        let blockDropHeight = -200; // Offset in px to drop the block from
-        let currentBlock = null; // Reference to the block being dropped
-        let towerCanvasBottom = 20; // current pan of the tower, base starts at 20px up
-
-        // --- Core Functions ---
-
-        function startGame() {
-            loadQuestion(0);
-        }
-
-        // 1. Load Question Data into UI
-        function loadQuestion(index) {
-            submitted = false;
-            selectedOptionIndices = []; // Reset for new question
-            const qData = chapterQuestions[index];
-
-            // Reset UI states
-            document.getElementById('next-level-btn').innerText = "Submit";
-            document.getElementById('next-level-btn').classList.remove('ready', 'next-floor-btn');
-            document.getElementById('next-level-btn').classList.add('disabled');
-            document.getElementById('feedback-box').classList.remove('show', 'correct', 'wrong');
-
-            // Header info
-            document.getElementById('tower-progress-header').innerHTML = (index === 0) ? `Next Floor: <span id="current-floor-span">${qData.floorName}</span>` : `Tower Height: <span id="current-floor-span">Floor ${index}</span>`;
-
-            // Progress Bar
-            const totalQs = chapterQuestions.length;
-            document.getElementById('progress-bar').style.width = ((index) / totalQs * 100) + '%';
-
-            // Question Text & Icon
-            document.getElementById('question-icon-span').innerText = qData.icon;
-            document.getElementById('question-title-span').innerText = qData.question;
-
-            // Options
-            const optionsGrid = document.getElementById('options-grid');
-            optionsGrid.innerHTML = ''; // Clear old options
-
-            // Special handling for True/False visuals
-            if (qData.type === 'tf') {
-                qData.options.forEach((opt, idx) => {
-                    const trueFalseClass = (idx === 0) ? 'true-false' : 'true-false';
-                    const specialVisual = (idx === 0) ? '<div class="option-select-visual option-true-visual">TRUE</div>' : '<div class="option-select-visual option-false-visual">FALSEI have upgraded your "Growth Tower" from a simple quiz into a more immersive, game-like experience. 
-
-Here is the re-coded solution, focusing on complete responsive game visuals and specific tower-building mechanics where **one new block adds at a time only when the answer is correct.**
-
-This single file includes the updated HTML, responsive CSS, and advanced JavaScript to connect the game mechanics to your specified assets path (`/grade5/sst/ch2/assets/`).
-
-### Re-Code: "Growth Tower - Our World Edition"
-
-Save the text below as an `.html` file (e.g., `growth_tower_game_final.html`) and run it in a browser that supports audio.
-
-```html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Growth Tower: Our World Edition</title>
-    <style>
-        /* CSS resets and game-like base styles */
-        :root {
-            --primary: #4A90E2; /* Bright game blue */
-            --primary-hover: #357ABD;
-            --success: #67B26F; /* Clear positive green */
-            --danger: #E53935; /* Clear negative red */
-            --accent: #FFD700; /* Gold milestone */
-            --background-dark: #111; /* Canvas back */
-            --background-light: #fff; /* Question back */
-            --text-light: #eee;
-            --text-dark: #333;
-            --border: #444;
-            --tower-base-color: #555;
-            --default-font: 'Poppins', sans-serif;
-        }
-
-        /* --- Global Game Setup --- */
-        @import url('[https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Rowdies:wght@400;700&display=swap](https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Rowdies:wght@400;700&display=swap)');
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;800;900&family=Rajdhani:wght@500;700&display=swap');
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: var(--default-font);
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body, html {
             width: 100%;
             height: 100%;
-            overflow: hidden; /* Prevent page scrolling on mobile */
-            background-color: var(--background-dark);
+            overflow: hidden;
+            background-color: var(--space-bg);
             color: var(--text-light);
+            font-family: 'Rajdhani', sans-serif;
         }
 
-        .hidden { display: none !important; }
-
-        /* A distinct game font for titles, scores, and milestones */
-        .game-title-font {
-            font-family: 'Rowdies', cursive;
+        /* Background Starfield Canvas */
+        #space-canvas {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1;
         }
 
-        /* --- Core Layout (Global, Desktop First) --- */
-        #game-interface {
+        #game-viewport {
+            position: relative;
+            z-index: 2;
             display: flex;
-            flex-direction: column;
             width: 100%;
             height: 100%;
         }
 
-        /* --- 1. Top Header --- */
-        header#game-header {
-            height: 70px;
-            background: linear-gradient(180deg, #222, #111);
+        /* --- LEFT SIDE: THE COSMIC SHIP CONTROL DECK & PLANET --- */
+        #display-deck {
+            flex: 1;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-right: 2px solid var(--glass-border);
+            background: radial-gradient(circle at 30% 50%, rgba(0, 243, 255, 0.1) 0%, transparent 60%);
+        }
+
+        #logo-container {
+            position: absolute;
+            top: 20px;
+            left: 25px;
+        }
+
+        .innovine-logo {
+            height: 45px;
+            filter: drop-shadow(0 0 8px rgba(0, 243, 255, 0.4));
+        }
+
+        /* CSS Rendered Holographic Planet */
+        #holo-planet-container {
+            position: relative;
+            width: 280px;
+            height: 280px;
+            margin-bottom: 20px;
+        }
+
+        .holo-planet {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: url('https://images.unsplash.com/photo-1614730321146-b6fa6a46bcb4?q=80&w=500') repeat-x;
+            background-size: cover;
+            box-shadow: 
+                inset -30px -30px 50px #000,
+                0 0 30px rgba(0, 243, 255, 0.4),
+                0 0 80px rgba(0, 243, 255, 0.2);
+            animation: spinPlanet 25s linear infinite;
+            transition: all 0.8s ease-in-out;
+        }
+
+        @keyframes spinPlanet {
+            0% { background-position: 0 0; }
+            100% { background-position: 500px 0; }
+        }
+
+        /* Satellite Reticle overlay */
+        .orbit-reticle {
+            position: absolute;
+            top: -20px; left: -20px; right: -20px; bottom: -20px;
+            border: 1px dashed rgba(0, 243, 255, 0.3);
+            border-radius: 50%;
+            animation: spinReticle 15s linear infinite;
+        }
+
+        @keyframes spinReticle {
+            100% { transform: rotate(360deg); }
+        }
+
+        #telemetry-display {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            color: var(--neon-blue);
+            letter-spacing: 2px;
+            text-align: center;
+            background: rgba(0,0,0,0.4);
+            padding: 8px 20px;
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+        }
+
+        /* --- RIGHT SIDE: THE HOLOGRAPHIC MISSION DATA PANEL --- */
+        #mission-panel {
+            flex: 1.2;
+            background: var(--panel-bg);
+            backdrop-filter: blur(15px);
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .mission-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 20px;
-            border-bottom: 2px solid var(--border);
-            z-index: 100;
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 15px;
         }
 
-        #innovine-logo {
-            height: 45px;
-            pointer-events: none; /* Logo shouldn't interfere with interaction */
-        }
-
-        #tower-progress-info {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-            color: var(--text-light);
+        .mission-title-text {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 800;
             font-size: 1.1rem;
-            font-weight: 600;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(255,255,255,0.2);
         }
 
-        #current-floor-display {
-            color: var(--accent);
-            font-weight: 700;
+        .score-box {
+            font-family: 'Orbitron', sans-serif;
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid gold;
+            color: gold;
+            padding: 5px 15px;
+            border-radius: 4px;
+            font-weight: 900;
         }
 
-        /* --- 2. Main Gameplay Split (Tower Left / Interaction Right) --- */
-        #split-content {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-        }
-
-        /* A. The Dynamic Tower Building Canvas (Visual Focus) */
-        #tower-section {
-            flex: 1.6; /* More visual weight on the tower */
-            position: relative;
-            background: #1a1a1a; /* Distinct from header */
-            overflow: hidden;
-            border-right: 2px solid var(--border);
-        }
-
-        /* The viewport area that anchors the bottom-up building */
-        #tower-building-canvas {
-            width: 100%;
-            height: calc(100% - 40px); /* Leave room at top/bottom */
-            position: absolute;
-            bottom: 20px;
-            left: 0;
-            display: flex;
-            flex-direction: column-reverse; /* Force building from bottom up */
-            align-items: center;
-            transition: bottom 0.5s ease-out; /* Create "pan up" effect when building */
-        }
-
-        /* The static Ground Level where construction begins */
-        #tower-base {
-            width: 260px;
-            height: 35px;
-            background-color: var(--tower-base-color);
-            border: 3px solid #333;
-            border-radius: 10px;
-            margin-top: -8px; /* Offset for block connection visual */
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-            z-index: 50;
-        }
-
-        /* B. The Individual dynamic floor blocks */
-        .tower-block {
-            width: 210px;
-            height: 55px;
-            position: relative;
-            background-color: #444; /* Baseline, set dynamically via JS */
-            border: 2px solid #222;
+        .case-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            border-left: 4px solid var(--neon-blue);
+            padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 5px 10px rgba(0,0,0,0.4);
-            
-            /* Start state for the animation - high and invisible */
-            transform: translateY(-250px);
-            opacity: 0;
-            
-            /* Bounce drop animation when added */
-            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            z-index: 10;
+            margin-bottom: 25px;
+            font-size: 1.05rem;
+            line-height: 1.6;
+            color: #cbd5e1;
         }
 
-        /* Final state of animation (added from JS) */
-        .tower-block.added {
-            transform: translateY(0);
-            opacity: 1;
-        }
-
-        /* Information and graphics on each block */
-        .block-info {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            color: white;
+        .prompt-text {
+            font-size: 1.4rem;
             font-weight: 700;
-            font-size: 0.9rem;
-            width: 90%;
-            pointer-events: none;
+            margin-bottom: 25px;
+            color: #fff;
         }
 
-        /* Block graphics based on milestone (e.g., world map on correct answers) */
-        .added-block-icon {
-            position: absolute;
-            bottom: 5px;
-            right: 8px;
-            font-size: 1.2rem;
-            opacity: 0.8;
-        }
-
-        /* C. The Interactive Question/Progress Panel (Right Side) */
-        #question-panel {
-            flex: 1;
-            padding: 30px;
-            background-color: var(--background-light);
-            color: var(--text-dark);
+        /* INTERACTIVES: RADIO CARDS */
+        .grid-layout {
             display: flex;
             flex-direction: column;
-            overflow-y: auto; /* Scrollable questions on desktop */
-            position: relative;
+            gap: 15px;
+            margin-bottom: 30px;
         }
 
-        /* Panel Header: Score, Progress Bar */
-        #progress-header {
-            margin-bottom: 30px;
+        .space-option-card {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 18px 25px;
+            cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 20px;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Dynamic Score tracker */
-        #current-score-text {
-            font-size: 1.4rem;
-            color: var(--text-dark);
-            font-weight: 700;
+        .space-option-card:hover {
+            background: rgba(0, 243, 255, 0.05);
+            border-color: var(--neon-blue);
+            transform: translateX(5px);
         }
 
-        /* Visual Progress bar container */
-        #game-progress-bar-container {
-            flex: 1;
-            height: 12px;
-            background-color: #eee;
-            border-radius: 6px;
-            border: 1px solid #ddd;
-            overflow: hidden;
+        .space-option-card.active {
+            background: rgba(0, 243, 255, 0.12);
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
         }
 
-        #game-progress-bar-fill {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, var(--primary), var(--success));
-            border-radius: 6px;
-            transition: width 0.3s ease;
+        .node-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.4);
+            display: inline-block;
+            transition: all 0.2s;
         }
 
-        /* --- Question Display Elements --- */
-        #current-question-container {
-            margin-bottom: 40px;
+        .space-option-card.active .node-dot {
+            border-color: var(--neon-blue);
+            background: var(--neon-blue);
+            box-shadow: 0 0 8px var(--neon-blue);
         }
 
-        #question-title {
-            font-size: 1.9rem;
-            margin-bottom: 35px;
-            color: var(--text-dark);
-            line-height: 1.4;
-            font-weight: 700;
-            position: relative;
-            padding-left: 10px;
+        /* INTERACTIVES: MATCH DATA LISTS */
+        .match-workspace {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin-bottom: 30px;
         }
 
-        #question-title::before {
-            content: '';
-            position: absolute;
-            left: 0; top: 0; bottom: 0;
-            width: 4px;
-            background-color: var(--primary);
-            border-radius: 2px;
-        }
-
-        /* Special icons for question types (e.g., globe icon) */
-        #question-icon {
-            margin-right: 15px;
-            vertical-align: middle;
-            color: var(--primary);
-        }
-
-        /* The grid holding answer cards */
-        #options-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        .match-node-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255,255,255,0.01);
+            border: 1px solid var(--glass-border);
+            padding: 15px 20px;
+            border-radius: 8px;
             gap: 20px;
         }
 
-        /* Interactive Card for options */
-        .option-card {
-            background-color: white;
-            border: 2px solid #ccc;
-            padding: 25px;
-            border-radius: 12px;
+        .match-left-item {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #94a3b8;
+        }
+
+        .match-dropdown {
+            background: #111424;
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            outline: none;
             cursor: pointer;
-            position: relative;
-            transition: all 0.2s ease-out;
-            display: flex;
-            align-items: center;
-            min-height: 80px;
+            min-width: 180px;
         }
 
-        /* Desktop interactions: Hover and Click */
-        .option-card:not(.disabled):hover {
-            border-color: var(--primary);
-            box-shadow: 0 10px 20px rgba(74,144,226,0.15);
-            transform: translateY(-4px);
+        .match-dropdown:focus {
+            border-color: var(--neon-blue);
         }
 
-        /* Active/Checked state (for radio selection visual) */
-        .option-radio {
-            display: none; /* Hide standard radio input */
-        }
-
-        /* Visual dot for selection */
-        .option-select-visual {
-            width: 25px; height: 25px;
-            border-radius: 50%;
-            border: 3px solid #ccc;
-            margin-right: 20px;
-            position: relative;
-            background-color: white;
-            transition: all 0.2s;
-        }
-
-        /* Dot fills when the invisible radio is checked */
-        .option-radio:checked + .option-card .option-select-visual::after {
-            content: '';
-            position: absolute;
-            top: 4px; left: 4px;
-            width: 17px; height: 17px;
-            border-radius: 50%;
-            background-color: var(--primary);
-        }
-
-        /* Option visual formatting for True/False (e.g., green True visual) */
-        .true-false-visual {
-            font-weight: bold;
-            font-size: 1.2rem;
-            border: none;
-            border-radius: 8px;
-            width: auto; height: auto;
-            padding: 5px 15px;
-            color: #1B5E20; /* Dark green for true text */
-        }
-
-        .true-false-visual.false-visual {
-            color: #B71C1C; /* Dark red for false text */
-        }
-
-        /* True/False selection visual changes (no dot) */
-        .option-radio.true-false:checked + .option-card .true-false-visual {
-            background-color: #388E3C; /* Bright green background on correct */
-            color: white;
-        }
-
-        .option-radio.true-false:checked + .option-card .true-false-visual.false-visual {
-            background-color: #D32F2F; /* Bright red background on wrong */
-            color: white;
-        }
-
-        /* --- Submitting and Progressing --- */
-        #controls-bar {
+        /* CONTROLLER INITIATE ACTUATOR */
+        .deck-footer {
             margin-top: auto;
-            padding-top: 25px;
-            border-top: 2px solid #ccc;
-            display: flex;
-            justify-content: flex-end;
-            position: sticky; /* Keep visible when scrolling on mobile */
-            bottom: 0;
-            background-color: var(--background-light);
-            z-index: 80;
+            padding-top: 20px;
         }
 
-        .game-btn {
-            padding: 15px 30px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            border: none;
-            transition: all 0.2s;
+        .engage-btn {
+            width: 100%;
+            background: transparent;
+            border: 2px solid var(--neon-blue);
+            color: var(--neon-blue);
+            font-family: 'Orbitron', sans-serif;
             font-size: 1.2rem;
-            position: relative;
-        }
-
-        /* The Submit/Proceed Action Button */
-        #submit-btn {
-            background-color: var(--primary);
-            color: white;
-        }
-
-        #submit-btn:not(.disabled):hover {
-            background-color: var(--primary-hover);
-        }
-
-        #submit-btn.disabled {
-            background-color: #ccc;
-            cursor: default;
-            opacity: 0.7;
-        }
-
-        /* When ready to proceed after feedback */
-        #submit-btn.proceed-btn {
-            background-color: var(--tower-base-color);
-            box-shadow: 0 0 15px rgba(0,0,0,0.3);
-            animation: pulse 1s infinite;
-        }
-
-        /* Feedback Toast Box (Visible only on feedback) */
-        #feedback-toast {
-            position: fixed;
-            top: 90px;
-            right: 40px;
-            padding: 18px 30px;
+            font-weight: 900;
+            padding: 16px;
             border-radius: 8px;
-            color: white;
-            z-index: 1000;
-            transform: translateY(-100%);
-            opacity: 0;
-            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-            font-weight: 600;
+            cursor: pointer;
+            letter-spacing: 3px;
+            transition: all 0.3s;
+            text-shadow: 0 0 5px var(--neon-blue);
+            box-shadow: inset 0 0 10px rgba(0, 243, 255, 0.1);
         }
 
-        #feedback-toast.show {
-            transform: translateY(0);
-            opacity: 1;
+        .engage-btn:hover:not(.locked) {
+            background: var(--neon-blue);
+            color: #000;
+            box-shadow: 0 0 25px rgba(0, 243, 255, 0.5);
+            text-shadow: none;
         }
 
-        #feedback-toast.correct {
-            background-color: var(--success);
-            border: 2px solid #fff;
+        .engage-btn.locked {
+            border-color: rgba(255,255,255,0.15);
+            color: rgba(255,255,255,0.2);
+            text-shadow: none;
+            box-shadow: none;
+            cursor: not-allowed;
         }
 
-        #feedback-toast.wrong {
-            background-color: var(--danger);
-            border: 2px solid #fff;
+        /* --- TOASTERS & NOTIFIERS --- */
+        #hud-toast {
+            position: fixed;
+            bottom: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 40px;
+            border-radius: 4px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold;
+            letter-spacing: 1px;
+            transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 5000;
+        }
+        #hud-toast.reveal { bottom: 40px; }
+        #hud-toast.pass { background: rgba(57, 255, 20, 0.2); border: 2px solid var(--neon-green); color: var(--neon-green); }
+        #hud-toast.fail { background: rgba(255, 0, 127, 0.2); border: 2px solid var(--neon-pink); color: var(--neon-pink); }
+
+        /* --- DEVICE SCALING RESPONSIVENESS --- */
+        @media (max-width: 880px) {
+            #game-viewport { flex-direction: column; }
+            #display-deck { flex: 0 0 250px; border-right: none; border-bottom: 2px solid var(--glass-border); }
+            #holo-planet-container { width: 140px; height: 140px; margin-bottom: 5px; margin-top: 25px;}
+            #telemetry-display { font-size: 0.75rem; padding: 4px 12px; }
+            #mission-panel { flex: 1; padding: 20px; }
+            .prompt-text { font-size: 1.15rem; margin-bottom: 15px; }
+            .case-card { padding: 12px; font-size: 0.95rem; margin-bottom: 15px; }
+            .space-option-card { padding: 12px; }
         }
 
-        /* Feedback Icons */
-        .feedback-icon {
-            font-size: 1.4rem;
-            margin-right: 12px;
-            vertical-align: middle;
-        }
-
-        /* --- 3. RESPONSIVE MEDIA QUERIES (Mobile and Tablets) --- */
-
-        /* Stack Layout for Vertical Screens */
-        @media (max-width: 768px) {
-            #split-content {
-                flex-direction: column; /* Stack Tower above Question on mobile */
-            }
-
-            /* Stacked Tower Panel */
-            #tower-section {
-                flex: 0 0 200px; /* Fixed height for the building canvas on mobile */
-                order: 2; /* Tower below Question */
-                border-right: none;
-                border-top: 2px solid var(--border);
-                overflow: hidden;
-            }
-
-            #tower-building-canvas {
-                bottom: 10px; /* Anchored tighter */
-                width: 90%;
-            }
-
-            .tower-block {
-                width: 170px;
-                height: 40px;
-                font-size: 0.8rem;
-            }
-
-            /* Stacked Interaction Panel */
-            #question-panel {
-                flex: 1; /* Question/Options take remaining space */
-                order: 1; /* Question above Tower */
-                padding: 15px;
-                min-height: calc(100vh - 200px - 70px); /* Fill screen minus tower and header */
-                overflow-y: scroll;
-            }
-
-            #question-title {
-                font-size: 1.5rem;
-                margin-bottom: 25px;
-            }
-
-            #options-grid {
-                grid-template-columns: 1fr; /* Single column options on mobile */
-                gap: 10px;
-            }
-
-            .option-card {
-                padding: 15px;
-                min-height: auto;
-            }
-
-            #innovine-logo { height: 30px; }
-            #tower-progress-info { font-size: 0.9rem; }
-
-            /* Controls bar at bottom on mobile */
-            #controls-bar {
-                margin-top: 20px;
-                display: block;
-                text-align: center;
-                border: none;
-                padding-top: 10px;
-                padding-bottom: 0px;
-            }
-            .game-btn { width: 100%; display: block; }
-        }
-
-        /* Animations keyframes */
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(74,144,226,0.7); }
-            70% { box-shadow: 0 0 15px 15px rgba(74,144,226,0); }
-            100% { box-shadow: 0 0 0 0 rgba(74,144,226,0); }
-        }
-
-        /* Final Scene styles */
-        #final-game-completed-screen {
-            display: none;
+        /* --- END OF SCAN DEBRIEFING --- */
+        #debriefing-screen {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0,0,0,0.95);
+            background: #04050e;
             z-index: 9999;
+            display: none;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             text-align: center;
-            color: var(--text-light);
             padding: 20px;
         }
-
-        #final-game-completed-screen.show { display: flex; }
-
-        #completed-innovine-logo { height: 110px; margin-bottom: 30px; }
-
-        #final-game-completed-screen h1 {
-            font-size: 3.5rem;
-            color: var(--accent);
-            text-shadow: 0 0 10px var(--accent);
-            margin-bottom: 20px;
-        }
-
-        #final-score-callout {
-            font-size: 2.5rem;
-            margin-bottom: 50px;
-        }
-
-        #final-score-correct { color: var(--success); font-weight: bold; }
-
+        #debriefing-screen.active { display: flex; }
+        .debrief-title { font-family: 'Orbitron', sans-serif; font-size: 2.5rem; color: var(--neon-blue); margin-bottom: 20px; }
+        .debrief-metrics { font-size: 1.4rem; margin-bottom: 40px; color: #cbd5e1; }
     </style>
 </head>
 <body>
 
-    <audio id="audioCorrect" preload="auto" src="assets/correct.mp3"></audio>
-    <audio id="audioWrong" preload="auto" src="assets/wrong.mp3"></audio>
-    <audio id="audioFinalCompleted" preload="auto" src="assets/freesound_community-claps-44774.mp3"></audio>
+    <canvas id="space-canvas"></canvas>
 
-    <div id="game-interface">
+    <audio id="audioSuccess" src="assets/correct.mp3" preload="auto"></audio>
+    <audio id="audioFailure" src="assets/wrong.mp3" preload="auto"></audio>
+    <audio id="audioComplete" src="assets/freesound_community-claps-44774.mp3" preload="auto"></audio>
 
-        <header id="game-header">
-            <img src="assets/innovine-logo.png" alt="Innovine Logo" id="innovine-logo">
-            <div id="tower-progress-info">
-                Height: <span id="current-floor-display" class="game-title-font">Ground Level</span>
+    <div id="game-viewport">
+        <section id="display-deck">
+            <div id="logo-container">
+                <img src="assets/innovine-logo.png" alt="Innovine" class="innovine-logo">
             </div>
-            <button class="game-btn game-title-font" id="menu-btn">Menu</button>
-        </header>
+            
+            <div id="holo-planet-container">
+                <div class="orbit-reticle"></div>
+                <div id="main-planet" class="holo-planet"></div>
+            </div>
 
-        <main id="split-content">
+            <div id="telemetry-display">ORBITAL SECTOR SCANNER ACTIVE</div>
+        </section>
 
-            <section id="tower-section">
-                <div id="tower-building-canvas">
-                    <div id="tower-base"></div>
-                </div>
-            </section>
+        <section id="mission-panel">
+            <div class="mission-header">
+                <div class="mission-title-text" id="mission-index-string">COSMIC GRID SCAN: 1 / 5</div>
+                <div class="score-box" id="score-readout">DATA CORES: 0</div>
+            </div>
 
-            <section id="question-panel">
-                
-                <div id="progress-header">
-                    <div id="game-progress-bar-container">
-                        <div id="game-progress-bar-fill"></div>
-                    </div>
-                    <div id="current-score-text" class="game-title-font">
-                        Score: <span id="score-points">0</span> / <span id="max-points">20</span>
-                    </div>
-                </div>
+            <div class="case-card" id="case-viewport"></div>
+            <h2 class="prompt-text" id="prompt-viewport"></h2>
 
-                <div id="current-question-container">
-                    <h1 id="question-title">
-                        <span id="question-icon"></span>
-                        <span id="question-text-title"></span>
-                    </h1>
-                    <div id="options-grid">
-                        </div>
-                </div>
+            <div id="interactive-workspace"></div>
 
-                <footer id="controls-bar">
-                    <button class="game-btn disabled" id="submit-btn" onclick="handleGameAction()">Submit</button>
-                </footer>
-
-                <div id="feedback-toast">
-                    </div>
-            </section>
-
-        </main>
+            <div class="deck-footer">
+                <button id="engage-btn" class="engage-btn locked" onclick="evaluateCurrentScan()">ENGAGE SECTOR CAPTURE</button>
+            </div>
+        </section>
     </div>
 
-    <div id="final-game-completed-screen">
-        <img src="assets/innovine-logo.png" alt="Innovine Logo" id="completed-innovine-logo">
-        <h1 class="game-title-font">Tower Complete! 🏆🌍</h1>
-        <p id="final-score-callout" class="game-title-font">Your final score: <span id="final-score-correct"></span> / 20</p>
-        <button class="game-btn" onclick="location.reload()">Build Another Tower?</button>
+    <div id="debriefing-screen">
+        <img src="assets/innovine-logo.png" alt="Innovine" class="innovine-logo" style="height:70px; margin-bottom:30px;">
+        <h1 class="debrief-title">MISSION DEBRIEF COMPLETE</h1>
+        <p class="debrief-metrics" id="debrief-metrics-str"></p>
+        <button class="engage-btn" style="width:auto; padding:15px 50px;" onclick="window.location.reload()">RE-LAUNCH SATELLITE</button>
     </div>
+
+    <div id="hud-toast"></div>
 
     <script>
-        // Data Structure for the Entire Chapter's Questions
-        const chapterQuestions = [
-            // --- Level 1-5: Fill in the Blanks ---
-            { id: 1, floorName: "Direction Block", type: "blank", icon: "🌐", question: "The Earth rotates from the _______ to the _______ direction.", options: ["East", "West", "North", "South"], correct: [1, 0] },
-            { id: 2, floorName: "Orbit Block", type: "blank", icon: "☀️", question: "The path the Earth follows around the Sun is called an _______. ", options: ["Orbit", "Axis", "Satellite", "Tide"], correct: [0] },
-            { id: 3, floorName: "Equinox (March)", type: "blank", icon: "🌸", question: "In _______ the Northern Hemisphere experiences spring, and the Southern Hemisphere experiences autumn.", options: ["June", "December", "March", "September"], correct: [2] },
-            { id: 4, floorName: "Sahara Zone", type: "blank", icon: "🏜️", question: "The Sahara Desert is an example of a _______ climate.", options: ["Tropical", "Dry", "Polar", "Temperate"], correct: [1] },
-            { id: 5, floorName: "Brazil Capitol", type: "blank", icon: "🏢", question: "The capital of Brazil is ______.", options: ["Rio", "Sao Paulo", "Brasilia", "Buenos Aires"], correct: [2] },
-
-            // --- Level 6-10: True or False ---
-            { id: 6, floorName: "Rev. Truths", type: "tf", icon: "📅", question: "The Earth takes 365 days to complete one revolution around the Sun.", options: ["True", "False"], correct: "True" },
-            { id: 7, floorName: "Scottish Myths", type: "tf", icon: "🏴󠁧󠁢󠁳󠁣󠁴󠁿", question: "Kilts are traditional clothing often worn in India.", options: ["True", "False"], correct: "False" },
-            { id: 8, floorName: "Light Festival", type: "tf", icon: "🪔", question: "Diwali is a festival celebrated with lights and fireworks in India.", options: ["True", "False"], correct: "True" },
-            { id: 9, floorName: "Golf Stream Mystery", type: "tf", icon: "🌊", question: "The Gulf Stream affects the weather in Europe by carrying warm water from the Gulf of Mexico.", options: ["True", "False"], correct: "True" },
-            { id: 10, floorName: "Amazon Theory", type: "tf", icon: "🌴", question: "The Amazon Rainforest has a polar climate.", options: ["True", "False"], correct: "False" },
-
-            // --- Level 11-15: MCQs ---
-            { id: 11, floorName: "Day-Night Core", type: "mcq", icon: "🔄", question: "What does rotation of the Earth cause?", options: ["Seasons", "Day and Night", "Climate", "Tides"], correct: 1 },
-            { id: 12, floorName: "Eiffel Landmark", type: "mcq", icon: "🗼", question: "Which city is known for the Eiffel Tower?", options: ["London", "Rome", "Paris", "Berlin"], correct: 2 },
-            { id: 13, floorName: "Diwali Lights", type: "mcq", icon: "🪔", question: "Which festival is known as the festival of lights in India?", options: ["Holi", "Eid-ul-Fitr", "Diwali", "Christmas"], correct: 2 },
-            { id: 14, floorName: "Tropical Amazon", type: "mcq", icon: "🌳", question: "What type of climate does the Amazon Rainforest have?", options: ["Dry", "Temperate", "Polar", "Tropical"], correct: 3 },
-            { id: 15, floorName: "Tokyo Tower", type: "mcq", icon: "🇯🇵", question: "Which country’s capital is Tokyo?", options: ["China", "Japan", "South Korea", "Thailand"], correct: 1 },
-
-            // --- Level 16-20: One Words / Special ---
-            { id: 16, floorName: "D.C. Block", type: "mcq", icon: "🇺🇸", question: "Which of these is the capital of the United States?", options: ["New York City", "Washington, D.C.", "Los Angeles", "Chicago"], correct: 1 },
-            { id: 17, floorName: "Axis Definition", type: "mcq", icon: "📍", question: "What do we call the Earth’s imaginary line it spins around?", options: ["Orbit", "Axis", "Equator", "Latitude"], correct: 1 },
-            { id: 18, floorName: "Chinese New Year", type: "mcq", icon: "🐉", question: "Major festival celebrated with dragon dances in China:", options: ["Diwali", "Holi", "Chinese New Year", "Lantern Festival"], correct: 2 },
-            { id: 19, floorName: "Dry Zone", type: "blank", icon: "🏜️", question: "Climate with very little rain, found in deserts: _______", options: ["Dry", "Wet", "Temperate", "Polar"], correct: [0] },
-            { id: 20, floorName: "Saree Collection", type: "blank", icon: "👗", question: "Traditional Indian clothing often worn by women: _______", options: ["Turban", "Dhoti", "Saree", "Kilt"], correct: [2] }
+        // Custom interactive configuration metrics
+        const dataset = [
+            {
+                type: "cbq",
+                case: "An interstellar spaceship matches the Earth's spin speed to hover in a stationary position above a launchpad. Sensors show the ground underneath moves steadily from left to right when looking northward.",
+                prompt: "Determine the exact planetary rotation direction from space:",
+                options: ["West to East direction", "East to West direction", "North to South vector", "South to Polar axis"],
+                correct: 0,
+                hueShift: 190 // Blue sector
+            },
+            {
+                type: "matching",
+                case: "Global exploration commands require configuring localized municipal capitals with their regional territories.",
+                prompt: "Realign the administrative command nodes correctly:",
+                pairs: [
+                    { component: "France Command", options: ["Tokyo", "Brasilia", "Paris"], correct: "Paris" },
+                    { component: "Brazil Command", options: ["Tokyo", "Brasilia", "Paris"], correct: "Brasilia" },
+                    { component: "Japan Command", options: ["Tokyo", "Brasilia", "Paris"], correct: "Tokyo" }
+                ],
+                hueShift: 290 // Violet sector
+            },
+            {
+                type: "cbq",
+                case: "Satellites observing an African subcontinent map out a massive zone covering millions of square kilometers where continuous moisture absence overrides forest capability, yielding extreme day heat variance.",
+                prompt: "Classify this specific regional ecosystem blueprint:",
+                options: ["Polar Tundra Climate", "Tropical Rain Climate", "Temperate Marine Climate", "Dry Desert Climate"],
+                correct: 3,
+                hueShift: 40 // Amber sector
+            },
+            {
+                type: "matching",
+                case: "Human civilization adaptations across geographical matrices are highly visible through historic native attire selections.",
+                prompt: "Formulate accurate pairings for the historical apparel databases:",
+                pairs: [
+                    { component: "Highland Kilt Garb", options: ["India", "Scotland", "Japan"], correct: "Scotland" },
+                    { component: "Silk Saree Weave", options: ["India", "Scotland", "Japan"], correct: "India" },
+                    { component: "Kimono Robe Design", options: ["India", "Scotland", "Japan"], correct: "Japan" }
+                ],
+                hueShift: 120 // Emerald sector
+            },
+            {
+                type: "cbq",
+                case: "Solar array diagnostic tracking charts show a precise geometric interception where the Earth’s rotational axis tilts neither toward nor directly away from the center star.",
+                prompt: "Identify the astronomical phenomenon observed:",
+                options: ["The Winter Solstice Matrix", "The Equinox Equilibrium", "The Apex Aphelion Cycle", "The Summer Solstice Inversion"],
+                correct: 1,
+                hueShift: 0 // Infrared Crimson sector
+            }
         ];
 
-        // Global Game States
-        let currentLevel = 0; // index of chapterQuestions
-        let score = 0;
-        let builtFloors = 0;
-        let selectedIndices = [];
-        let submitted = false; // State to track if feedback is visible and ready to proceed
+        let indexPointer = 0;
+        let gatheredCores = 0;
+        let selectedNodeIndex = null;
+        let stateLockout = false;
 
-        // Visual constants for tower mechanics
-        const TOWER_BLOCK_WIDTH = 210; //px
-        const TOWER_BLOCK_HEIGHT = 55; //px
-        const MOBILE_MAX_TOWER_BLOCKS = 3; // How many blocks stay visible on mobile viewport
-
-        // --- CORE FUNCTIONS (Initialize & Gameplay Loop) ---
-
-        function initGame() {
-            // Setup base visual (progress header is static, JS loads first Q)
-            document.getElementById('tower-progress-info').innerHTML = `Next Floor: <span id="current-floor-display" class="game-title-font">${chapterQuestions[0].floorName}</span>`;
-            loadLevel(0);
+        function initCosmos() {
+            renderStarfieldBackground();
+            loadScanSequence();
         }
 
-        // 1. Load Question and Options into UI
-        function loadLevel(index) {
-            submitted = false; // Reset submitted state for new question
-            selectedIndices = []; // Reset visual selection
-            const qData = chapterQuestions[index];
+        function loadScanSequence() {
+            stateLockout = false;
+            selectedNodeIndex = null;
+            
+            const mainBtn = document.getElementById('engage-btn');
+            mainBtn.innerText = "ENGAGE SECTOR CAPTURE";
+            mainBtn.classList.add('locked');
 
-            // A. UPDATE PROGRESS & TEXT visuals
-            document.getElementById('next-level-btn').innerText = "Submit";
-            document.getElementById('next-level-btn').classList.remove('proceed-btn');
-            document.getElementById('next-level-btn').classList.add('disabled');
-            document.getElementById('feedback-toast').classList.remove('show', 'correct', 'wrong');
+            const activeData = dataset[indexPointer];
 
-            // B. UPDATE PROGRESS filling bar
-            const totalLevels = chapterQuestions.length;
-            const progressPercent = (index / totalLevels * 100);
-            document.getElementById('game-progress-bar-fill').style.width = progressPercent + '%';
+            // UI Label updates
+            document.getElementById('mission-index-string').innerText = `COSMIC GRID SCAN: ${indexPointer + 1} / ${dataset.length}`;
+            document.getElementById('score-readout').innerText = `DATA CORES: ${gatheredCores}`;
+            document.getElementById('case-viewport').innerText = activeData.case;
+            document.getElementById('prompt-viewport').innerText = activeData.prompt;
 
-            // C. UPDATE HEADER INFO visual
-            document.getElementById('score-points').innerText = score;
-            const currentFloorHeader = (builtFloors === 0) ? `Ground Level` : `Floor ${builtFloors}`;
-            document.getElementById('current-floor-display').innerText = currentFloorHeader;
-            if (builtFloors === totalLevels) { showGameCompleted(); return; }
+            // Trigger dynamic visual planet transformation color based on the current space sector
+            document.getElementById('main-planet').style.filter = `hue-rotate(${activeData.hueShift}deg) saturate(1.3)`;
 
-            // D. UPDATE TEXTUAL Question
-            document.getElementById('question-icon').innerText = qData.icon;
-            document.getElementById('question-text-title').innerText = qData.question;
+            const workspace = document.getElementById('interactive-workspace');
+            workspace.innerHTML = "";
 
-            // E. GENERATE OPTIONS visually
-            const optionsGrid = document.getElementById('options-grid');
-            optionsGrid.innerHTML = ''; // Clear existing options
+            if (activeData.type === "cbq") {
+                const wrap = document.createElement('div');
+                wrap.className = "grid-layout";
 
-            // Special handling for visual True/False buttons
-            if (qData.type === 'tf') {
-                qData.options.forEach((opt, idx) => {
-                    const isFalse = (idx === 1);
-                    const specialVisualClass = isFalse ? 'true-false-visual false-visual' : 'true-false-visual';
+                activeData.options.forEach((opt, idx) => {
+                    const optionCard = document.createElement('div');
+                    optionCard.className = "space-option-card";
+                    optionCard.innerHTML = `<span class="node-dot"></span><span>${opt}</span>`;
+                    optionCard.onclick = () => {
+                        if (stateLockout) return;
+                        document.querySelectorAll('.space-option-card').forEach(item => item.classList.remove('active'));
+                        optionCard.classList.add('active');
+                        selectedNodeIndex = idx;
+                        mainBtn.classList.remove('locked');
+                    };
+                    wrap.appendChild(optionCard);
+                });
+                workspace.appendChild(wrap);
+
+            } else if (activeData.type === "matching") {
+                const space = document.createElement('div');
+                space.className = "match-workspace";
+
+                activeData.pairs.forEach((pair, idx) => {
+                    const row = document.createElement('div');
+                    row.className = "match-node-row";
+                    row.innerHTML = `<div class="match-left-item">${pair.component}</div>`;
+
+                    const menu = document.createElement('select');
+                    menu.className = "match-dropdown";
+                    menu.id = `drop-node-${idx}`;
+                    menu.innerHTML = `<option value="" disabled selected>Link Destination...</option>`;
                     
-                    const cardHTML = `
-                        <input type="radio" name="game-option" id="tf-option-${idx}" class="option-radio true-false" onclick="selectOption(${idx}, true)">
-                        <label for="tf-option-${idx}" class="option-card">
-                            <div class="${specialVisualClass}">${opt.toUpperCase()}</div>
-                        </label>
-                    `;
-                    optionsGrid.insertAdjacentHTML('beforeend', cardHTML);
+                    pair.options.forEach(optStr => {
+                        menu.innerHTML += `<option value="${optStr}">${optStr}</option>`;
+                    });
+
+                    menu.onchange = () => {
+                        if (stateLockout) return;
+                        evaluateDropdownsCompleteness();
+                    };
+
+                    row.appendChild(menu);
+                    space.appendChild(row);
                 });
-            } else {
-                qData.options.forEach((opt, idx) => {
-                    const cardHTML = `
-                        <input type="radio" name="game-option" id="option-${idx}" class="option-radio" onclick="selectOption(${idx}, false)">
-                        <label for="option-${idx}" class="option-card">
-                            <div class="option-select-visual"></div>
-                            <div class="option-text">${opt}</div>
-                        </label>
-                    `;
-                    optionsGrid.insertAdjacentHTML('beforeend', cardHTML);
-                });
+                workspace.appendChild(space);
             }
         }
 
-        // 2. Handle Visual Selection on option tap
-        function selectOption(index, isTFQuestion) {
-            // T/F questions are single select only, visual state handles checked radio
-            selectedIndices = [index];
-            document.getElementById('next-level-btn').classList.remove('disabled');
-        }
-
-        // 3. Handle Game Logic Action (Submit vs Proceed)
-        function handleGameAction() {
-            if (document.getElementById('next-level-btn').classList.contains('disabled')) return;
-
-            if (submitted) {
-                proceedNext();
-            } else {
-                submitCurrentAnswer();
-            }
-        }
-
-        // 4. SUBMIT: Validate answer, show visual feedback, update tower if correct
-        function submitCurrentAnswer() {
-            const qData = chapterQuestions[currentLevel];
-            let isCorrect = false;
-
-            // Mark as submitted so proceeding function can run on next tap
-            submitted = true;
-            document.getElementById('next-level-btn').innerText = "Next";
-            document.getElementById('next-level-btn').classList.add('proceed-btn');
-
-            // --- ANSWER VALIDATION ---
-            if (qData.type === 'blank') {
-                // If it's a fill blank, we validate all correct answers must be present in selected
-                isCorrect = true;
-                qData.correct.forEach(correctIdx => {
-                    if (!selectedIndices.includes(correctIdx)) isCorrect = false;
-                });
-            } else if (qData.type === 'tf') {
-                // Check if selected True (0) or False (1) matches correct string
-                const selectedString = qData.options[selectedIndices[0]];
-                isCorrect = (selectedString === qData.correct);
-            } else if (qData.type === 'mcq') {
-                // Single select check against index
-                isCorrect = (selectedIndices[0] === qData.correct);
-            }
-
-            // --- VISUAL & AUDIO FEEDBACK ---
-            const feedbackToast = document.getElementById('feedback-toast');
-            
-            if (isCorrect) {
-                // Audio visual for correct answer
-                playSound('audioCorrect');
-                feedbackToast.innerHTML = '<span class="feedback-icon">🎉</span> Correct! You built Floor ' + (builtFloors + 1);
-                feedbackToast.className = 'feedback-toast show correct';
-                score++;
-                
-                // MAIN MECHANIC: BUILD TOWER only on correct answer
-                addFloorBlockToTower(qData.floorName, builtFloors, qData.type === 'tf');
-                builtFloors++;
-
-            } else {
-                // Audio visual for wrong answer
-                playSound('audioWrong');
-                let correctAnswerText = "";
-                if (qData.type === 'blank') correctAnswerText = qData.correct.map(idx => qData.options[idx]).join(' & ');
-                else if (qData.type === 'tf' || qData.type === 'mcq') correctAnswerText = qData.options[qData.type === 'tf' ? (qData.correct === 'True' ? 0 : 1) : qData.correct];
-                feedbackToast.innerHTML = '<span class="feedback-icon">❌</span> Ouch! Correct was ' + correctAnswerText + '. Better luck next floor.';
-                feedbackToast.className = 'feedback-toast show wrong';
-            }
-        }
-
-        // 5. PROCEED: Load next level or game end
-        function proceedNext() {
-            currentLevel++;
-            const totalQuestions = chapterQuestions.length;
-
-            if (currentLevel < totalQuestions) {
-                loadLevel(currentLevel);
-                // Also update next floor info in header visual (if not game end)
-                if (builtFloors < totalQuestions) {
-                    document.getElementById('current-floor-display').innerText = (builtFloors === 0) ? `Ground Level` : `Floor ${builtFloors}`;
-                }
-            } else {
-                showGameCompleted();
-            }
-        }
-
-        // --- TOWER BUILDING VISUAL MECHANICS (Bottom-Up) ---
-
-        // The specific mechanics: adds one floor at a time on correct answers
-        function addFloorBlockToTower(name, floorNumber, isTFQuestion) {
-            const towerCanvas = document.getElementById('tower-building-canvas');
-            const totalFloors = chapterQuestions.length;
-
-            // Generate Floor Block visually
-            const blockId = `tower-block-${floorNumber}`;
-            const floorColorIdx = floorNumber % 6;
-            const floorBlockClass = isTFQuestion ? 'tower-block true-false-block' : 'tower-block';
-
-            const blockHTML = `
-                <div class="${floorBlockClass}" id="${blockId}" style="background-color: ${getTowerFloorColor(floorColorIdx)};">
-                    <div class="block-info">
-                        <div class="block-name">${name}</div>
-                    </div>
-                    <div class="added-block-icon">🌍</div>
-                </div>
-            `;
-            // Add block at top (reversed in visual stack)
-            towerCanvas.insertAdjacentHTML('beforeend', blockHTML);
-
-            // Trigger visual DROP animation after slight delay
-            currentBlockDropped = document.getElementById(blockId);
-            setTimeout(() => {
-                currentBlockDropped.classList.add('added');
-            }, 100);
-
-            // --- RESPONSIVE MECHANIC: VIEWPORT PANNING ---
-            // On correct answers, visual tower pans UP (base pans down) to keep building area centered
-            const windowWidth = window.innerWidth;
-            if (windowWidth <= 768) {
-                // Mobile Panning: anchors only the top few blocks
-                if (builtFloors >= MOBILE_MAX_TOWER_BLOCKS) {
-                    panTowerCanvasMobile();
-                }
-            } else {
-                // Desktop Panning: Puts base in bottom few blocks on higher floor
-                const visibleFloorsDesktop = Math.floor((window.innerHeight - 70 - 40) / TOWER_BLOCK_HEIGHT); // Header and Top Padding
-                if (builtFloors >= Math.floor(visibleFloorsDesktop * 0.7)) {
-                    panTowerCanvasDesktop();
+        function evaluateDropdownsCompleteness() {
+            const currentItem = dataset[indexPointer];
+            let valuesFilled = true;
+            for (let i = 0; i < currentItem.pairs.length; i++) {
+                if (!document.getElementById(`drop-node-${i}`).value) {
+                    valuesFilled = false;
+                    break;
                 }
             }
+            const btn = document.getElementById('engage-btn');
+            if (valuesFilled) btn.classList.remove('locked');
+            else btn.classList.add('locked');
         }
 
-        // Utility: Desktop Panning
-        function panTowerCanvasDesktop() {
-            const towerBuildingCanvas = document.getElementById('tower-building-canvas');
-            const visibleHeight = towerBuildingCanvas.offsetHeight;
-            
-            // Calculate current pan: 20px up initially
-            const currentPan = builtFloors * TOWER_BLOCK_HEIGHT + 20;
-            towerBuildingCanvas.style.bottom = '-' + (currentPan - (visibleHeight / 3)) + 'px'; // Base pans down by floor height
+        function evaluateCurrentScan() {
+            const btn = document.getElementById('engage-btn');
+            if (btn.classList.contains('locked')) return;
+
+            if (stateLockout) {
+                // Progression step
+                indexPointer++;
+                if (indexPointer < dataset.length) {
+                    loadScanSequence();
+                } else {
+                    terminateMission();
+                }
+                return;
+            }
+
+            const currentData = dataset[indexPointer];
+            let structurePassed = false;
+
+            if (currentData.type === "cbq") {
+                structurePassed = (selectedNodeIndex === currentData.correct);
+            } else if (currentData.type === "matching") {
+                structurePassed = true;
+                for (let i = 0; i < currentData.pairs.length; i++) {
+                    const userVal = document.getElementById(`drop-node-${i}`).value;
+                    if (userVal !== currentData.pairs[i].correct) {
+                        structurePassed = false;
+                        break;
+                    }
+                }
+            }
+
+            stateLockout = true;
+            btn.innerText = "CONTINUE TO NEXT MATRIX";
+
+            if (structurePassed) {
+                gatheredCores += 20;
+                triggerNotification(true, "SECTOR SECURED // DATA EXTRACTION SUCCESSFUL");
+                playSystemAudio('audioSuccess');
+            } else {
+                triggerNotification(false, "TRANSMISSION FAILURE // SIGNAL MISALIGNMENT DETECTED");
+                playSystemAudio('audioFailure');
+            }
         }
 
-        // Utility: Mobile Panning (locks base out, keeps tops in view)
-        function panTowerCanvasMobile() {
-            const towerBuildingCanvas = document.getElementById('tower-building-canvas');
-            const towerSection = document.getElementById('tower-section');
-            const towerHeight = towerBuildingCanvas.offsetHeight;
-            towerBuildingCanvas.style.bottom = '-' + (towerHeight - (TOWER_BLOCK_HEIGHT * (MOBILE_MAX_TOWER_BLOCKS + 1))) + 'px';
+        function triggerNotification(pass, payload) {
+            const toast = document.getElementById('hud-toast');
+            toast.innerText = payload;
+            toast.className = `reveal ${pass ? 'pass' : 'fail'}`;
+            setTimeout(() => { toast.classList.remove('reveal'); }, 2600);
         }
 
-        // --- GAME END MECHANICS ---
-
-        function showGameCompleted() {
-            // Audio visual for completion claps
-            playSound('audioFinalCompleted');
-            document.getElementById('innovine-logo').className = "hidden";
-            document.getElementById('innovine-logo').className = "hidden";
-
-            document.getElementById('final-game-completed-screen').classList.add('show');
-            document.getElementById('final-score-correct').innerText = score;
+        function playSystemAudio(domId) {
+            const element = document.getElementById(domId);
+            if (element) {
+                element.currentTime = 0;
+                element.play().catch(() => {});
+            }
         }
 
-        // --- UTILITIES ---
-
-        function playSound(audioId) {
-            const audio = document.getElementById(audioId);
-            audio.currentTime = 0; // Rewind to start
-            audio.play().catch(e => console.log("Audio play blocked", e));
+        function terminateMission() {
+            playSystemAudio('audioComplete');
+            document.getElementById('debrief-metrics-str').innerText = `Total Extracted Cores: ${gatheredCores} / 100 Data Blocks\nPlanetary Synchronicity Achieved.`;
+            document.getElementById('debriefing-screen').classList.add('active');
         }
 
-        // Function to toggle colors for a colorful tower
-        function getTowerFloorColor(index) {
-            const colors = ['#e17055', '#fdcb6e', '#00b894', '#0984e3', '#6c5ce7', '#d63031'];
-            return colors[index];
+        // --- MATH CANVAS BACKGROUND STARFIELD ENGINE ---
+        function renderStarfieldBackground() {
+            const cnv = document.getElementById('space-canvas');
+            const c = cnv.getContext('2d');
+            let systemStars = [];
+
+            function setBounds() {
+                cnv.width = window.innerWidth;
+                cnv.height = window.innerHeight;
+            }
+            window.addEventListener('resize', setBounds);
+            setBounds();
+
+            for (let i = 0; i < 150; i++) {
+                systemStars.push({
+                    x: Math.random() * cnv.width,
+                    y: Math.random() * cnv.height,
+                    radius: Math.random() * 1.5,
+                    alpha: Math.random(),
+                    speed: Math.random() * 0.02 + 0.005
+                });
+            }
+
+            function cycle() {
+                c.clearRect(0, 0, cnv.width, cnv.height);
+                c.fillStyle = '#060713';
+                c.fillRect(0,0, cnv.width, cnv.height);
+
+                systemStars.forEach(s => {
+                    s.alpha += s.speed;
+                    if (s.alpha > 1 || s.alpha < 0) s.speed = -s.speed;
+                    c.beginPath();
+                    c.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+                    c.fillStyle = `rgba(255, 255, 255, ${Math.abs(s.alpha)})`;
+                    c.fill();
+                });
+                requestAnimationFrame(cycle);
+            }
+            cycle();
         }
 
-        // Initialize Game
-        initGame();
-
+        window.onload = initCosmos;
     </script>
 </body>
 </html>
