@@ -2,724 +2,613 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Chronicles of the Cosmos: World Explorer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grade 5 EVS Game: Our World Explorer</title>
     <style>
         :root {
-            --space-bg: #060713;
-            --panel-bg: rgba(16, 20, 43, 0.85);
-            --neon-blue: #00f3ff;
-            --neon-green: #39ff14;
-            --neon-pink: #ff007f;
+            --space-bg: #0a0b10;
+            --panel-bg: rgba(20, 24, 35, 0.95);
+            --accent-gold: #ffd700;
             --text-light: #f0f4f8;
-            --glass-border: rgba(255, 255, 255, 0.1);
+            --success-green: #2e7d32;
+            --error-red: #c62828;
+            --ui-blue: #3b4861;
         }
 
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;800;900&family=Rajdhani:wght@500;700&display=swap');
-
-        * {
-            box-sizing: border-box;
+        body {
             margin: 0;
             padding: 0;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body, html {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background-color: var(--space-bg);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--space-bg);
             color: var(--text-light);
-            font-family: 'Rajdhani', sans-serif;
-        }
-
-        #space-canvas, #confetti-canvas {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-        }
-        #space-canvas { z-index: 1; }
-        #confetti-canvas { z-index: 1000; pointer-events: none; }
-
-        #game-viewport {
-            position: relative;
-            z-index: 2;
-            display: flex;
-            width: 100%;
-            height: 100%;
-        }
-
-        /* --- LEFT PANEL: CONTROL DECK --- */
-        #display-deck {
-            flex: 1;
-            position: relative;
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
-            border-right: 2px solid var(--glass-border);
-            background: radial-gradient(circle at 30% 50%, rgba(0, 243, 255, 0.08) 0%, transparent 60%);
+            overflow-x: hidden;
         }
 
-        #logo-container {
-            position: absolute;
-            top: 20px;
-            left: 25px;
-        }
-
-        .innovine-fallback-logo {
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 900;
-            font-size: 1.4rem;
-            color: #fff;
-            letter-spacing: 2px;
-            text-shadow: 0 0 10px var(--neon-blue);
-        }
-
-        /* Pure CSS Holographic Grid Globe */
-        #holo-planet-container {
-            position: relative;
-            width: 260px;
-            height: 260px;
-            margin-bottom: 30px;
-        }
-
-        .holo-planet {
+        header {
+            background: linear-gradient(180deg, #141923, transparent);
             width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%, #1a365d 0%, #0f172a 70%, #020617 100%);
-            border: 2px solid var(--neon-blue);
-            box-shadow: 
-                inset 0 0 30px rgba(0, 243, 255, 0.6),
-                0 0 40px rgba(0, 243, 255, 0.3);
-            position: relative;
-            overflow: hidden;
-            transition: filter 0.6s ease;
-        }
-
-        /* Grid lines simulating continental map look */
-        .holo-planet::before {
-            content: '';
-            position: absolute;
-            width: 200%; height: 100%;
-            top: 0; left: 0;
-            background: 
-                linear-gradient(rgba(0, 243, 255, 0.15) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 243, 255, 0.15) 1px, transparent 1px);
-            background-size: 20px 20px;
-            animation: moveGrid 8s linear infinite;
-        }
-
-        @keyframes moveGrid {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
-        }
-
-        .orbit-reticle {
-            position: absolute;
-            top: -15px; left: -15px; right: -15px; bottom: -15px;
-            border: 1px dashed rgba(0, 243, 255, 0.4);
-            border-radius: 50%;
-            animation: spinReticle 20s linear infinite;
-        }
-
-        @keyframes spinReticle {
-            100% { transform: rotate(360deg); }
-        }
-
-        #telemetry-display {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 0.85rem;
-            color: var(--neon-blue);
-            letter-spacing: 2px;
             text-align: center;
-            background: rgba(0,0,0,0.5);
-            padding: 8px 20px;
-            border-radius: 20px;
-            border: 1px solid var(--glass-border);
+            padding: 20px 0;
+            border-bottom: 2px solid #222b3c;
+            position: relative;
+        }
+
+        .logo {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 40px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 26px;
+            color: var(--accent-gold);
             text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
         }
 
-        /* --- RIGHT PANEL: MISSION CONTROL --- */
-        #mission-panel {
-            flex: 1.2;
+        .game-container {
+            display: flex;
+            width: 95vw;
+            max-width: 1300px;
+            margin: 25px 0;
+            gap: 25px;
+        }
+
+        .canvas-container {
+            flex: 1.3;
+            background: #000;
+            border: 3px solid var(--ui-blue);
+            border-radius: 16px;
+            position: relative;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.8);
+            overflow: hidden;
+            height: 550px;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .control-panel {
+            flex: 1;
             background: var(--panel-bg);
-            backdrop-filter: blur(15px);
-            padding: 40px;
+            border: 2px solid #2d384e;
+            border-radius: 16px;
+            padding: 25px;
             display: flex;
             flex-direction: column;
-            overflow-y: auto;
+            justify-content: space-between;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            height: 500px;
         }
 
-        .mission-header {
+        .quiz-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
-            border-bottom: 1px solid var(--glass-border);
-            padding-bottom: 15px;
+            border-bottom: 2px solid #2d384e;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
         }
 
-        .mission-title-text {
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 800;
-            font-size: 1.1rem;
-            color: #fff;
+        .progress-badge {
+            background: #1e2638;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            color: var(--accent-gold);
+            border: 1px solid #44567a;
         }
 
-        .score-box {
-            font-family: 'Orbitron', sans-serif;
-            background: rgba(255, 215, 0, 0.1);
-            border: 1px solid gold;
-            color: gold;
-            padding: 5px 15px;
+        .case-box {
+            background: rgba(255, 255, 255, 0.05);
+            border-left: 4px solid var(--accent-gold);
+            padding: 15px;
             border-radius: 4px;
-            font-weight: 900;
+            font-size: 15px;
+            line-height: 1.5;
+            margin-bottom: 15px;
+            font-style: italic;
         }
 
-        .case-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--glass-border);
-            border-left: 4px solid var(--neon-blue);
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 25px;
-            font-size: 1.05rem;
-            line-height: 1.6;
-            color: #cbd5e1;
+        .question-text {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
         }
 
-        .prompt-text {
-            font-size: 1.4rem;
-            font-weight: 700;
-            margin-bottom: 25px;
-            color: #fff;
-        }
-
-        /* INTERACTIVES: MCQS */
-        .grid-layout {
+        .options-grid {
             display: flex;
             flex-direction: column;
             gap: 12px;
-            margin-bottom: 30px;
         }
 
-        .space-option-card {
-            background: rgba(255,255,255,0.02);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 10px;
-            padding: 16px 22px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            transition: all 0.2s ease;
-        }
-
-        .space-option-card:hover {
-            background: rgba(0, 243, 255, 0.05);
-            border-color: var(--neon-blue);
-        }
-
-        .space-option-card.active {
-            background: rgba(0, 243, 255, 0.12);
-            border-color: var(--neon-blue);
-            box-shadow: 0 0 12px rgba(0, 243, 255, 0.2);
-        }
-
-        .node-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            border: 2px solid rgba(255,255,255,0.4);
-            flex-shrink: 0;
-        }
-
-        .space-option-card.active .node-dot {
-            border-color: var(--neon-blue);
-            background: var(--neon-blue);
-        }
-
-        /* INTERACTIVES: MATCH DATA LISTS */
-        .match-workspace {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-bottom: 30px;
-        }
-
-        .match-node-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: rgba(255,255,255,0.01);
-            border: 1px solid var(--glass-border);
+        .option-btn {
+            background: #1e2638;
+            color: white;
+            border: 1px solid #3d4d6e;
             padding: 14px 20px;
             border-radius: 8px;
-            gap: 20px;
-        }
-
-        .match-left-item {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: #e2e8f0;
-        }
-
-        .match-dropdown {
-            background: #111424;
-            color: #fff;
-            border: 1px solid rgba(255,255,255,0.2);
-            padding: 10px 15px;
-            border-radius: 6px;
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 1rem;
-            font-weight: 600;
-            outline: none;
             cursor: pointer;
-            min-width: 170px;
+            font-size: 15px;
+            text-align: left;
+            transition: all 0.25s ease;
         }
 
-        /* ENGAGE SYSTEM TRIGGER */
-        .deck-footer {
-            margin-top: auto;
-            padding-top: 20px;
+        .option-btn:hover:not([disabled]) {
+            background: #2b3752;
+            border-color: var(--accent-gold);
+            transform: translateX(5px);
         }
 
-        .engage-btn {
-            width: 100%;
-            background: transparent;
-            border: 2px solid var(--neon-blue);
-            color: var(--neon-blue);
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.1rem;
-            font-weight: 900;
-            padding: 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            letter-spacing: 2px;
-            transition: all 0.3s;
-            text-shadow: 0 0 5px var(--neon-blue);
-        }
-
-        .engage-btn:hover:not(.locked) {
-            background: var(--neon-blue);
-            color: #000;
-            box-shadow: 0 0 20px rgba(0, 243, 255, 0.5);
-            text-shadow: none;
-        }
-
-        .engage-btn.locked {
-            border-color: rgba(255,255,255,0.12);
-            color: rgba(255,255,255,0.2);
-            text-shadow: none;
+        .option-btn[disabled] {
             cursor: not-allowed;
         }
 
-        /* TOASTERS */
-        #hud-toast {
-            position: fixed;
-            bottom: -100px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 15px 40px;
-            border-radius: 4px;
-            font-family: 'Orbitron', sans-serif;
+        .action-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .next-btn {
+            background: var(--accent-gold);
+            color: #000;
+            border: none;
+            padding: 12px 30px;
+            font-size: 16px;
             font-weight: bold;
-            transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            z-index: 5000;
-        }
-        #hud-toast.reveal { bottom: 40px; }
-        #hud-toast.pass { background: rgba(57, 255, 20, 0.2); border: 2px solid var(--neon-green); color: var(--neon-green); }
-        #hud-toast.fail { background: rgba(255, 0, 127, 0.2); border: 2px solid var(--neon-pink); color: var(--neon-pink); }
-
-        /* RESPONSIVE RESPONSIVENESS SCALING */
-        @media (max-width: 880px) {
-            #game-viewport { flex-direction: column; }
-            #display-deck { flex: 0 0 220px; border-right: none; border-bottom: 2px solid var(--glass-border); }
-            #holo-planet-container { width: 120px; height: 120px; margin-bottom: 8px; margin-top: 20px;}
-            #telemetry-display { font-size: 0.75rem; padding: 4px 12px; }
-            #mission-panel { flex: 1; padding: 20px; }
-            .prompt-text { font-size: 1.15rem; margin-bottom: 15px; }
-            .case-card { padding: 12px; font-size: 0.95rem; margin-bottom: 12px; }
+            border-radius: 8px;
+            cursor: pointer;
+            display: none;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+            transition: transform 0.2s;
         }
 
-        #debriefing-screen {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: #04050e;
-            z-index: 9999;
+        .next-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .score-screen {
+            text-align: center;
             display: none;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
-            text-align: center;
-            padding: 20px;
+            justify-content: center;
+            height: 100%;
+            gap: 20px;
         }
-        #debriefing-screen.active { display: flex; }
-        .debrief-title { font-family: 'Orbitron', sans-serif; font-size: 2.2rem; color: var(--neon-blue); margin-bottom: 20px; }
+
+        .score-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 5px solid var(--accent-gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            font-weight: bold;
+            color: var(--accent-gold);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+        }
     </style>
 </head>
 <body>
 
-    <canvas id="space-canvas"></canvas>
-    <canvas id="confetti-canvas"></canvas>
+    <header>
+        <img src="assets/innovine-logo.png" alt="Innovine Logo" class="logo" onerror="this.style.display='none'">
+        <h1>Our World - 5th Grade Mission Control</h1>
+    </header>
 
-    <div id="game-viewport">
-        <section id="display-deck">
-            <div id="logo-container">
-                <div class="innovine-fallback-logo">INNOVINE</div>
+    <div class="game-container">
+        <div class="canvas-container">
+            <canvas id="worldCanvas" width="750" height="550"></canvas>
+        </div>
+
+        <div class="control-panel">
+            <div id="quizActiveZone">
+                <div class="quiz-header">
+                    <span id="topicBadge" style="font-weight: bold; color: #a0aec0;">Module: Space Mechanics</span>
+                    <span class="progress-badge" id="progressText">Question 1/10</span>
+                </div>
+
+                <div class="case-box" id="caseText">Loading case matrix context...</div>
+                <div class="question-text" id="questionText">Loading query question context...</div>
+
+                <div class="options-grid" id="optionsBlock">
+                    </div>
+
+                <div class="action-container">
+                    <button class="next-btn" id="nextBtn" onclick="advanceQuestion()">Next Question ➡️</button>
+                </div>
             </div>
-            
-            <div id="holo-planet-container">
-                <div class="orbit-reticle"></div>
-                <div id="main-planet" class="holo-planet"></div>
+
+            <div class="score-screen" id="scoreZone">
+                <h2>🌍 Exploration Mission Accomplished!</h2>
+                <div class="score-circle" id="scoreValue">0/10</div>
+                <p id="feedbackStatement">Evaluating overall geographical navigation metrics...</p>
+                <button class="option-btn" style="text-align: center;" onclick="resetMission()">Restart Flight Mission</button>
             </div>
-
-            <div id="telemetry-display">GRID SCANNER ONLINE</div>
-        </section>
-
-        <section id="mission-panel">
-            <div class="mission-header">
-                <div class="mission-title-text" id="mission-index-string">COSMIC GRID SCAN: 1 / 5</div>
-                <div class="score-box" id="score-readout">DATA CORES: 0</div>
-            </div>
-
-            <div class="case-card" id="case-viewport"></div>
-            <h2 class="prompt-text" id="prompt-viewport"></h2>
-
-            <div id="interactive-workspace"></div>
-
-            <div class="deck-footer">
-                <button id="engage-btn" class="engage-btn locked" onclick="evaluateCurrentScan()">ENGAGE SECTOR CAPTURE</button>
-            </div>
-        </section>
+        </div>
     </div>
 
-    <div id="debriefing-screen">
-        <h1 class="debrief-title">MISSION DEBRIEF COMPLETE</h1>
-        <p style="font-size: 1.4rem; margin-bottom: 40px;" id="debrief-metrics-str"></p>
-        <button class="engage-btn" style="width:auto; padding:15px 50px;" onclick="window.location.reload()">RE-LAUNCH SATELLITE</button>
-    </div>
-
-    <div id="hud-toast"></div>
+    <audio id="sndCorrect" src="assets/correct.mp3" preload="auto"></audio>
+    <audio id="sndWrong" src="assets/wrong.mp3" preload="auto"></audio>
+    <audio id="sndApplause" src="assets/freesound_community-claps-44774.mp3" preload="auto"></audio>
 
     <script>
-        const dataset = [
+        const canvas = document.getElementById('worldCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Dynamic State Configuration Variables
+        let currentQuestionIdx = 0;
+        let runningScore = 0;
+        let visualMode = "rotation"; 
+        let internalEngineAngle = 0;
+        let isAnswered = false;
+
+        // Structured Array Matrix Container holding Case-Based Questions matching the specific learning outcomes
+        const cbqDatabase = [
             {
-                type: "cbq",
-                case: "An interstellar spaceship matches the Earth's spin speed to hover in a stationary position above a launchpad. Sensors show the ground underneath moves steadily from left to right when looking northward.",
-                prompt: "Determine the exact planetary rotation direction from space:",
-                options: ["West to East direction", "East to West direction", "North to South vector", "South to Polar axis"],
-                correct: 0,
-                hueShift: 190,
-                sector: "Sector Alpha-1"
-            },
-            {
-                type: "matching",
-                case: "Global exploration commands require configuring localized municipal capitals with their regional territories.",
-                prompt: "Realign the administrative command nodes correctly:",
-                pairs: [
-                    { component: "France Command", options: ["Tokyo", "Brasilia", "Paris"], correct: "Paris" },
-                    { component: "Brazil Command", options: ["Tokyo", "Brasilia", "Paris"], correct: "Brasilia" },
-                    { component: "Japan Command", options: ["Tokyo", "Brasilia", "Paris"], correct: "Tokyo" }
-                ],
-                hueShift: 290,
-                sector: "Sector Capital Matrix"
-            },
-            {
-                type: "cbq",
-                case: "Satellites observing an African subcontinent map out a massive zone covering millions of square kilometers where continuous moisture absence overrides forest capability, yielding extreme day heat variance.",
-                prompt: "Classify this specific regional ecosystem blueprint:",
-                options: ["Polar Tundra Climate", "Tropical Rain Climate", "Temperate Marine Climate", "Dry Desert Climate"],
-                correct: 3,
-                hueShift: 40,
-                sector: "Sector Sahara Hotspot"
-            },
-            {
-                type: "matching",
-                case: "Human civilization adaptations across geographical matrices are highly visible through historic native attire selections.",
-                prompt: "Formulate accurate pairings for the historical apparel databases:",
-                pairs: [
-                    { component: "Highland Kilt Garb", options: ["India", "Scotland", "Japan"], correct: "Scotland" },
-                    { component: "Silk Saree Weave", options: ["India", "Scotland", "Japan"], correct: "India" },
-                    { component: "Kimono Robe Design", options: ["India", "Scotland", "Japan"], correct: "Japan" }
-                ],
-                hueShift: 120,
-                sector: "Sector Culture Matrix"
-            },
-            {
-                type: "cbq",
-                case: "Solar array diagnostic tracking charts show a precise geometric interception where the Earth’s rotational axis tilts neither toward nor directly away from the center star.",
-                prompt: "Identify the astronomical phenomenon observed:",
-                options: ["The Winter Solstice Matrix", "The Equinox Equilibrium", "The Apex Aphelion Cycle", "The Summer Solstice Inversion"],
+                case: "An amateur astronomer observes a star pattern over a 6-hour period at night and notices the stars appear to migrate sequentially across the night sky.",
+                question: "What primary hidden planetary movement directly induces this localized stellar migration phenomenon?",
+                options: ["A) The linear orbit velocity of distant deep space star fields", "B) The rotation of the Earth turning upon its internal vertical axis", "C) The continuous rapid shrinking diameter of Earth's atmosphere", "D) Local solar gravity pulling neighboring galaxies inward"],
                 correct: 1,
-                hueShift: 0,
-                sector: "Sector Sol-Axis Alignment"
+                visual: "rotation"
+            },
+            {
+                case: "A cargo jet takes off from Washington D.C. in bright afternoon sunshine and arrives in New Delhi, India where local ground crews are working under floodlights in the dark.",
+                question: "Why does India experience deep nighttime conditions while the United States is illuminated by daytime?",
+                options: ["A) Clouds block all light entry from reaching Asia completely", "B) The Earth's rotation places India on the side facing away from the Sun", "C) India operates closer to deep polar ocean zones", "D) The Sun briefly shuts off its fusion energy generation cycle every 12 hours"],
+                correct: 1,
+                visual: "daynight"
+            },
+            {
+                case: "Satellite telemetry tracks massive hurricane cloud walls spinning in counter-clockwise circles while migrating across wide expanses of open tropical ocean waves.",
+                question: "Which rotational force outcome creates these curving storm systems and distinct planetary trade wind patterns?",
+                options: ["A) Continuous heat generation inside deep core lava veins", "B) The Earth's rotational momentum turning underneath atmospheric paths", "C) Polar ice caps melting at accelerated seasonal speeds", "D) Magnetic interference generated by deep communications towers"],
+                correct: 1,
+                visual: "rotation"
+            },
+            {
+                case: "A calendar system tracks a continuous extra 6-hour drift remainder over a clean 365-day block each time the planet finishes a single complete solar cycle run.",
+                question: "How long does it take the Earth to complete one full revolution cycle around the Sun's orbital perimeter path?",
+                options: ["A) Exactly 24 standard working hours", "B) Approximately 30 calendar days", "C) Roughly 365 days and 6 hours", "D) Exactly 100 days total"],
+                correct: 2,
+                visual: "revolution"
+            },
+            {
+                case: "In June, scientific installations located on the frozen South Pole experience continuous darkness, while regions in the Northern Hemisphere enjoy long, hot summer days.",
+                question: "What physical structural position explains the intense summer conditions in the Northern Hemisphere during June?",
+                options: ["A) The North Pole is physically tilted toward the direct path of the Sun", "B) The Sun changes its spatial orbit altitude profile closer to Earth", "C) The Southern Hemisphere experiences sudden micro-volcanic action", "D) The Earth ceases all regular orbital movement during June"],
+                correct: 0,
+                visual: "seasons"
+            },
+            {
+                case: "An expedition team records extreme heat indices matching $45^\circ\text{C}$ inside deep sand plains during the afternoon, followed by plummeting near-freezing temperatures immediately after sunset.",
+                question: "Which ecosystem climate class matches this scenario based on the Sahara Desert geographic case model?",
+                options: ["A) Freezing and volatile Polar Climate Zone", "B) Constant precipitation Tropical Rainforest Climate", "C) Dry Climate characterized by negligible moisture and thermal swings", "D) Moderate Temperate European Zone"],
+                correct: 2,
+                visual: "climate_dry"
+            },
+            {
+                case: "Biologists monitoring canopy canals inside the deep Amazon basin record massive daily rain downpours combined with consistently high ambient heat indexes across all 12 calendar months.",
+                question: "What planetary zone positioning dictates the warm and wet status profile of this iconic Tropical Climate region?",
+                options: ["A) Close strategic proximity to the highly irradiated solar equator line", "B) Extended elevation placement directly inside polar wind networks", "C) Massive underground refrigeration structures built inside bedrock layers", "D) Extreme seasonal tilt variations shifting every two calendar weeks"],
+                correct: 0,
+                visual: "climate_tropical"
+            },
+            {
+                case: "Architects visiting New Delhi look at the structural geometries of the highly visited Lotus Temple before researching historical architectural patterns across different regional capitals.",
+                question: "By definition, what central role distinguishes a sovereign global nation's designated Capital City?",
+                options: ["A) It must possess the highest physical mountain point inside the territory", "B) It acts as the primary administrative seat where government leaders sit and work", "C) It must possess a coastline with access to oceanic international shipping lanes", "D) It represents the single coldest point designated inside regional maps"],
+                correct: 1,
+                visual: "culture"
+            },
+            {
+                case: "A cultural exchange festival showcases traditional tartan wool kilts from Scotland alongside vibrant, intricately pleated silk sarees worn by performers from India.",
+                question: "What underlying global reality does this diverse display of traditional clothing and distinctive national costumes illustrate?",
+                options: ["A) Industrial raw fabric material manufacturing constraints across regions", "B) Every independent global culture adapts unique traditional identity traits", "C) Uniform universal fashion directives issued across continental systems", "D) Random resource allocation choices determined without historic background context"],
+                correct: 1,
+                visual: "culture"
+            },
+            {
+                case: "Every single year on August 15th, citizens gather across India while the Prime Minister hoists the tricolor national flag over the historic stone walls of the Red Fort in New Delhi.",
+                question: "Which landmark historical achievement is honored during this specific national recurring cultural festival?",
+                options: ["A) The adoption of the internal constitutional document rules in 1950", "B) India's historic achievement of freedom and total sovereignty in 1947", "C) The building foundation day of the central New Delhi capital municipality", "D) The global transition of structural weather tracks into Autumn months"],
+                correct: 1,
+                visual: "india"
             }
         ];
 
-        let indexPointer = 0;
-        let gatheredCores = 0;
-        let selectedNodeIndex = null;
-        let stateLockout = false;
-
-        function initCosmos() {
-            renderStarfieldBackground();
-            loadScanSequence();
-        }
-
-        function loadScanSequence() {
-            stateLockout = false;
-            selectedNodeIndex = null;
+        // Core UI Management Functions
+        function loadCurrentQuestion() {
+            isAnswered = false;
+            document.getElementById('nextBtn').style.display = 'none';
             
-            const mainBtn = document.getElementById('engage-btn');
-            mainBtn.innerText = "ENGAGE SECTOR CAPTURE";
-            mainBtn.classList.add('locked');
+            let qData = cbqDatabase[currentQuestionIdx];
+            visualMode = qData.visual;
 
-            const activeData = dataset[indexPointer];
+            document.getElementById('progressText').innerText = `Question ${currentQuestionIdx + 1}/10`;
+            document.getElementById('caseText').innerText = qData.case;
+            document.getElementById('questionText').innerText = qData.question;
 
-            document.getElementById('mission-index-string').innerText = `COSMIC GRID SCAN: ${indexPointer + 1} / ${dataset.length}`;
-            document.getElementById('score-readout').innerText = `DATA CORES: ${gatheredCores}`;
-            document.getElementById('case-viewport').innerText = activeData.case;
-            document.getElementById('prompt-viewport').innerText = activeData.prompt;
-            document.getElementById('telemetry-display').innerText = `SCANNING: ${activeData.sector}`;
+            // Dynamically alter sub-topic context labels
+            if (currentQuestionIdx < 3) document.getElementById('topicBadge').innerText = "Module: Planetary Rotation Dynamics";
+            else if (currentQuestionIdx < 5) document.getElementById('topicBadge').innerText = "Module: Solar Orbital Revolution";
+            else if (currentQuestionIdx < 7) document.getElementById('topicBadge').innerText = "Module: Global Climatology Vectors";
+            else document.getElementById('topicBadge').innerText = "Module: Global Geography & Human Culture";
 
-            document.getElementById('main-planet').style.filter = `hue-rotate(${activeData.hueShift}deg) saturate(1.5)`;
-
-            const workspace = document.getElementById('interactive-workspace');
-            workspace.innerHTML = "";
-
-            if (activeData.type === "cbq") {
-                const wrap = document.createElement('div');
-                wrap.className = "grid-layout";
-
-                activeData.options.forEach((opt, idx) => {
-                    const optionCard = document.createElement('div');
-                    optionCard.className = "space-option-card";
-                    optionCard.innerHTML = `<span class="node-dot"></span><span>${opt}</span>`;
-                    optionCard.onclick = () => {
-                        if (stateLockout) return;
-                        document.querySelectorAll('.space-option-card').forEach(item => item.classList.remove('active'));
-                        optionCard.classList.add('active');
-                        selectedNodeIndex = idx;
-                        mainBtn.classList.remove('locked');
-                    };
-                    wrap.appendChild(optionCard);
-                });
-                workspace.appendChild(wrap);
-
-            } else if (activeData.type === "matching") {
-                const space = document.createElement('div');
-                space.className = "match-workspace";
-
-                activeData.pairs.forEach((pair, idx) => {
-                    const row = document.createElement('div');
-                    row.className = "match-node-row";
-                    row.innerHTML = `<div class="match-left-item">${pair.component}</div>`;
-
-                    const menu = document.createElement('select');
-                    menu.className = "match-dropdown";
-                    menu.id = `drop-node-${idx}`;
-                    menu.innerHTML = `<option value="" disabled selected>Link Destination...</option>`;
-                    
-                    pair.options.forEach(optStr => {
-                        menu.innerHTML += `<option value="${optStr}">${optStr}</option>`;
-                    });
-
-                    menu.onchange = () => {
-                        if (stateLockout) return;
-                        evaluateDropdownsCompleteness();
-                    };
-
-                    row.appendChild(menu);
-                    space.appendChild(row);
-                });
-                workspace.appendChild(space);
-            }
-        }
-
-        function evaluateDropdownsCompleteness() {
-            const currentItem = dataset[indexPointer];
-            let valuesFilled = true;
-            for (let i = 0; i < currentItem.pairs.length; i++) {
-                if (!document.getElementById(`drop-node-${i}`).value) {
-                    valuesFilled = false;
-                    break;
-                }
-            }
-            const btn = document.getElementById('engage-btn');
-            if (valuesFilled) btn.classList.remove('locked');
-            else btn.classList.add('locked');
-        }
-
-        function evaluateCurrentScan() {
-            const btn = document.getElementById('engage-btn');
-            if (btn.classList.contains('locked')) return;
-
-            if (stateLockout) {
-                indexPointer++;
-                if (indexPointer < dataset.length) {
-                    loadScanSequence();
-                } else {
-                    terminateMission();
-                }
-                return;
-            }
-
-            const currentData = dataset[indexPointer];
-            let structurePassed = false;
-
-            if (currentData.type === "cbq") {
-                structurePassed = (selectedNodeIndex === currentData.correct);
-            } else if (currentData.type === "matching") {
-                structurePassed = true;
-                for (let i = 0; i < currentData.pairs.length; i++) {
-                    const userVal = document.getElementById(`drop-node-${i}`).value;
-                    if (userVal !== currentData.pairs[i].correct) {
-                        structurePassed = false;
-                        break;
-                    }
-                }
-            }
-
-            stateLockout = true;
-            btn.innerText = "CONTINUE TO NEXT MATRIX";
-
-            if (structurePassed) {
-                gatheredCores += 20;
-                triggerNotification(true, "SECTOR SECURED // DATA EXTRACTION SUCCESSFUL");
-                playLocalTone(600, "sine", 0.2); // Procedural audio bypass
-                initConfettiBurst();
-            } else {
-                triggerNotification(false, "TRANSMISSION FAILURE // SIGNAL MISALIGNMENT DETECTED");
-                playLocalTone(150, "sawtooth", 0.3);
-            }
-        }
-
-        function triggerNotification(pass, payload) {
-            const toast = document.getElementById('hud-toast');
-            toast.innerText = payload;
-            toast.className = `reveal ${pass ? 'pass' : 'fail'}`;
-            setTimeout(() => { toast.classList.remove('reveal'); }, 2600);
-        }
-
-        // Offline Sound Synthesizer Engine (CORS Proof)
-        function playLocalTone(freq, type, duration) {
-            try {
-                const ctxAudio = new (window.AudioContext || window.webkitAudioContext)();
-                const osc = ctxAudio.createOscillator();
-                const gain = ctxAudio.createGain();
-                osc.type = type;
-                osc.frequency.setValueAtTime(freq, ctxAudio.currentTime);
-                gain.gain.setValueAtTime(duration, ctxAudio.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.00001, ctxAudio.currentTime + 0.4);
-                osc.connect(gain);
-                gain.connect(ctxAudio.destination);
-                osc.start();
-                osc.stop(ctxAudio.currentTime + 0.4);
-            } catch(e) {}
-        }
-
-        function terminateMission() {
-            document.getElementById('debrief-metrics-str').innerText = `Total Extracted Cores: ${gatheredCores} / 100 Data Blocks\nPlanetary Synchronicity Achieved.`;
-            document.getElementById('debriefing-screen').classList.add('active');
-        }
-
-        // --- BACKGROUND STARFIELD ---
-        function renderStarfieldBackground() {
-            const cnv = document.getElementById('space-canvas');
-            const c = cnv.getContext('2d');
-            let systemStars = [];
-
-            function setBounds() {
-                cnv.width = window.innerWidth;
-                cnv.height = window.innerHeight;
-            }
-            window.addEventListener('resize', setBounds);
-            setBounds();
-
-            for (let i = 0; i < 100; i++) {
-                systemStars.push({
-                    x: Math.random() * cnv.width,
-                    y: Math.random() * cnv.height,
-                    radius: Math.random() * 1.5,
-                    alpha: Math.random(),
-                    speed: Math.random() * 0.02 + 0.005
-                });
-            }
-
-            function cycle() {
-                c.clearRect(0, 0, cnv.width, cnv.height);
-                c.fillStyle = '#060713';
-                c.fillRect(0,0, cnv.width, cnv.height);
-
-                systemStars.forEach(s => {
-                    s.alpha += s.speed;
-                    if (s.alpha > 1 || s.alpha < 0) s.speed = -s.speed;
-                    c.beginPath();
-                    c.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
-                    c.fillStyle = `rgba(255, 255, 255, ${Math.abs(s.alpha)})`;
-                    c.fill();
-                });
-                requestAnimationFrame(cycle);
-            }
-            cycle();
-        }
-
-        // --- CONFETTI GRAPHICS ENGINE ---
-        const confCanvas = document.getElementById('confetti-canvas');
-        const confCtx = confCanvas.getContext('2d');
-        let particles = [];
-
-        function resizeConfettiCanvas() {
-            confCanvas.width = window.innerWidth;
-            confCanvas.height = window.innerHeight;
-        }
-        window.addEventListener('resize', resizeConfettiCanvas);
-        resizeConfettiCanvas();
-
-        function initConfettiBurst() {
-            particles = [];
-            for (let i = 0; i < 80; i++) {
-                particles.push({
-                    x: window.innerWidth / 2,
-                    y: window.innerHeight / 2,
-                    size: Math.random() * 6 + 4,
-                    color: `hsl(${Math.random() * 360}, 100%, 50%)`,
-                    speedX: (Math.random() - 0.5) * 10,
-                    speedY: (Math.random() - 0.7) * 12,
-                    rotation: Math.random() * 360,
-                    rotationSpeed: (Math.random() - 0.5) * 8
-                });
-            }
-            animateConfetti();
-        }
-
-        function animateConfetti() {
-            if (particles.length === 0) return;
-            confCtx.clearRect(0, 0, confCanvas.width, confCanvas.height);
-
-            particles.forEach((p, idx) => {
-                p.x += p.speedX;
-                p.y += p.speedY;
-                p.speedY += 0.25; 
-                p.rotation += p.rotationSpeed;
-
-                confCtx.save();
-                confCtx.translate(p.x, p.y);
-                confCtx.rotate((p.rotation * Math.PI) / 180);
-                confCtx.fillStyle = p.color;
-                confCtx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
-                confCtx.restore();
-
-                if (p.y > confCanvas.height) particles.splice(idx, 1);
+            // Render option interface arrays
+            let optionsBlock = document.getElementById('optionsBlock');
+            optionsBlock.innerHTML = "";
+            
+            qData.options.forEach((optText, index) => {
+                let btn = document.createElement('button');
+                btn.className = "option-btn";
+                btn.innerText = optText;
+                btn.onclick = () => selectAnswer(index, btn);
+                optionsBlock.appendChild(btn);
             });
-
-            requestAnimationFrame(animateConfetti);
         }
 
-        window.onload = initCosmos;
+        function selectAnswer(chosenIdx, selectedBtn) {
+            if (isAnswered) return; // Lock interactive changes after choice
+            isAnswered = true;
+
+            let qData = cbqDatabase[currentQuestionIdx];
+            let allOptionBtns = document.getElementById('optionsBlock').getElementsByTagName('button');
+
+            // Trigger proper audio asset audio loops depending on accuracy
+            if (chosenIdx === qData.correct) {
+                selectedBtn.style.background = varProps('--success-green');
+                selectedBtn.style.borderColor = "#81c784";
+                document.getElementById('sndCorrect').play().catch(()=>{});
+                runningScore++;
+            } else {
+                selectedBtn.style.background = varProps('--error-red');
+                selectedBtn.style.borderColor = "#e57373";
+                allOptionBtns[qData.correct].style.background = varProps('--success-green');
+                allOptionBtns[qData.correct].style.borderColor = "#81c784";
+                document.getElementById('sndWrong').play().catch(()=>{});
+            }
+
+            // Disable further choice interactions across current set
+            for (let btn of allOptionBtns) {
+                btn.setAttribute('disabled', 'true');
+            }
+
+            // Reveal the Next Controller step button
+            document.getElementById('nextBtn').style.display = 'block';
+        }
+
+        function advanceQuestion() {
+            currentQuestionIdx++;
+            if (currentQuestionIdx < cbqDatabase.length) {
+                loadCurrentQuestion();
+            } else {
+                displayEndGameScoreboard();
+            }
+        }
+
+        function displayEndGameScoreboard() {
+            document.getElementById('quizActiveZone').style.display = 'none';
+            let scoreZone = document.getElementById('scoreZone');
+            scoreZone.style.display = 'flex';
+            
+            document.getElementById('scoreValue').innerText = `${runningScore}/10`;
+            visualMode = "victory";
+
+            let feedbackStr = "";
+            if (runningScore >= 9) {
+                feedbackStr = "Exceptional Performance! You are a master planetary navigator of cultures, climates, and rotation mechanics.";
+                document.getElementById('sndApplause').play().catch(()=>{});
+            } else if (runningScore >= 6) {
+                feedbackStr = "Good work! You possess solid functional core geographical literacy.";
+            } else {
+                feedbackStr = "Review the core chapter text definitions regarding planetary axis vectors and try the exploration route again.";
+            }
+            document.getElementById('feedbackStatement').innerText = feedbackStr;
+        }
+
+        function resetMission() {
+            currentQuestionIdx = 0;
+            runningScore = 0;
+            document.getElementById('scoreZone').style.display = 'none';
+            document.getElementById('quizActiveZone').style.display = 'block';
+            loadCurrentQuestion();
+        }
+
+        // Helper interface utility to pull hex values cleanly from variable trees
+        function varProps(varName) {
+            return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+        }
+
+
+        // Graphical Real-Time Render Pipeline Engine
+        function runGraphicsRenderLoop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            internalEngineAngle += 0.008;
+
+            // Space backdrop generation matrix
+            ctx.fillStyle = '#030508';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = 'rgba(255,255,255,0.4)';
+            for(let i=0; i<40; i++) {
+                let sx = (i * 123) % canvas.width;
+                let sy = (i * 71) % canvas.height;
+                ctx.fillRect(sx, sy, 1.5, 1.5);
+            }
+
+            let cx = canvas.width / 2;
+            let cy = canvas.height / 2;
+
+            switch(visualMode) {
+                case "rotation":
+                case "daynight":
+                    // Dynamic render mode for Day vs Night axial mechanics
+                    // Solar furnace anchor point
+                    ctx.beginPath();
+                    ctx.arc(80, cy, 50, 0, Math.PI * 2);
+                    ctx.fillStyle = '#ff9900';
+                    ctx.shadowColor = '#ff3300';
+                    ctx.shadowBlur = 30;
+                    ctx.fill();
+                    ctx.shadowBlur = 0; // standard clear
+
+                    // Planetary matrix coordinates
+                    let ex = 500, ey = cy, er = 100;
+                    
+                    ctx.save();
+                    ctx.translate(ex, ey);
+                    ctx.rotate(23.5 * Math.PI / 180); // Strict axial tilt projection alignment
+
+                    // Planet Water Base
+                    ctx.beginPath();
+                    ctx.arc(0, 0, er, 0, Math.PI * 2);
+                    ctx.fillStyle = '#21618c';
+                    ctx.fill();
+
+                    // Landmass transformations tracking planetary rotation
+                    ctx.fillStyle = '#27ae60';
+                    for(let i = -1; i <= 1; i++) {
+                        let dynamicX = ((internalEngineAngle * 40) % (er * 2)) - er + (i * er * 1.2);
+                        if (Math.abs(dynamicX) < er - 15) {
+                            ctx.beginPath();
+                            ctx.arc(dynamicX, i * 25, 30 - Math.abs(i * 5), 0, Math.PI * 2);
+                            ctx.fill();
+                        }
+                    }
+
+                    // Axis Line representation
+                    ctx.strokeStyle = '#e74c3c';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.moveTo(0, -er - 25);
+                    ctx.lineTo(0, er + 25);
+                    ctx.stroke();
+                    ctx.restore();
+
+                    // Translucent dark shadow mask representing night blocking exactly 50% opposite to illumination
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                    ctx.beginPath();
+                    ctx.arc(ex, ey, er, -Math.PI/2, Math.PI/2);
+                    ctx.fill();
+
+                    // Context UI descriptors
+                    ctx.fillStyle = '#fff';
+                    ctx.font = 'bold 12px sans-serif';
+                    ctx.fillText("☀️ INCOMING SUNLIGHT", 160, cy - 10);
+                    ctx.fillText("DAY SYSTEM", ex - 80, ey - 120);
+                    ctx.fillText("NIGHT SHADOW", ex + 15, ey - 120);
+                    break;
+
+                case "revolution":
+                case "seasons":
+                    // Central Sun orbital tracking framework
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, 40, 0, Math.PI * 2);
+                    ctx.fillStyle = '#f39c12';
+                    ctx.fill();
+
+                    // Draw clean line ellipse tracking standard orbit pathway
+                    ctx.strokeStyle = '#2c3e50';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.ellipse(cx, cy, 240, 150, 0, 0, Math.PI * 2);
+                    ctx.stroke();
+
+                    // Locate planet positions matching orbital steps
+                    let revX = cx + Math.cos(internalEngineAngle * 0.7) * 240;
+                    let revY = cy + Math.sin(internalEngineAngle * 0.7) * 150;
+
+                    ctx.beginPath();
+                    ctx.arc(revX, revY, 20, 0, Math.PI * 2);
+                    ctx.fillStyle = '#3498db';
+                    ctx.fill();
+
+                    ctx.fillStyle = '#f1c40f';
+                    ctx.font = '13px sans-serif';
+                    ctx.fillText("365.25 Day Orbit track pathway", cx - 90, cy - 180);
+                    break;
+
+                case "climate_dry":
+                    // Render representation of dry arid desert terrain
+                    ctx.fillStyle = '#edc9af';
+                    ctx.fillRect(0, cy, canvas.width, cy);
+                    // Sun silhouette
+                    ctx.beginPath();
+                    ctx.arc(cx, cy - 20, 70, 0, Math.PI, true);
+                    ctx.fillStyle = '#f39c12';
+                    ctx.fill();
+                    ctx.fillStyle = '#fff';
+                    ctx.font = 'bold 16px sans-serif';
+                    ctx.fillText("DRY CLIMATE ZONE: Extreme Thermal Variances", 50, 60);
+                    break;
+
+                case "climate_tropical":
+                    // Render representation of tropical biome
+                    ctx.fillStyle = '#196f3d';
+                    ctx.fillRect(0, cy + 50, canvas.width, cy);
+                    // Precipitation drop generation trails
+                    ctx.strokeStyle = '#5dade2';
+                    ctx.lineWidth = 2;
+                    for(let i=0; i<15; i++) {
+                        let rx = (i * 61) % canvas.width;
+                        let ry = (internalEngineAngle * 200 + i * 37) % (cy + 50);
+                        ctx.beginPath();
+                        ctx.moveTo(rx, ry);
+                        ctx.lineTo(rx - 3, ry + 15);
+                        ctx.stroke();
+                    }
+                    ctx.fillStyle = '#fff';
+                    ctx.font = 'bold 16px sans-serif';
+                    ctx.fillText("TROPICAL MONSOON BIOME: High Annual Heat & Rainfall", 50, 60);
+                    break;
+
+                case "culture":
+                case "india":
+                    // Visualization mode for world maps or international exploration themes
+                    ctx.strokeStyle = '#34495e';
+                    ctx.lineWidth = 1;
+                    // Abstract stylistic representations of continental structures
+                    ctx.fillStyle = '#2e4053';
+                    ctx.beginPath();
+                    ctx.arc(200, 200, 70, 0, Math.PI * 1.5);
+                    ctx.fill();
+                    ctx.beginPath();
+                    ctx.arc(500, 350, 90, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    ctx.fillStyle = varProps('--accent-gold');
+                    ctx.font = '15px sans-serif';
+                    ctx.fillText("🌐 Global Human Traditions & Cultural Landmarks Map", 50, 60);
+                    break;
+
+                case "victory":
+                    // Post-game celebratory geometric light lines wrapper
+                    ctx.fillStyle = '#27ae60';
+                    ctx.font = 'bold 24px sans-serif';
+                    ctx.fillText("MISSION COMPLETE", cx - 120, cy);
+                    break;
+            }
+
+            requestAnimationFrame(runGraphicsRenderLoop);
+        }
+
+        // Initialize Application Sequence Trigger
+        loadCurrentQuestion();
+        runGraphicsRenderLoop();
     </script>
 </body>
 </html>
