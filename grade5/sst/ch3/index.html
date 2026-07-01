@@ -30,7 +30,7 @@
             user-select: none;
         }
 
-        /* 5-SECOND FLASHING SPLASH SCREEN WITH LOGO ONLY */
+        /* 5-SECOND SPLASH SCREEN WITH LOGO ONLY */
         #splashScreen {
             position: fixed;
             top: 0;
@@ -94,12 +94,29 @@
             border-radius: 12px;
             position: relative;
             box-shadow: inset 0 0 40px rgba(0,0,0,0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         canvas {
             width: 100%;
             height: 100%;
             display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        .static-img-display {
+            max-width: 95%;
+            max-height: 95%;
+            object-fit: contain;
+            border-radius: 8px;
+            display: none;
+            position: relative;
+            z-index: 2;
         }
 
         .interaction-zone {
@@ -112,6 +129,7 @@
             flex-direction: column;
             justify-content: space-between;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 3;
         }
 
         .module-header {
@@ -255,6 +273,7 @@
     <div class="game-wrapper">
         <div class="visualizer-zone">
             <canvas id="geologyCanvas" width="720" height="520"></canvas>
+            <img id="staticTargetImage" src="" alt="Static Asset" class="static-img-display">
         </div>
 
         <div class="interaction-zone" id="playZone">
@@ -293,34 +312,37 @@
     <script>
         const canvas = document.getElementById('geologyCanvas');
         const ctx = canvas.getContext('2d');
+        const imgDisplay = document.getElementById('staticTargetImage');
 
-        // Dynamic Engine State Metrics
         let currentStage = 0;
         let successfulMatches = 0;
-        let activeVisualMode = "crust_ratio";
+        let activeVisualMode = "static_asset";
         let engineTicks = 0;
 
-        // 14-Task Dataset with corrected Task 1 options
+        // Balanced Dataset containing mix of local folder assets and animated fallback types
         const landformStages = [
             {
                 narrative: "Umesh looks out of the window during his flight and notices how much of the planet's total crust space is occupied by deep water pools compared to dry ground.",
                 instruction: "Identify the absolute coverage balance of Earth's surface space:",
                 cardValue: "70% Water, 30% Land",
                 distractor: "40% Water, 60% Land",
-                visual: "crust_ratio"
+                renderType: "image",
+                assetPath: "assets/crust_ratio.png"
             },
             {
                 narrative: "Massive open aquatic reservoirs like the Indian Ocean contain highly concentrated salt levels and are the largest water bodies on Earth.",
                 instruction: "Classify this specific macro category of global water systems:",
                 cardValue: "Oceans",
                 distractor: "Freshwater Lakes",
-                visual: "ocean"
+                renderType: "image",
+                assetPath: "assets/ocean.png"
             },
             {
                 narrative: "The sun beats down heavily on rock walls in central India's Vindhya Range. Sudden daytime heat followed by freezing nights makes the outer rock layers crack and crumble down.",
                 instruction: "What process breaks rocks down into fragments without changing their chemical structure?",
                 cardValue: "Physical Weathering",
                 distractor: "Chemical Deposition",
+                renderType: "canvas",
                 visual: "weathering"
             },
             {
@@ -328,6 +350,7 @@
                 instruction: "Identify the dynamic force that moves soil from one location to another:",
                 cardValue: "Erosion",
                 distractor: "Denudation",
+                renderType: "canvas",
                 visual: "erosion"
             },
             {
@@ -335,6 +358,7 @@
                 instruction: "Identify the overall wearing away and lowering of the Earth's surface layers:",
                 cardValue: "Denudation",
                 distractor: "Tectonic Uplift",
+                renderType: "canvas",
                 visual: "denudation"
             },
             {
@@ -342,6 +366,7 @@
                 instruction: "What structural process drops carried materials into a new location?",
                 cardValue: "Deposition",
                 distractor: "Weathering",
+                renderType: "canvas",
                 visual: "deposition"
             },
             {
@@ -349,6 +374,7 @@
                 instruction: "Classify this tall landform category which acts as a major storehouse of fresh river glaciers:",
                 cardValue: "Mountains",
                 distractor: "Plateaus",
+                renderType: "canvas",
                 visual: "mountains"
             },
             {
@@ -356,6 +382,7 @@
                 instruction: "Identify this structural landform category where crops like wheat and rice thrive:",
                 cardValue: "Plains",
                 distractor: "Plateaus",
+                renderType: "canvas",
                 visual: "plains"
             },
             {
@@ -363,6 +390,7 @@
                 instruction: "Identify this flat-topped, raised landform that is often rich in minerals:",
                 cardValue: "Plateaus",
                 distractor: "Valleys",
+                renderType: "canvas",
                 visual: "plateau"
             },
             {
@@ -370,6 +398,7 @@
                 instruction: "What low landform area lies between hills or mountains, like the famous Kashmir Valley?",
                 cardValue: "Valleys",
                 distractor: "Plains",
+                renderType: "canvas",
                 visual: "valleys"
             },
             {
@@ -377,6 +406,7 @@
                 instruction: "What category best defines this dry, sand-dominated landscape?",
                 cardValue: "Deserts",
                 distractor: "Valleys",
+                renderType: "canvas",
                 visual: "deserts"
             },
             {
@@ -384,6 +414,7 @@
                 instruction: "Identify this freshwater delivery system:",
                 cardValue: "Rivers",
                 distractor: "Seas",
+                renderType: "canvas",
                 visual: "rivers"
             },
             {
@@ -391,27 +422,39 @@
                 instruction: "Identify this specific landform created where land meets the sea:",
                 cardValue: "Beaches",
                 distractor: "Deltas",
+                renderType: "canvas",
                 visual: "beaches"
             },
             {
                 narrative: "Deep in the Pacific Ocean, a unique peak structure has its base on the ocean floor and rises high up through the water column, standing even taller than Mount Everest from base to peak.",
                 instruction: "Identify the specific mountain structure that remains partially submerged underwater:",
                 cardValue: "Mauna Kea",
-                distractor: "Mount Everest",
-                visual: "underwater"
+                distractor: "Mount Kilimanjaro",
+                renderType: "image",
+                assetPath: "assets/underwater.png"
             }
         ];
 
         function initiateStage() {
             document.getElementById('nextBtn').style.display = 'none';
             let stageData = landformStages[currentStage];
-            activeVisualMode = stageData.visual;
+
+            // Setup display layer visibility based on design requirements
+            if (stageData.renderType === "image") {
+                canvas.style.display = 'none';
+                imgDisplay.style.display = 'block';
+                imgDisplay.src = stageData.assetPath;
+                activeVisualMode = "static_asset";
+            } else {
+                imgDisplay.style.display = 'none';
+                canvas.style.display = 'block';
+                activeVisualMode = stageData.visual;
+            }
 
             document.getElementById('counterLabel').innerText = `Task ${currentStage + 1} of 14`;
             document.getElementById('caseDescription').innerHTML = `<strong>Context:</strong> ${stageData.narrative}<br><br><em style="color:#e5a93c;">${stageData.instruction}</em>`;
 
             let dropSlot = document.getElementById('targetSlot');
-            dropSlot.className = "drop-target-slot";
             dropSlot.style.background = "#14100b";
             dropSlot.style.borderColor = "#614a34";
             dropSlot.innerText = "Drop the corresponding target classification card here...";
@@ -480,6 +523,8 @@
                 document.getElementById('finishZone').style.display = 'flex';
                 document.getElementById('finalScore').innerText = `${successfulMatches} / 14`;
                 activeVisualMode = "end";
+                imgDisplay.style.display = 'none';
+                canvas.style.display = 'block';
 
                 let message = "";
                 if(successfulMatches >= 12) {
@@ -502,7 +547,7 @@
             initiateStage();
         }
 
-        // CANVAS RENDERING CORE ENGINE
+        // PROCEDURAL CANVAS RENDER ENGINE LOOP
         function runGraphicsEngine() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             engineTicks += 0.025;
@@ -513,61 +558,6 @@
             ctx.fillRect(0, 0, w, h);
 
             switch(activeVisualMode) {
-                case "crust_ratio":
-                    ctx.fillStyle = '#1e1c1a';
-                    ctx.beginPath();
-                    ctx.arc(w/2, h/2 - 20, 110, 0, Math.PI * 2);
-                    ctx.fill();
-
-                    ctx.fillStyle = varProps('--river-blue');
-                    ctx.beginPath();
-                    ctx.moveTo(w/2, h/2 - 20);
-                    ctx.arc(w/2, h/2 - 20, 110, 0, Math.PI * 2 * 0.7);
-                    ctx.fill();
-
-                    ctx.fillStyle = '#b76e2e';
-                    ctx.beginPath();
-                    ctx.moveTo(w/2, h/2 - 20);
-                    ctx.arc(w/2, h/2 - 20, 110, Math.PI * 2 * 0.7, Math.PI * 2);
-                    ctx.fill();
-
-                    ctx.fillStyle = "#fff";
-                    ctx.font = "bold 15px sans-serif";
-                    ctx.fillText("Global Planetary Surface Distribution Diagram", 40, 50);
-                    ctx.fillStyle = varProps('--river-blue');
-                    ctx.fillText("🔵 Oceanic Basin Workspace", 60, h - 50);
-                    ctx.fillStyle = '#b76e2e';
-                    ctx.fillText("🟫 Continental Landmass Crust", w - 320, h - 50);
-                    break;
-
-                case "ocean":
-                    ctx.fillStyle = '#06131e';
-                    ctx.fillRect(0, 0, w, h);
-                    ctx.fillStyle = '#0b253a';
-                    ctx.beginPath();
-                    ctx.moveTo(0, h);
-                    for(let x=0; x<=w; x+=20) {
-                        let y = h - 180 + Math.sin(x*0.015 + engineTicks*2) * 15;
-                        ctx.lineTo(x, y);
-                    }
-                    ctx.lineTo(w, h);
-                    ctx.fill();
-
-                    ctx.fillStyle = varProps('--river-blue');
-                    ctx.beginPath();
-                    ctx.moveTo(0, h);
-                    for(let x=0; x<=w; x+=20) {
-                        let y = h - 120 + Math.sin(x*0.02 - engineTicks*2.5) * 12;
-                        ctx.lineTo(x, y);
-                    }
-                    ctx.lineTo(w, h);
-                    ctx.fill();
-
-                    ctx.fillStyle = "#fff";
-                    ctx.font = "bold 15px sans-serif";
-                    ctx.fillText("Macro Marine Slipped Basin (Salty Deep Reservoir System)", 40, 50);
-                    break;
-
                 case "weathering":
                     ctx.fillStyle = '#423529';
                     ctx.beginPath();
@@ -638,7 +628,6 @@
                 case "deposition":
                     ctx.fillStyle = '#1a334d';
                     ctx.fillRect(0, 0, w, h);
-
                     ctx.fillStyle = '#27ae60';
                     ctx.fillRect(0, h - 200, w, 200);
 
@@ -727,7 +716,6 @@
                 case "valleys":
                     ctx.fillStyle = '#4a5568';
                     ctx.fillRect(0, 0, w, h);
-
                     ctx.fillStyle = '#718096';
                     ctx.beginPath();
                     ctx.moveTo(0, 100); ctx.lineTo(w/2, h - 100); ctx.lineTo(0, h); ctx.fill();
@@ -804,31 +792,6 @@
                     ctx.fillText("Coastal Wave Aggregation Zone (Sanded Beach Shoreline)", 40, 50);
                     break;
 
-                case "underwater":
-                    ctx.fillStyle = '#020b14';
-                    ctx.fillRect(0, 0, w, h);
-
-                    ctx.strokeStyle = '#3498db';
-                    ctx.lineWidth = 3;
-                    ctx.beginPath();
-                    ctx.moveTo(0, 140); ctx.lineTo(w, 140);
-                    ctx.stroke();
-
-                    ctx.fillStyle = '#231d18';
-                    ctx.beginPath();
-                    ctx.moveTo(100, h);
-                    ctx.lineTo(w/2, 60);
-                    ctx.lineTo(w - 100, h);
-                    ctx.fill();
-
-                    ctx.fillStyle = '#3498db';
-                    ctx.font = "bold 12px sans-serif";
-                    ctx.fillText("~~~~~~~~~~~~~~~~ WAVE OCEAN SURFACE LINE ~~~~~~~~~~~~~~~~", 40, 125);
-                    ctx.fillStyle = "#fff";
-                    ctx.font = "bold 15px sans-serif";
-                    ctx.fillText("Submerged Volcanic Mountain Profile (Base-to-Peak Scaling)", 40, 50);
-                    break;
-
                 case "end":
                     ctx.fillStyle = '#000';
                     ctx.fillRect(0, 0, w, h);
@@ -845,7 +808,7 @@
             return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
         }
 
-        // Initialize components after the mandatory 5-second splash delay
+        // Initialize and fire up the system following the splash time screen
         setTimeout(() => {
             initiateStage();
             runGraphicsEngine();
