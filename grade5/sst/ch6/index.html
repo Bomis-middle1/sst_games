@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grade 5: Transport & Communication Puzzle</title>
+    <style>
+        :root {
+            --sky: #ebf8ff;
+            --accent-blue: #2b6cb0;
+            --accent-green: #2f855a;
+            --danger: #c53030;
+            --text-dark: #2d3748;
+            --border-color: #cbd5e0;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #e6fffa 0%, #ebf8ff 100%);
+            margin: 0;
+            padding: 15px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-dark);
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Pure White Minimalist Splash Screen */
+        #splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.6s ease-out, visibility 0.6s;
+        }
+
+        .splash-logo {
+            max-width: 260px;
+            width: 80%;
+            height: auto;
+            animation: pulseLogo 2s ease-in-out infinite alternate;
+        }
+
+        /* Game Board Layout */
+        #game-wrapper {
+            width: 100%;
+            max-width: 780px;
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+            border: 4px solid var(--border-color);
+            padding: 20px;
+            box-sizing: border-box;
+            display: none;
+            text-align: center;
+        }
+
+        .header-logo {
+            max-height: 35px;
+            margin-bottom: 10px;
+        }
+
+        /* HUD Status Indicators */
+        .hud-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f7fafc;
+            padding: 8px 15px;
+            border-radius: 12px;
+            border: 2px dashed var(--border-color);
+            margin-bottom: 15px;
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+
+        /* Twin Column Structure */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        @media (min-width: 640px) {
+            .main-layout {
+                grid-template-columns: 1.1fr 0.9fr;
+                align-items: center;
+            }
+        }
+
+        .question-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            text-align: left;
+        }
+
+        .clue-box {
+            background: #f7fafc;
+            border: 2px solid #edf2f7;
+            border-radius: 14px;
+            padding: 15px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            line-height: 1.4;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+        }
+
+        .options-column {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .choice-btn {
+            background: #ffffff;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px 15px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: left;
+            box-shadow: 0 4px 0 var(--border-color);
+            transition: all 0.1s ease;
+            outline: none;
+        }
+
+        .choice-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 var(--border-color);
+        }
+
+        .choice-btn.correct-glow {
+            background: #c6f6d5 !important;
+            border-color: var(--accent-green) !important;
+            color: #1c452f !important;
+            box-shadow: 0 4px 0 var(--accent-green) !important;
+        }
+
+        .choice-btn.wrong-glow {
+            background: #fed7d7 !important;
+            border-color: var(--danger) !important;
+            color: #631717 !important;
+            box-shadow: 0 4px 0 var(--danger) !important;
+        }
+
+        /* Puzzle Interactive Canvas Layout */
+        .puzzle-board-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .puzzle-canvas {
+            width: 300px;
+            height: 240px;
+            background: #edf2f7;
+            border: 4px dashed #4299e1;
+            border-radius: 16px;
+            position: relative;
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+        }
+
+        /* Dynamic Image Grid Cutout mapping */
+        .puzzle-piece {
+            background-image: url('https://picsum.photos/id/49/600/480');
+            background-size: 300px 240px;
+            opacity: 0;
+            visibility: hidden;
+            border: 0.5px solid rgba(255, 255, 255, 0.5);
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s;
+            transform: scale(1.4) rotate(-20deg);
+        }
+
+        .puzzle-piece.assembled {
+            opacity: 1;
+            visibility: visible;
+            transform: scale(1) rotate(0deg);
+        }
+
+        /* End Session screen layout */
+        #end-screen {
+            display: none;
+            padding: 25px 10px;
+        }
+
+        .score-banner {
+            font-size: 3rem;
+            font-weight: 900;
+            color: #38a169;
+            margin: 15px 0;
+        }
+
+        .btn-restart {
+            background: #3182ce;
+            color: white;
+            border: none;
+            border-radius: 14px;
+            padding: 14px 30px;
+            font-size: 1.15rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #2b6cb0;
+        }
+
+        @keyframes pulseLogo {
+            0% { transform: scale(0.95); opacity: 0.9; }
+            100% { transform: scale(1.05); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="splash-screen">
+        <img src="assets/innovine-logo.png" alt="Innovine" class="splash-logo">
+    </div>
+
+    <div id="game-wrapper">
+        <img src="assets/innovine-logo.png" alt="Innovine" class="header-logo" onerror="this.style.display='none'">
+        
+        <div id="live-stage">
+            <div class="hud-panel">
+                <div id="hud-quest-no">Quest Check: 1 / 10</div>
+                <div id="hud-score">Transit Network: 🧩 0/10</div>
+            </div>
+
+            <div class="main-layout">
+                <div class="question-container">
+                    <div class="clue-box" id="clue-text-display">Loading Chapter 6 Context Data...</div>
+                    <div class="options-column" id="choices-box-list">
+                        </div>
+                </div>
+
+                <div class="puzzle-board-wrapper">
+                    <h3 style="margin: 0 0 10px 0; font-size: 1.05rem; color: #2b6cb0;">Assemble the Network Map! 🗺️</h3>
+                    <div class="puzzle-canvas" id="puzzle-grid-canvas">
+                        <div class="puzzle-piece" id="piece-0" style="background-position: 0px 0px;"></div>
+                        <div class="puzzle-piece" id="piece-1" style="background-position: -60px 0px;"></div>
+                        <div class="puzzle-piece" id="piece-2" style="background-position: -120px 0px;"></div>
+                        <div class="puzzle-piece" id="piece-3" style="background-position: -180px 0px;"></div>
+                        <div class="puzzle-piece" id="piece-4" style="background-position: -240px 0px;"></div>
+                        <div class="puzzle-piece" id="piece-5" style="background-position: 0px -120px;"></div>
+                        <div class="puzzle-piece" id="piece-6" style="background-position: -60px -120px;"></div>
+                        <div class="puzzle-piece" id="piece-7" style="background-position: -120px -120px;"></div>
+                        <div class="puzzle-piece" id="piece-8" style="background-position: -180px -120px;"></div>
+                        <div class="puzzle-piece" id="piece-9" style="background-position: -240px -120px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="end-screen">
+            <div style="font-size: 4.5rem; margin-bottom: 5px;">🚀</div>
+            <h1 style="color: #2b6cb0;">Global Network Complete!</h1>
+            <p style="font-size: 1.15rem; color: #4a5568;">Great work! You have successfully mastered the systems of Transport & Communication.</p>
+            <div class="score-banner" id="final-score-value">10 / 10</div>
+            <button class="btn-restart" onclick="window.location.reload()">Travel Again 🔄</button>
+        </div>
+    </div>
+
+    <audio id="sound-correct" src="assets/correct.mp3" preload="auto"></audio>
+    <audio id="sound-wrong" src="assets/wrong.mp3" preload="auto"></audio>
+    <audio id="sound-win" src="assets/freesound_community-claps-4474.mp3" preload="auto"></audio>
+
+    <script>
+        const transitDataset = [
+            { text: "What term describes the system of moving humans, animals, and essential goods from one location to another?", answers: ["Transport 🚌", "Communication 📞", "Farming 🌾", "Manufacturing 🏭"], correct: "Transport 🚌" },
+            { text: "Which history-altering hardware invention made smaller rolling tools like wheels and wheelbarrows practical?", answers: ["The Wheel & Axle 🛞", "The Steam Engine 🚂", "The Jet Turbine ✈️", "The Maglev Magnet 🧲"], correct: "The Wheel & Axle 🛞" },
+            { text: "Where does Bharat stand globally in terms of the scale and size of its vast road transport infrastructure?", answers: ["First Largest 🥇", "Second Largest 🥈", "Third Largest 🥉", "Fourth Largest 🏅"], correct: "Second Largest 🥈" },
+            { text: "What historical national route connects Delhi to Kolkata as NH-2 and was part of the original Grand Trunk Road?", answers: ["NH-44 🗺️", "Grand Trunk Road 🛣️", "Leh-Manali Highway 🏔️", "Panama Canal 🚢"], correct: "Grand Trunk Road 🛣️" },
+            { text: "What is the name of Bharat’s premier indigenously-developed semi-high-speed train capable of running at 160 km/h?", answers: ["Kolkata Metro 🚇", "Vande Bharat 🚄", "Trans-Siberian Express 🚂", "Bullet Train 🚀"], correct: "Vande Bharat 🚄" },
+            { text: "Which ultra-fast modern train relies on magnetic levitation fields to slide smoothly without touching the tracks?", answers: ["Steam Engine Train 🚂", "Elevated Rapid Metro 🚇", "Maglev Train 🧲", "Trawler Ship 🚢"], correct: "Maglev Train 🧲" },
+            { text: "Which strategic man-made canal opened in 1869, linking the Mediterranean Sea to the Red Sea for faster global shipping?", answers: ["Panama Canal 🚢", "Suez Canal 🌊", "NW1 Ganga Route 💧", "Yiwu-Madrid Route 🛤️"], correct: "Suez Canal 🌊" },
+            { text: "Who made history as the very first space tourist from Bharat by embarking on a short recreational flight?", answers: ["Rakesh Sharma 👨‍🚀", "Kalpana Chawla 👩‍🚀", "Gopi Thotakura 🚀", "Dennis Tito 🌌"], correct: "Gopi Thotakura 🚀" },
+            { text: "Which personal communication tool was famously invented by Alexander Graham Bell in 1876?", answers: ["The Telephone 📞", "The Fax Machine 📠", "Electronic Mail 💻", "The Radio 📻"], correct: "The Telephone 📞" },
+            { text: "What form of communication uses advanced satellites in orbit to share live broadcasts globally like a 'Space Bridge'?", answers: ["Magazine Logs 📄", "Short Message Services 📱", "TV Broadcasts 📡", "Facsimile Faxing 📠"], correct: "TV Broadcasts 📡" }
+        ];
+
+        let playHead = 0;
+        let successfulMatches = 0;
+        let blockInteraction = false;
+
+        function triggerAudio(id) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.currentTime = 0;
+                el.play().catch(() => {});
+            }
+        }
+
+        // Strict 5-Second White Background Hold Loop Execution Block
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                document.getElementById('splash-screen').style.opacity = '0';
+                document.getElementById('splash-screen').style.visibility = 'hidden';
+                document.getElementById('game-wrapper').style.display = 'block';
+                renderNextStep();
+            }, 5000);
+        });
+
+        function renderNextStep() {
+            blockInteraction = false;
+            const stepItem = transitDataset[playHead];
+
+            document.getElementById('hud-quest-no').innerText = `Quest Check: ${playHead + 1} / ${transitDataset.length}`;
+            document.getElementById('hud-score').innerText = `Transit Network: 🧩 ${successfulMatches}/10`;
+            document.getElementById('clue-text-display').innerText = stepItem.text;
+
+            const shelf = document.getElementById('choices-box-list');
+            shelf.innerHTML = '';
+
+            let choicesPool = [...stepItem.answers].sort(() => Math.random() - 0.5);
+
+            choicesPool.forEach(choiceString => {
+                const button = document.createElement('button');
+                button.className = 'choice-btn';
+                button.innerText = choiceString;
+                button.onclick = () => processSelectionInput(button, choiceString, stepItem.correct);
+                shelf.appendChild(button);
+            });
+        }
+
+        function processSelectionInput(targetNode, selectedString, solutionString) {
+            if (blockInteraction) return;
+            blockInteraction = true;
+
+            if (selectedString === solutionString) {
+                targetNode.classList.add('correct-glow');
+                triggerAudio('sound-correct');
+
+                const slice = document.getElementById(`piece-${successfulMatches}`);
+                if (slice) slice.classList.add('assembled');
+
+                successfulMatches++;
+            } else {
+                targetNode.classList.add('wrong-glow');
+                triggerAudio('sound-wrong');
+
+                const allButtons = document.querySelectorAll('.choice-btn');
+                allButtons.forEach(btn => {
+                    if (btn.innerText === solutionString) btn.classList.add('correct-glow');
+                });
+            }
+
+            setTimeout(() => {
+                playHead++;
+                if (playHead < transitDataset.length) {
+                    renderNextStep();
+                } else {
+                    concludeAdventure();
+                }
+            }, 2500);
+        }
+
+        function concludeAdventure() {
+            document.getElementById('live-stage').style.display = 'none';
+            document.getElementById('end-screen').style.display = 'block';
+            document.getElementById('final-score-value').innerText = `${successfulMatches} / 10 System Nodes`;
+            triggerAudio('sound-win');
+        }
+    </script>
+</body>
+</html>
