@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bharat Explorer - Chapter 10</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #ff9933, #ffffff, #138808);
+            background-attachment: fixed;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333;
+        }
+
+        #game-container {
+            background: rgba(255, 255, 255, 0.95);
+            width: 95%;
+            max-width: 650px;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+            position: relative;
+        }
+
+        .logo {
+            max-width: 120px;
+            margin: 0 auto 10px auto;
+            display: block;
+        }
+
+        h1 {
+            color: #060644;
+            margin-bottom: 10px;
+            font-size: 2.2rem;
+            letter-spacing: 0.5px;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .active {
+            display: block;
+        }
+
+        /* Start Screen */
+        .intro-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin: 20px 0;
+            color: #374151;
+        }
+
+        .btn {
+            background-color: #ff9933;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+            box-shadow: 0 4px 10px rgba(255, 153, 51, 0.4);
+        }
+
+        .btn:hover {
+            background-color: #e67e22;
+            transform: translateY(-2px);
+        }
+
+        /* Game Screen */
+        .stats-bar {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            background: #f3f4f6;
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            border: 1px solid #e5e7eb;
+        }
+
+        .stat-val {
+            color: #060644;
+        }
+
+        .item-box {
+            background: #f8fafc;
+            border: 3px dashed #ff9933;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .item-label {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+
+        .current-item {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #1e293b;
+            animation: popIn 0.3s ease;
+        }
+
+        .bins-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .bin {
+            flex: 1;
+            padding: 20px 10px;
+            border-radius: 15px;
+            cursor: pointer;
+            color: white;
+            font-weight: bold;
+            font-size: 0.95rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .bin:hover {
+            transform: scale(1.04);
+        }
+
+        .bin-icon {
+            font-size: 3rem;
+        }
+
+        .bin-north-west {
+            background: #0284c7;
+            box-shadow: 0 6px 15px rgba(2, 132, 199, 0.4);
+        }
+
+        .bin-south-east {
+            background: #0d9488;
+            box-shadow: 0 6px 15px rgba(13, 148, 136, 0.4);
+        }
+
+        /* Audio Controls Toggle */
+        .audio-toggle {
+            font-size: 0.9rem;
+            margin-top: 15px;
+            color: #6b7280;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        /* Feedback Message */
+        #feedback {
+            margin-top: 15px;
+            height: 24px;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        .correct { color: #16a34a; }
+        .wrong { color: #dc2626; }
+
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <img src="assets/innovine-logo.png" alt="Innovine Logo" class="logo" onerror="this.style.display='none'">
+    
+    <div id="start-screen" class="screen active">
+        <h1>🇮🇳 BHARAT EXPLORER</h1>
+        <p class="intro-text">
+            Bharat is a land of vast cultural diversity, landmarks, and traditions!<br><br>
+            Test your knowledge of India's states, features, and capitals. <br>
+            <strong>Classify each item into its correct geographical zone:</strong><br><br>
+            🔵 <strong>North & West Zone</strong><br>
+            🟢 <strong>South & East Zone</strong>
+        </p>
+        <button class="btn" onclick="startGame()">🚀 START EXPLORING</button>
+    </div>
+
+    <div id="game-screen" class="screen">
+        <h1>🇮🇳 BHARAT EXPLORER</h1>
+        
+        <div class="stats-bar">
+            <div>⭐ Score: <span id="score-val" class="stat-val">0</span></div>
+            <div>📦 Progress: <span id="sorted-val" class="stat-val">0</span> / 8</div>
+        </div>
+
+        <div class="item-box">
+            <div class="item-label">🔎 EXPLORE THIS FEATURE</div>
+            <div id="current-item-display" class="current-item">Loading Item...</div>
+        </div>
+
+        <div class="bins-container">
+            <div class="bin bin-north-west" onclick="handleSort('North-West')">
+                <span class="bin-icon">🕌⛰️</span>
+                <span>NORTH & WEST ZONE</span>
+            </div>
+            <div class="bin bin-south-east" onclick="handleSort('South-East')">
+                <span class="bin-icon">🛕🌴</span>
+                <span>SOUTH & EAST ZONE</span>
+            </div>
+        </div>
+
+        <div id="feedback"></div>
+        <div class="audio-toggle" onclick="toggleMute()">🔊 Sound: On (Click to change)</div>
+    </div>
+
+    <div id="end-screen" class="screen">
+        <h1>🎉 EXPLORATION COMPLETE!</h1>
+        <p class="intro-text" id="final-results">
+            Fantastic job! You appreciate the beautiful diversity of India's traditions, languages, and locations.
+        </p>
+        <button class="btn" onclick="restartGame()">🔄 PLAY AGAIN</button>
+    </div>
+</div>
+
+<script>
+    // Audio initializations using paths from your assets folder screenshot
+    const audioCorrect = new Audio('assets/correct.mp3');
+    const audioWrong = new Audio('assets/wrong.mp3');
+    const audioWin = new Audio('assets/freesound_community-claps-44774.mp3');
+    let isMuted = false;
+
+    // Data set compiled from Chapter 10 textbook content
+    const itemPool = [
+        { name: "Taj Mahal (Uttar Pradesh)", zone: "North-West" },
+        { name: "Meenakshi Temple (Tamil Nadu)", zone: "South-East" },
+        { name: "Thar Desert (Western India)", zone: "North-West" },
+        { name: "Sundarbans Tiger Reserve (West Bengal)", zone: "South-East" },
+        { name: "Hawa Mahal & Jaisalmer Fort (Rajasthan)", zone: "North-West" },
+        { name: "Kerala Backwaters & Greenery", zone: "South-East" },
+        { name: "Towering Himalayan Mountains", zone: "North-West" },
+        { name: "Capital City: Bengaluru (Karnataka)", zone: "South-East" },
+        { name: "Pheran Attire (Kashmir)", zone: "North-West" },
+        { name: "Mekhla Chador Attire (Assam)", zone: "South-East" }
+    ];
+
+    let gameItems = [];
+    let currentItemIndex = 0;
+    let score = 0;
+    const itemsPerGame = 8; // Match the original design of sorting 8 items per run
+
+    function showScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(screen => screen.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+    }
+
+    function toggleMute() {
+        isMuted = !isMuted;
+        document.querySelector('.audio-toggle').textContent = isMuted ? "🔇 Sound: Off (Click to change)" : "🔊 Sound: On (Click to change)";
+    }
+
+    function playSound(audioObject) {
+        if (!isMuted) {
+            audioObject.currentTime = 0;
+            audioObject.play().catch(e => console.log("Audio playback blocked until user interact."));
+        }
+    }
+
+    function startGame() {
+        // Shuffles the array completely and picks 8 items randomly
+        gameItems = [...itemPool].sort(() => Math.random() - 0.5).slice(0, itemsPerGame);
+        currentItemIndex = 0;
+        score = 0;
+        
+        updateStats();
+        loadNextItem();
+        showScreen('game-screen');
+    }
+
+    function loadNextItem() {
+        if (currentItemIndex < gameItems.length) {
+            const displayEl = document.getElementById('current-item-display');
+            displayEl.textContent = gameItems[currentItemIndex].name;
+            
+            // Re-trigger animation
+            displayEl.style.animation = 'none';
+            displayEl.offsetHeight; 
+            displayEl.style.animation = null;
+        } else {
+            endGame();
+        }
+    }
+
+    function handleSort(selectedZone) {
+        const currentItem = gameItems[currentItemIndex];
+        const feedbackEl = document.getElementById('feedback');
+
+        if (currentItem.zone === selectedZone) {
+            score += 10;
+            feedbackEl.textContent = "✅ Correct! Jai Hind!";
+            feedbackEl.className = "correct";
+            playSound(audioCorrect);
+        } else {
+            feedbackEl.textContent = "❌ Oops! That's in the other zone.";
+            feedbackEl.className = "wrong";
+            playSound(audioWrong);
+        }
+
+        currentItemIndex++;
+        updateStats();
+
+        setTimeout(() => {
+            feedbackEl.textContent = "";
+            loadNextItem();
+        }, 1000);
+    }
+
+    function updateStats() {
+        document.getElementById('score-val').textContent = score;
+        document.getElementById('sorted-val').textContent = currentItemIndex;
+    }
+
+    function endGame() {
+        playSound(audioWin);
+        const evaluationMsg = score >= 60 ? "Excellent Knowledge Explorer! 🌟" : "Good Attempt! Keep exploring India's map! 🧭";
+        document.getElementById('final-results').innerHTML = `
+            ${evaluationMsg}<br><br>
+            <strong>Your Final Score: ${score} / ${itemsPerGame * 10}</strong>
+        `;
+        showScreen('end-screen');
+    }
+
+    function restartGame() {
+        showScreen('start-screen');
+    }
+</script>
+
+</body>
+</html>
