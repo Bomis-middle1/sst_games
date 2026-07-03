@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather & Climate - World Explorer Game</title>
+    <style>
+        :root {
+            --sky: #ebf8ff;
+            --accent-blue: #3182ce;
+            --accent-green: #38a169;
+            --accent-yellow: #ecc94b;
+            --danger: #e53e3e;
+            --text-dark: #2d3748;
+            --border-color: #cbd5e0;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #e0f2fe 0%, #ebf8ff 100%);
+            margin: 0;
+            padding: 15px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-dark);
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Pure White Minimalist Splash Screen */
+        #splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.6s ease-out, visibility 0.6s;
+        }
+
+        .splash-logo {
+            max-width: 260px;
+            width: 80%;
+            height: auto;
+            animation: pulseLogo 2s ease-in-out infinite alternate;
+        }
+
+        /* Game Board Wrapper */
+        #game-wrapper {
+            width: 100%;
+            max-width: 680px;
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+            border: 4px solid var(--border-color);
+            padding: 25px;
+            box-sizing: border-box;
+            display: none;
+            position: relative;
+            text-align: center;
+        }
+
+        .header-logo {
+            max-height: 40px;
+            margin-bottom: 10px;
+        }
+
+        /* Level Metrics HUD */
+        .hud-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f7fafc;
+            padding: 10px 20px;
+            border-radius: 15px;
+            border: 2px dashed var(--border-color);
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        /* Visual Clip-art Box */
+        .clue-image-container {
+            background: #f7fafc;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 2px solid #edf2f7;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            font-weight: bold;
+            line-height: 1.5;
+        }
+
+        /* Target Drop Container Zone */
+        .drop-target-box {
+            background: #edf2f7;
+            border: 3px dashed var(--accent-blue);
+            border-radius: 16px;
+            padding: 20px;
+            margin: 25px 0;
+            min-height: 60px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #718096;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .drop-target-box.drag-over {
+            background: #e1effe;
+            transform: scale(1.02);
+        }
+
+        .drop-target-box.answered-correct {
+            background: #c6f6d5;
+            border: 3px solid var(--accent-green);
+            color: #22543d;
+        }
+
+        .drop-target-box.answered-wrong {
+            background: #fed7d7;
+            border: 3px solid var(--danger);
+            color: #742a2a;
+        }
+
+        /* Draggable Items Row */
+        .options-shelf {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 20px;
+            min-height: 60px;
+        }
+
+        .draggable-chip {
+            background: #ffffff;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px 20px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: grab;
+            box-shadow: 0 4px 0 var(--border-color);
+            user-select: none;
+            transition: transform 0.1s, background-color 0.2s;
+        }
+
+        .draggable-chip:active {
+            cursor: grabbing;
+        }
+
+        .draggable-chip.tapped-selected {
+            background: var(--sky);
+            border-color: var(--accent-blue);
+            transform: scale(0.95);
+        }
+
+        /* Feedback Screen Layout */
+        #end-screen {
+            display: none;
+            padding: 30px 10px;
+        }
+
+        .score-banner {
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: var(--accent-green);
+            margin: 20px 0;
+        }
+
+        .btn-restart {
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            padding: 14px 30px;
+            font-size: 1.15rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #2b6cb0;
+        }
+
+        @keyframes pulseLogo {
+            0% { transform: scale(0.95); opacity: 0.9; }
+            100% { transform: scale(1.05); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="splash-screen">
+        <img src="assets/innovine-logo.png" alt="Innovine" class="splash-logo">
+    </div>
+
+    <div id="game-wrapper">
+        <img src="assets/innovine-logo.png" alt="Innovine" class="header-logo" onerror="this.style.display='none'">
+        
+        <div id="live-stage">
+            <div class="hud-panel">
+                <div id="hud-quest-no">Quest: 1 / 10</div>
+                <div id="hud-stars">Score: ⭐ 0</div>
+            </div>
+
+            <div class="clue-image-container" id="clue-display-box">
+                Loading Climate Adventure...
+            </div>
+
+            <div class="drop-target-box" id="drop-zone-target">
+                Drag or Tap your answer here!
+            </div>
+
+            <div class="options-shelf" id="choices-shelf-box">
+                </div>
+        </div>
+
+        <div id="end-screen">
+            <div style="font-size: 5.5rem; margin-bottom: 10px;">☀️</div>
+            <h1 style="color: var(--accent-blue);">Climatologist Training Complete!</h1>
+            <p style="font-size: 1.2rem; color: #4a5568;">You understand Earth's weather systems and heat zones perfectly!</p>
+            <div class="score-banner" id="final-score-value">0 / 10</div>
+            <button class="btn-restart" onclick="window.location.reload()">Explore Again 🔄</button>
+        </div>
+    </div>
+
+    <audio id="sound-correct" src="assets/correct.mp3" preload="auto"></audio>
+    <audio id="sound-wrong" src="assets/wrong.mp3" preload="auto"></audio>
+    <audio id="sound-win" src="assets/freesound_community-claps-4474.mp3" preload="auto"></audio>
+
+    <script>
+        // Comprehensive 10-Question Weather & Climate Dataset
+        const dynamicDataset = [
+            { text: "What term describes the conditions of the atmosphere at a specific place and time, changing from hour to hour?", answer: "Weather 🌦️" },
+            { text: "What term refers to the average weather conditions in a place over a long period, usually 30 years or more?", answer: "Climate 🌍" },
+            { text: "What is the name for the scientific study of daily atmospheric conditions and short-term weather forecasting?", answer: "Meteorology 🌡️" },
+            { text: "What is the name for the scientific study of long-term weather trends, patterns, and trends over decades?", answer: "Climatology 📊" },
+            { text: "What is the term for the amount of water vapor present in the air, which increases the chances of rain?", answer: "Humidity 💧" },
+            { text: "Which heat zone receives direct sunlight all year round and is the hottest part of the Earth?", answer: "Torrid Zone 🌋" },
+            { text: "Which heat zones have moderate weather with four distinct seasons and are found between the hot and cold zones?", answer: "Temperate Zones 🍂" },
+            { text: "Which heat zones are located near the poles, receiving very slanted rays that leave the land frozen?", answer: "Frigid Zones ❄️" },
+            { text: "What factor describes how high a place is above sea level, making higher places like Ooty cooler?", answer: "Altitude 🏔️" },
+            { text: "What do we call the cool wind that blows directly from the large water bodies onto the land during the day?", answer: "Sea Breeze 🌊" }
+        ];
+
+        // Unique wrong distractors for choice pool balancing
+        const alternativeDistractors = [
+            "Barometer 📉", "Rain Gauge 🌧️", "Land Breeze 🍃", "Equator ⭕", "Wind Vane 🧭"
+        ];
+
+        let playHeadIndex = 0;
+        let runningScore = 0;
+        let selectedChipElement = null;
+        let processingFrame = false;
+
+        function triggerAudio(nodeId) {
+            const player = document.getElementById(nodeId);
+            if (player) {
+                player.currentTime = 0;
+                player.play().catch(() => {});
+            }
+        }
+
+        // Strict 5-Second Splash Hold Frame Execution Loop
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                document.getElementById('splash-screen').style.opacity = '0';
+                document.getElementById('splash-screen').style.visibility = 'hidden';
+                document.getElementById('game-wrapper').style.display = 'block';
+                loadQuestionStep();
+            }, 5000);
+        });
+
+        function loadQuestionStep() {
+            processingFrame = false;
+            selectedChipElement = null;
+            
+            const currentItem = dynamicDataset[playHeadIndex];
+
+            // Reset target dropzone state metrics
+            const targetZone = document.getElementById('drop-zone-target');
+            targetZone.className = "drop-target-box";
+            targetZone.innerText = "Drag or Tap your answer here!";
+
+            // Update Header Trackers
+            document.getElementById('hud-quest-no').innerText = `Quest: ${playHeadIndex + 1} / ${dynamicDataset.length}`;
+            document.getElementById('hud-stars').innerText = `Score: ⭐ ${runningScore}`;
+            document.getElementById('clue-display-box').innerText = currentItem.text;
+
+            // Generate Context choices (Correct + 3 Distractors shuffled)
+            let choicesPool = [currentItem.answer];
+            let rawDistractors = [...alternativeDistractors];
+            
+            // Collect other valid answers as contextual distractors dynamically
+            dynamicDataset.forEach(d => {
+                if (d.answer !== currentItem.answer) rawDistractors.push(d.answer);
+            });
+            rawDistractors.sort(() => Math.random() - 0.5);
+            
+            // Mix down choices options pool
+            choicesPool.push(rawDistractors[0], rawDistractors[1], rawDistractors[2]);
+            choicesPool.sort(() => Math.random() - 0.5);
+
+            // Populate the shelf container options safely
+            const shelf = document.getElementById('choices-shelf-box');
+            shelf.innerHTML = '';
+
+            choicesPool.forEach((choiceText, index) => {
+                const chip = document.createElement('div');
+                chip.className = 'draggable-chip';
+                chip.innerText = choiceText;
+                chip.id = `chip-${index}`;
+                chip.draggable = true;
+
+                // Drag Events API mapping
+                chip.addEventListener('dragstart', (e) => {
+                    if (processingFrame) return;
+                    e.dataTransfer.setData('text/plain', choiceText);
+                    e.dataTransfer.setData('element-id', chip.id);
+                });
+
+                // Mobile/Tap Fallback Selection handling
+                chip.addEventListener('click', () => {
+                    if (processingFrame) return;
+                    document.querySelectorAll('.draggable-chip').forEach(c => c.classList.remove('tapped-selected'));
+                    chip.classList.add('tapped-selected');
+                    selectedChipElement = chip;
+                });
+
+                shelf.appendChild(chip);
+            });
+
+            bindDropZoneMechanics();
+        }
+
+        function bindDropZoneMechanics() {
+            const targetZone = document.getElementById('drop-zone-target');
+
+            // Drag Native events override rules
+            targetZone.addEventListener('dragover', (e) => e.preventDefault());
+            targetZone.addEventListener('dragenter', () => {
+                if (!processingFrame) targetZone.classList.add('drag-over');
+            });
+            targetZone.addEventListener('dragleave', () => {
+                targetZone.classList.remove('drag-over');
+            });
+            
+            targetZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                if (processingFrame) return;
+                targetZone.classList.remove('drag-over');
+                
+                const droppedText = e.dataTransfer.getData('text/plain');
+                const droppedElementId = e.dataTransfer.getData('element-id');
+                evaluateMatchInput(droppedText, document.getElementById(droppedElementId));
+            });
+
+            // Tap Fallback Action execution on target zone box
+            targetZone.onclick = () => {
+                if (processingFrame || !selectedChipElement) return;
+                evaluateMatchInput(selectedChipElement.innerText, selectedChipElement);
+            };
+        }
+
+        function evaluateMatchInput(inputText, sourceChip) {
+            processingFrame = true;
+            const targetZone = document.getElementById('drop-zone-target');
+            const currentItem = dynamicDataset[playHeadIndex];
+
+            if (inputText === currentItem.answer) {
+                // Handle success
+                targetZone.className = "drop-target-box answered-correct";
+                targetZone.innerText = `🎉 Correct! It's ${inputText}`;
+                if (sourceChip) sourceChip.style.visibility = 'hidden';
+                triggerAudio('sound-correct');
+                runningScore++;
+            } else {
+                // Handle failure
+                targetZone.className = "drop-target-box answered-wrong";
+                targetZone.innerText = `❌ Oops! The correct match was ${currentItem.answer}`;
+                triggerAudio('sound-wrong');
+            }
+
+            // Lock input while frame advances to next state card
+            setTimeout(() => {
+                playHeadIndex++;
+                if (playHeadIndex < dynamicDataset.length) {
+                    loadQuestionStep();
+                } else {
+                    terminateAdventureSession();
+                }
+            }, 2600);
+        }
+
+        function terminateAdventureSession() {
+            document.getElementById('live-stage').style.display = 'none';
+            document.getElementById('end-screen').style.display = 'block';
+            document.getElementById('final-score-value').innerText = `${runningScore} / ${dynamicDataset.length}`;
+            triggerAudio('sound-win');
+        }
+    </script>
+</body>
+</html>
