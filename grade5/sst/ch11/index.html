@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Civic Champion - Chapter 11</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #fffbeb, #eff6ff, #f0fdf4);
+            background-attachment: fixed;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333;
+        }
+
+        #game-container {
+            background: white;
+            width: 95%;
+            max-width: 650px;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            position: relative;
+            border: 1px solid #e5e7eb;
+        }
+
+        .logo {
+            max-width: 130px;
+            margin: 0 auto 15px auto;
+            display: block;
+        }
+
+        h1 {
+            color: #1e3a8a;
+            margin-bottom: 10px;
+            font-size: 2.2rem;
+            letter-spacing: 0.5px;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .active {
+            display: block;
+        }
+
+        /* Start Screen styling */
+        .intro-text {
+            font-size: 1.05rem;
+            line-height: 1.6;
+            margin: 20px 0;
+            color: #4b5563;
+        }
+
+        .btn {
+            background-color: #1e3a8a;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+            box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3);
+        }
+
+        .btn:hover {
+            background-color: #1d4ed8;
+            transform: translateY(-2px);
+        }
+
+        /* Gameplay Screen styling */
+        .stats-bar {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 25px;
+            background: #f8fafc;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .stat-val {
+            color: #1e3a8a;
+        }
+
+        .item-box {
+            background: #f8fafc;
+            border: 3px dashed #3b82f6;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            min-height: 160px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .item-label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #64748b;
+            margin-bottom: 10px;
+        }
+
+        .current-item {
+            font-size: 1.35rem;
+            font-weight: 600;
+            color: #1e293b;
+            line-height: 1.5;
+            animation: popIn 0.35s ease;
+        }
+
+        .bins-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .bin {
+            flex: 1;
+            padding: 22px 12px;
+            border-radius: 15px;
+            cursor: pointer;
+            color: white;
+            font-weight: bold;
+            font-size: 1rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .bin:hover {
+            transform: scale(1.04);
+        }
+
+        .bin-icon {
+            font-size: 3.2rem;
+        }
+
+        .bin-rights {
+            background: #0284c7;
+            box-shadow: 0 6px 15px rgba(2, 132, 199, 0.35);
+        }
+
+        .bin-duties {
+            background: #16a34a;
+            box-shadow: 0 6px 15px rgba(22, 163, 74, 0.35);
+        }
+
+        /* Sound Control */
+        .audio-toggle {
+            font-size: 0.85rem;
+            margin-top: 20px;
+            color: #9ca3af;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        /* Feedback Area */
+        #feedback {
+            margin-top: 20px;
+            height: 24px;
+            font-weight: bold;
+            font-size: 1.15rem;
+        }
+        .correct { color: #16a34a; }
+        .wrong { color: #dc2626; }
+
+        @keyframes popIn {
+            0% { transform: scale(0.85); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <img src="assets/innovine-logo.png" alt="Innovine Logo" class="logo" onerror="this.style.display='none'">
+    
+    <div id="start-screen" class="screen active">
+        <h1>🇮🇳 CIVIC CHAMPION</h1>
+        <p class="intro-text">
+            Welcome to the World's Largest Democracy!<br>
+            The Indian Constitution grants every citizen special protections and rules.<br><br>
+            <strong>Help complete the constitutional balance! Sort the items into:</strong><br><br>
+            🔵 <strong>FUNDAMENTAL RIGHTS</strong> (Your protections & freedoms)<br>
+            🟢 <strong>FUNDAMENTAL DUTIES</strong> (Your civic responsibilities)
+        </p>
+        <button class="btn" onclick="startGame()">🚀 START CITIZENSHIP QUIZ</button>
+    </div>
+
+    <div id="game-screen" class="screen">
+        <h1>🇮🇳 CIVIC CHAMPION</h1>
+        
+        <div class="stats-bar">
+            <div>⭐ Score: <span id="score-val" class="stat-val">0</span></div>
+            <div>📦 Progress: <span id="sorted-val" class="stat-val">0</span> / 8</div>
+        </div>
+
+        <div class="item-box">
+            <div class="item-label">📋 CONSTITUTIONAL CASE</div>
+            <div id="current-item-display" class="current-item">Loading Card...</div>
+        </div>
+
+        <div class="bins-container">
+            <div class="bin bin-rights" onclick="handleSort('right')">
+                <span class="bin-icon">🛡️⚖️</span>
+                <span>FUNDAMENTAL RIGHTS</span>
+            </div>
+            <div class="bin bin-duties" onclick="handleSort('duty')">
+                <span class="bin-icon">🤝🇮🇳</span>
+                <span>FUNDAMENTAL DUTIES</span>
+            </div>
+        </div>
+
+        <div id="feedback"></div>
+        <div class="audio-toggle" onclick="toggleMute()">🔊 Sound: Enabled (Click to toggle)</div>
+    </div>
+
+    <div id="end-screen" class="screen">
+        <h1>🎉 DEMOCRACY EXPLORER!</h1>
+        <p class="intro-text" id="final-results">
+            Superb work! By knowing your rights and doing your duties, you help Bharat grow strong and unified.
+        </p>
+        <button class="btn" onclick="restartGame()">🔄 PRACTICE AGAIN</button>
+    </div>
+</div>
+
+<script>
+    // Asset mapping matching your uploaded path structural context
+    const audioCorrect = new Audio('assets/correct.mp3');
+    const audioWrong = new Audio('assets/wrong.mp3');
+    const audioWin = new Audio('assets/freesound_community-claps-44774.mp3');
+    let isMuted = false;
+
+    // Direct text-mapped contents compiled straight from Chapter 11 criteria
+    const itemsData = [
+        { name: "Anjali demands to play cricket with the boys under the Right to Equality.", type: "right" },
+        { name: "Standing up respectfully during the singing of the National Anthem.", type: "duty" },
+        { name: "Expressing your ideas freely in public (Right to Freedom).", type: "right" },
+        { name: "Protecting local public properties like parks, libraries, and monuments.", type: "duty" },
+        { name: "Ensuring that children under 14 are not forced to work in factories.", type: "right" },
+        { name: "Taking care of the local environment, lakes, and living creatures.", type: "duty" },
+        { name: "The freedom to visit a temple, church, mosque, or gurdwara of your choice.", type: "right" },
+        { name: "Parents providing educational opportunities to their child aged 6-14 years.", type: "duty" },
+        { name: "Communities running their own cultural schools to preserve their language.", type: "right" },
+        { name: "Promoting harmony and treating every classmate equally regardless of language.", type: "duty" }
+    ];
+
+    let gameItems = [];
+    let currentItemIndex = 0;
+    let score = 0;
+    const totalRounds = 8;
+
+    function showScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+    }
+
+    function toggleMute() {
+        isMuted = !isMuted;
+        document.querySelector('.audio-toggle').textContent = isMuted ? "🔇 Sound: Disabled" : "🔊 Sound: Enabled";
+    }
+
+    function playSound(audio) {
+        if (!isMuted) {
+            audio.currentTime = 0;
+            audio.play().catch(() => {});
+        }
+    }
+
+    function startGame() {
+        // Randomly picks 8 questions out of the data pool for a clean, non-repetitive cycle
+        gameItems = [...itemsData].sort(() => Math.random() - 0.5).slice(0, totalRounds);
+        currentItemIndex = 0;
+        score = 0;
+        
+        updateStats();
+        loadNextItem();
+        showScreen('game-screen');
+    }
+
+    function loadNextItem() {
+        if (currentItemIndex < gameItems.length) {
+            const displayEl = document.getElementById('current-item-display');
+            displayEl.textContent = gameItems[currentItemIndex].name;
+            
+            // Re-trigger modern entry pop animation
+            displayEl.style.animation = 'none';
+            displayEl.offsetHeight; 
+            displayEl.style.animation = null;
+        } else {
+            endGame();
+        }
+    }
+
+    function handleSort(selectedCategory) {
+        const currentItem = gameItems[currentItemIndex];
+        const feedbackEl = document.getElementById('feedback');
+
+        if (currentItem.type === selectedCategory) {
+            score += 10;
+            feedbackEl.textContent = "✅ Correctly Balanced!";
+            feedbackEl.className = "correct";
+            playSound(audioCorrect);
+        } else {
+            feedbackEl.textContent = "❌ Check the Constitution rules again!";
+            feedbackEl.className = "wrong";
+            playSound(audioWrong);
+        }
+
+        currentItemIndex++;
+        updateStats();
+
+        // Delay step ensures responsive audio/visual feedback completes before loading next round card
+        setTimeout(() => {
+            feedbackEl.textContent = "";
+            loadNextItem();
+        }, 1100);
+    }
+
+    function updateStats() {
+        document.getElementById('score-val').textContent = score;
+        document.getElementById('sorted-val').textContent = currentItemIndex;
+    }
+
+    function endGame() {
+        playSound(audioWin);
+        const feedbackText = score >= 60 ? "Excellent Citizen! You understand India's democratic fabric. 🌟" : "Good work! Keep revising your Rights and Duties! 🇮🇳";
+        document.getElementById('final-results').innerHTML = `
+            ${feedbackText}<br><br>
+            <strong>Your Score: ${score} / ${totalRounds * 10}</strong>
+        `;
+        showScreen('end-screen');
+    }
+
+    function restartGame() {
+        showScreen('start-screen');
+    }
+</script>
+
+</body>
+</html>
