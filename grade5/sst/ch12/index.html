@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Peace Envoy - Chapter 12</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #e0f2fe, #f0fdf4, #eff6ff);
+            background-attachment: fixed;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333;
+        }
+
+        #game-container {
+            background: white;
+            width: 95%;
+            max-width: 650px;
+            padding: 30px;
+            border-radius: 24px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            position: relative;
+            border: 2px solid #bae6fd;
+        }
+
+        .logo {
+            max-width: 130px;
+            margin: 0 auto 15px auto;
+            display: block;
+        }
+
+        h1 {
+            color: #0369a1;
+            margin-bottom: 10px;
+            font-size: 2.2rem;
+            letter-spacing: 0.5px;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .active {
+            display: block;
+        }
+
+        .intro-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin: 20px 0;
+            color: #4b5563;
+        }
+
+        .btn {
+            background-color: #0284c7;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+            box-shadow: 0 4px 14px rgba(2, 132, 199, 0.3);
+        }
+
+        .btn:hover {
+            background-color: #0369a1;
+            transform: translateY(-2px);
+        }
+
+        /* Stats Dashboard */
+        .stats-bar {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 25px;
+            background: #f0f9ff;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            border: 1px solid #e0f2fe;
+        }
+
+        .stat-val {
+            color: #0369a1;
+        }
+
+        /* Question Box */
+        .item-box {
+            background: #f8fafc;
+            border: 3px dashed #0284c7;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .item-label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #64748b;
+            margin-bottom: 10px;
+        }
+
+        .current-item {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #1e293b;
+            line-height: 1.5;
+            animation: popIn 0.3s ease;
+        }
+
+        /* Sorting Gateways */
+        .bins-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .bin {
+            flex: 1;
+            padding: 22px 12px;
+            border-radius: 15px;
+            cursor: pointer;
+            color: white;
+            font-weight: bold;
+            font-size: 0.95rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .bin:hover {
+            transform: scale(1.04);
+        }
+
+        .bin-icon {
+            font-size: 3rem;
+        }
+
+        .bin-un {
+            background: #0284c7;
+            box-shadow: 0 6px 15px rgba(2, 132, 199, 0.35);
+        }
+
+        .bin-nam {
+            background: #0d9488;
+            box-shadow: 0 6px 15px rgba(13, 148, 136, 0.35);
+        }
+
+        /* Status Options */
+        .audio-toggle {
+            font-size: 0.85rem;
+            margin-top: 20px;
+            color: #9ca3af;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        #feedback {
+            margin-top: 20px;
+            height: 24px;
+            font-weight: bold;
+            font-size: 1.15rem;
+        }
+        .correct { color: #16a34a; }
+        .wrong { color: #dc2626; }
+
+        @keyframes popIn {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <img src="assets/innovine-logo.png" alt="Innovine Logo" class="logo" onerror="this.style.display='none'">
+    
+    <div id="start-screen" class="screen active">
+        <h1>🇺🇳 GLOBAL PEACE ENVOY</h1>
+        <p class="intro-text">
+            After World War II, the world needed cooperation to maintain global peace.<br>
+            Explore the bodies, agencies, and movements that transformed international diplomacy.<br><br>
+            <strong>Classify each world affairs fact into its proper category:</strong><br><br>
+            🔵 <strong>MAIN UN BODIES & AGENCIES</strong><br>
+            🟢 <strong>NAM & GLOBAL PEACE INITIATIVES</strong>
+        </p>
+        <button class="btn" onclick="startGame()">🚀 START DIPLOMACY GAME</button>
+    </div>
+
+    <div id="game-screen" class="screen">
+        <h1>🇺🇳 GLOBAL PEACE ENVOY</h1>
+        
+        <div class="stats-bar">
+            <div>⭐ Score: <span id="score-val" class="stat-val">0</span></div>
+            <div>🧩 Progress: <span id="sorted-val" class="stat-val">0</span> / 8</div>
+        </div>
+
+        <div class="item-box">
+            <div class="item-label">🔎 GLOBAL DOSSIER ITEM</div>
+            <div id="current-item-display" class="current-item">Loading Dossier...</div>
+        </div>
+
+        <div class="bins-container">
+            <div class="bin bin-un" onclick="handleSort('un')">
+                <span class="bin-icon">🌐🏛️</span>
+                <span>MAIN UN SYSTEM & AGENCIES</span>
+            </div>
+            <div class="bin bin-nam" onclick="handleSort('nam')">
+                <span class="bin-icon">🕊️🤝</span>
+                <span>NAM & PEACE INITIATIVES</span>
+            </div>
+        </div>
+
+        <div id="feedback"></div>
+        <div class="audio-toggle" onclick="toggleMute()">🔊 Sound: On (Click to change)</div>
+    </div>
+
+    <div id="end-screen" class="screen">
+        <h1>🎉 DIPLOMAT RANK ACHIEVED!</h1>
+        <p class="intro-text" id="final-results">
+            Superb work! You understand how the United Nations and the Non-Aligned Movement work to prevent conflict.
+        </p>
+        <button class="btn" onclick="restartGame()">🔄 REVIEW CHAPTER</button>
+    </div>
+</div>
+
+<script>
+    // Audio mappings using the relative structure from your image inputs
+    const audioCorrect = new Audio('assets/correct.mp3');
+    const audioWrong = new Audio('assets/wrong.mp3');
+    const audioWin = new Audio('assets/freesound_community-claps-44774.mp3');
+    let isMuted = false;
+
+    // Direct items extracted from Chapter 12 learning parameters
+    const chapterData = [
+        { name: "The General Assembly: Where all member nations gather to vote on world issues.", category: "un" },
+        { name: "Panchsheel: The five principles of non-aggression and mutual respect.", category: "nam" },
+        { name: "WHO (World Health Organization): Working to eradicate global diseases.", category: "un" },
+        { name: "Indian soldiers serving globally on vital Peacekeeping Missions.", category: "nam" },
+        { name: "UNESCO: Preserving World Heritage Sites like the monuments at Hampi.", category: "un" },
+        { name: "Formed by neutral countries during the Cold War to avoid superpower control.", category: "nam" },
+        { name: "The Security Council: Responsible for maintaining international peace.", category: "un" },
+        { name: "Led by Prime Minister Jawaharlal Nehru alongside leaders of Egypt and Yugoslavia.", category: "nam" },
+        { name: "UNICEF: Providing education, food, and emergency healthcare to children.", category: "un" },
+        { name: "WFP (World Food Programme): Fighting hunger by delivering food to people in need.", category: "un" }
+    ];
+
+    let gameItems = [];
+    let currentItemIndex = 0;
+    let score = 0;
+    const itemsPerGame = 8;
+
+    function showScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+    }
+
+    function toggleMute() {
+        isMuted = !isMuted;
+        document.querySelector('.audio-toggle').textContent = isMuted ? "🔇 Sound: Off" : "🔊 Sound: On";
+    }
+
+    function playSound(sound) {
+        if (!isMuted) {
+            sound.currentTime = 0;
+            sound.play().catch(() => {});
+        }
+    }
+
+    function startGame() {
+        // Randomize list and pull exactly 8 question nodes per round
+        gameItems = [...chapterData].sort(() => Math.random() - 0.5).slice(0, itemsPerGame);
+        currentItemIndex = 0;
+        score = 0;
+        
+        updateStats();
+        loadNextItem();
+        showScreen('game-screen');
+    }
+
+    function loadNextItem() {
+        if (currentItemIndex < gameItems.length) {
+            const displayEl = document.getElementById('current-item-display');
+            displayEl.textContent = gameItems[currentItemIndex].name;
+            
+            // Pop animation refresh
+            displayEl.style.animation = 'none';
+            displayEl.offsetHeight; 
+            displayEl.style.animation = null;
+        } else {
+            endGame();
+        }
+    }
+
+    function handleSort(selectedCategory) {
+        const currentItem = gameItems[currentItemIndex];
+        const feedbackEl = document.getElementById('feedback');
+
+        if (currentItem.category === selectedCategory) {
+            score += 10;
+            feedbackEl.textContent = "✅ Correctly Categorized!";
+            feedbackEl.className = "correct";
+            playSound(audioCorrect);
+        } else {
+            feedbackEl.textContent = "❌ Incorrect placement for this dossier item.";
+            feedbackEl.className = "wrong";
+            playSound(audioWrong);
+        }
+
+        currentItemIndex++;
+        updateStats();
+
+        setTimeout(() => {
+            feedbackEl.textContent = "";
+            loadNextItem();
+        }, 1200);
+    }
+
+    function updateStats() {
+        document.getElementById('score-val').textContent = score;
+        document.getElementById('sorted-val').textContent = currentItemIndex;
+    }
+
+    function endGame() {
+        playSound(audioWin);
+        const finalEvaluation = score >= 60 ? "Excellent Envoy! Global peace is secure. 🕊️" : "Keep learning about global diplomacy! 🧭";
+        document.getElementById('final-results').innerHTML = `
+            ${finalEvaluation}<br><br>
+            <strong>Your Score: ${score} / ${itemsPerGame * 10}</strong>
+        `;
+        showScreen('end-screen');
+    }
+
+    function restartGame() {
+        showScreen('start-screen');
+    }
+</script>
+
+</body>
+</html>
