@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grade 5: The Great Empires - Puzzle Quest</title>
+    <style>
+        :root {
+            --royal-gold: #b7791f;
+            --empire-crimson: #9b2c2c;
+            --palace-cream: #f7fafc;
+            --text-dark: #2d3748;
+            --border-muted: #cbd5e0;
+            --success-glow: #c6f6d5;
+            --success-border: #38a169;
+            --fail-glow: #fed7d7;
+            --fail-border: #e53e3e;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #fefcbf 0%, #edf2f7 100%);
+            margin: 0;
+            padding: 15px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-dark);
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* White Minimalist Pure Splash Screen */
+        #splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.6s ease-out, visibility 0.6s;
+        }
+
+        .splash-logo {
+            max-width: 260px;
+            width: 80%;
+            height: auto;
+            animation: pulseLogo 2s ease-in-out infinite alternate;
+        }
+
+        /* Game Board Frame Wrapper */
+        #game-container {
+            width: 100%;
+            max-width: 820px;
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.15);
+            border: 4px solid var(--royal-gold);
+            padding: 22px;
+            box-sizing: border-box;
+            display: none;
+            text-align: center;
+        }
+
+        .header-logo {
+            max-height: 38px;
+            margin-bottom: 12px;
+        }
+
+        /* Top HUD Telemetry Panel */
+        .hud-dashboard {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--palace-cream);
+            padding: 10px 18px;
+            border-radius: 14px;
+            border: 2px dashed var(--royal-gold);
+            margin-bottom: 20px;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        /* Split-Screen layout structure */
+        .game-layout {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 22px;
+        }
+
+        @media (min-width: 680px) {
+            .game-layout {
+                grid-template-columns: 1.15fr 0.85fr;
+                align-items: center;
+            }
+        }
+
+        .quiz-engine {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            text-align: left;
+        }
+
+        .clue-display-card {
+            background: var(--palace-cream);
+            border: 2px solid #edf2f7;
+            border-radius: 16px;
+            padding: 18px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            line-height: 1.45;
+            min-height: 90px;
+            display: flex;
+            align-items: center;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .options-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-node {
+            background: #ffffff;
+            border: 2px solid var(--border-muted);
+            border-radius: 14px;
+            padding: 14px 18px;
+            font-size: 1.02rem;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: left;
+            box-shadow: 0 4px 0 var(--border-muted);
+            transition: all 0.1s cubic-bezier(0.25, 0.8, 0.25, 1);
+            outline: none;
+        }
+
+        .option-node:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 var(--border-muted);
+        }
+
+        .option-node.correct-glow {
+            background: var(--success-glow) !important;
+            border-color: var(--success-border) !important;
+            color: #1c452f !important;
+            box-shadow: 0 4px 0 var(--success-border) !important;
+        }
+
+        .option-node.wrong-glow {
+            background: var(--fail-glow) !important;
+            border-color: var(--fail-border) !important;
+            color: #631717 !important;
+            box-shadow: 0 4px 0 var(--fail-border) !important;
+        }
+
+        /* Interactive Canvas Puzzle Construction Matrix */
+        .puzzle-arena {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .puzzle-viewport {
+            width: 300px;
+            height: 240px;
+            background: #edf2f7;
+            border: 4px dashed var(--royal-gold);
+            border-radius: 18px;
+            position: relative;
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            box-shadow: inset 0 4px 12px rgba(0,0,0,0.06);
+        }
+
+        /* Slice segment offset coordinates across 5x2 grid setup */
+        .puzzle-slice {
+            background-image: url('https://picsum.photos/id/1024/600/480'); 
+            background-size: 300px 240px;
+            opacity: 0;
+            visibility: hidden;
+            border: 0.5px solid rgba(255, 255, 255, 0.4);
+            transition: transform 0.55s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.35s;
+            transform: scale(1.5) rotate(25deg);
+        }
+
+        .puzzle-slice.revealed {
+            opacity: 1;
+            visibility: visible;
+            transform: scale(1) rotate(0deg);
+        }
+
+        /* End Session Win Layout Screen Overlay */
+        #victory-screen {
+            display: none;
+            padding: 30px 15px;
+        }
+
+        .score-badge {
+            font-size: 3.2rem;
+            font-weight: 900;
+            color: var(--royal-gold);
+            margin: 18px 0;
+            text-shadow: 1px 2px 0px rgba(0,0,0,0.1);
+        }
+
+        .action-retry {
+            background: var(--empire-crimson);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            padding: 15px 36px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 5px 0 #6b1d1d;
+            transition: transform 0.1s;
+        }
+
+        .action-retry:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 #6b1d1d;
+        }
+
+        @keyframes pulseLogo {
+            0% { transform: scale(0.96); opacity: 0.92; }
+            100% { transform: scale(1.04); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="splash-screen">
+        <img src="assets/innovine-logo.png" alt="Innovine" class="splash-logo">
+    </div>
+
+    <div id="game-container">
+        <img src="assets/innovine-logo.png" alt="Innovine" class="header-logo" onerror="this.style.display='none'">
+        
+        <div id="active-play-zone">
+            <div class="hud-dashboard">
+                <div id="hud-chronicle-index">Chronicle Layer: 1 / 10</div>
+                <div id="hud-dynasty-score">Kingdom Relics: 🧩 0/10</div>
+            </div>
+
+            <div class="game-layout">
+                <div class="quiz-engine">
+                    <div class="clue-display-card" id="clue-card-render">Retrieving historical chronicles...</div>
+                    <div class="options-stack" id="options-nodes-wrapper">
+                        </div>
+                </div>
+
+                <div class="puzzle-arena">
+                    <h3 style="margin: 0 0 12px 0; font-size: 1.1rem; color: var(--empire-crimson);">Restore the Ancient Monument! 🏛️</h3>
+                    <div class="puzzle-viewport" id="monument-canvas-matrix">
+                        <div class="puzzle-slice" id="tile-0" style="background-position: 0px 0px;"></div>
+                        <div class="puzzle-slice" id="tile-1" style="background-position: -60px 0px;"></div>
+                        <div class="puzzle-slice" id="tile-2" style="background-position: -120px 0px;"></div>
+                        <div class="puzzle-slice" id="tile-3" style="background-position: -180px 0px;"></div>
+                        <div class="puzzle-slice" id="tile-4" style="background-position: -240px 0px;"></div>
+                        <div class="puzzle-slice" id="tile-5" style="background-position: 0px -120px;"></div>
+                        <div class="puzzle-slice" id="tile-6" style="background-position: -60px -120px;"></div>
+                        <div class="puzzle-slice" id="tile-7" style="background-position: -120px -120px;"></div>
+                        <div class="puzzle-slice" id="tile-8" style="background-position: -180px -120px;"></div>
+                        <div class="puzzle-slice" id="tile-9" style="background-position: -240px -120px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="victory-screen">
+            <div style="font-size: 5rem; margin-bottom: 8px;">👑</div>
+            <h1 style="color: var(--empire-crimson); margin: 5px 0;">Empire Chronicle Completed!</h1>
+            <p style="font-size: 1.2rem; color: #4a5568;">Superb! You have successfully mastered the art, architecture, and governance of the Great Empires.</p>
+            <div class="score-badge" id="final-tally-output">10 / 10</div>
+            <button class="action-retry" onclick="window.location.reload()">Re-enter History 🔄</button>
+        </div>
+    </div>
+
+    <audio id="sound-correct" src="assets/correct.mp3" preload="auto"></audio>
+    <audio id="sound-wrong" src="assets/wrong.mp3" preload="auto"></audio>
+    <audio id="sound-win" src="assets/freesound_community-claps-4474.mp3" preload="auto"></audio>
+
+    <script>
+        // Standard Chapter 7 Historical Curriculum Dataset Mapping
+        const chronicleDataset = [
+            { text: "Who established the mighty Mauryan Empire by overthrowing Dhana Nanda with the help of Chanakya?", answers: ["Chandragupta Maurya 👑", "Samudragupta ⚔️", "Ashoka the Great 🏛️", "Babur 🏹"], correct: "Chandragupta Maurya 👑" },
+            { text: "Which famous ancient manual on statecraft, governance, and military organization was written by Kautilya?", answers: ["The Arthashastra 📜", "The Vedas 📖", "Kalidasa's Poems 🪶", "The Edicts 🪨"], correct: "The Arthashastra 📜" },
+            { text: "Which historical turning point battle caused Emperor Ashoka to reject violence and completely embrace Buddhism?", answers: ["The Kalinga War 🛡️", "The Battle of Panipat ⚔️", "The Nanda Invasion 🏹", "The Huna Conquest 🐎"], correct: "The Kalinga War 🛡️" },
+            { text: "What prominent ancient location served as a highly celebrated center for higher education during the Mauryan period?", answers: ["Taxila 🏫", "Pataliputra 🏛️", "Varanasi 🕌", "Kumrahar 🌲"], correct: "Taxila 🏫" },
+            { text: "Which historical empire is frequently celebrated as the 'Golden Age' of North Bharatiya history due to incredible scientific progress?", answers: ["The Gupta Empire ✨", "The Nanda Dynasty 🛡️", "The Satavahanas 🌊", "The Kushan Empire 🏔️"], correct: "The Gupta Empire ✨" },
+            { text: "Which brilliant mathematician and astronomer of the Gupta Golden Age introduced zero and refined decimal place-values?", answers: ["Aryabhatta 🧮", "Chanakya 📜", "Kalidasa 🪶", "Darius 👑"], correct: "Aryabhatta 🧮" },
+            { text: "Which Gupta emperor was nicknamed the 'Napoleon of Bharat' by modern historians due to his vast military triumphs?", answers: ["Samudragupta ⚔️", "Chandragupta I 👑", "Chandragupta II 💎", "Ashoka 🏛️"], correct: "Samudragupta ⚔️" },
+            { text: "Who founded the powerful Mughal Empire in the year 1526 CE, bringing a rich blend of Central Asian cultures?", answers: ["Babur 🏹", "Akbar the Great 👑", "Shah Jahan 🏛️", "Aurangzeb 🛡️"], correct: "Babur 🏹" },
+            { text: "What highly effective administrative practice did Emperor Akbar promote to maintain societal harmony across his diverse subjects?", answers: ["Religious Tolerance 🤝", "Centralized Monolithic Stone Masonry 🪨", "Excessive Militarization 🏹", "Internal Strife 🌪️"], correct: "Religious Tolerance 🤝" },
+            { text: "A solid brick or stone dome structure constructed to safely enshrine the sacred relics of Lord Buddha is called a...", answers: ["Stupa 🕌", "Vihara 🌲", "Chaitya 🏛️", "Monolithic Shaft 🪨"], correct: "Stupa 🕌" }
+        ];
+
+        let playHead = 0;
+        let successfulMatches = 0;
+        let blockInteraction = false;
+
+        function playSoundTrack(id) {
+            const track = document.getElementById(id);
+            if (track) {
+                track.currentTime = 0;
+                track.play().catch(() => {});
+            }
+        }
+
+        // Mandatory 5-Second White Splash Hold Block
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                document.getElementById('splash-screen').style.opacity = '0';
+                document.getElementById('splash-screen').style.visibility = 'hidden';
+                document.getElementById('game-container').style.display = 'block';
+                renderNextChronicle();
+            }, 5000);
+        });
+
+        function renderNextChronicle() {
+            blockInteraction = false;
+            const contextItem = chronicleDataset[playHead];
+
+            // Core Telemetry UI Mapping
+            document.getElementById('hud-chronicle-index').innerText = `Chronicle Layer: ${playHead + 1} / ${chronicleDataset.length}`;
+            document.getElementById('hud-dynasty-score').innerText = `Kingdom Relics: 🧩 ${successfulMatches}/10`;
+            document.getElementById('clue-card-render').innerText = contextItem.text;
+
+            const menuWrapper = document.getElementById('options-nodes-wrapper');
+            menuWrapper.innerHTML = '';
+
+            // Randomize position output strings 
+            let mixedPool = [...contextItem.answers].sort(() => Math.random() - 0.5);
+
+            mixedPool.forEach(choiceString => {
+                const triggerNode = document.createElement('button');
+                triggerNode.className = 'option-node';
+                triggerNode.innerText = choiceString;
+                triggerNode.onclick = () => evaluationStep(triggerNode, choiceString, contextItem.correct);
+                menuWrapper.appendChild(triggerNode);
+            });
+        }
+
+        function evaluationStep(elementRef, inputString, solutionString) {
+            if (blockInteraction) return;
+            blockInteraction = true;
+
+            if (inputString === solutionString) {
+                elementRef.classList.add('correct-glow');
+                playSoundTrack('sound-correct');
+
+                // Shift visual state of the corresponding element tile chunk
+                const segment = document.getElementById(`tile-${successfulMatches}`);
+                if (segment) segment.classList.add('
