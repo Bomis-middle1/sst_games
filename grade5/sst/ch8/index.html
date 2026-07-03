@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grade 5: The British Raj - Freedom Shield Quest</title>
+    <style>
+        :root {
+            --royal-gold: #b7791f;
+            --empire-crimson: #9b2c2c;
+            --palace-cream: #f7fafc;
+            --text-dark: #2d3748;
+            --border-muted: #cbd5e0;
+            --success-glow: #c6f6d5;
+            --success-border: #38a169;
+            --fail-glow: #fed7d7;
+            --fail-border: #e53e3e;
+            --shield-bronze: #8c6239;
+            --shield-dark: #5c3a21;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #fffff0 0%, #edf2f7 100%);
+            margin: 0;
+            padding: 15px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-dark);
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Pure White Minimalist Splash Screen */
+        #splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.6s ease-out, visibility 0.6s;
+        }
+
+        .splash-logo {
+            max-width: 260px;
+            width: 80%;
+            height: auto;
+            animation: pulseLogo 2s ease-in-out infinite alternate;
+        }
+
+        /* Game Board Frame Wrapper */
+        #game-container {
+            width: 100%;
+            max-width: 820px;
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.15);
+            border: 4px solid var(--royal-gold);
+            padding: 22px;
+            box-sizing: border-box;
+            display: none;
+            text-align: center;
+        }
+
+        .header-logo {
+            max-height: 38px;
+            margin-bottom: 12px;
+        }
+
+        /* Top HUD Dashboard */
+        .hud-dashboard {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--palace-cream);
+            padding: 10px 18px;
+            border-radius: 14px;
+            border: 2px dashed var(--royal-gold);
+            margin-bottom: 20px;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        /* Twin Column Structure */
+        .game-layout {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 22px;
+        }
+
+        @media (min-width: 680px) {
+            .game-layout {
+                grid-template-columns: 1.15fr 0.85fr;
+                align-items: center;
+            }
+        }
+
+        .quiz-engine {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            text-align: left;
+        }
+
+        .clue-display-card {
+            background: var(--palace-cream);
+            border: 2px solid #edf2f7;
+            border-radius: 16px;
+            padding: 18px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            line-height: 1.45;
+            min-height: 90px;
+            display: flex;
+            align-items: center;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .options-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-node {
+            background: #ffffff;
+            border: 2px solid var(--border-muted);
+            border-radius: 14px;
+            padding: 14px 18px;
+            font-size: 1.02rem;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: left;
+            box-shadow: 0 4px 0 var(--border-muted);
+            transition: all 0.1s cubic-bezier(0.25, 0.8, 0.25, 1);
+            outline: none;
+        }
+
+        .option-node:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 var(--border-muted);
+        }
+
+        .option-node.correct-glow {
+            background: var(--success-glow) !important;
+            border-color: var(--success-border) !important;
+            color: #1c452f !important;
+            box-shadow: 0 4px 0 var(--success-border) !important;
+        }
+
+        .option-node.wrong-glow {
+            background: var(--fail-glow) !important;
+            border-color: var(--fail-border) !important;
+            color: #631717 !important;
+            box-shadow: 0 4px 0 var(--fail-border) !important;
+        }
+
+        /* Shield Construct Arena */
+        .shield-arena {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .shield-scaffold {
+            width: 250px;
+            height: 250px;
+            background: #edf2f7;
+            border: 4px dashed var(--royal-gold);
+            border-radius: 50%;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: inset 0 4px 12px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+
+        /* Shield Rings and Layers Styles */
+        .shield-segment {
+            position: absolute;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-sizing: border-box;
+            opacity: 0;
+            transform: scale(0.3) rotate(-180deg);
+            transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s;
+        }
+
+        .shield-segment.placed {
+            opacity: 1;
+            transform: scale(1) rotate(0deg);
+        }
+
+        /* Concentric Layer Rings Mapping for 10 Parts */
+        #layer-0 { width: 230px; height: 230px; border: 8px solid var(--shield-dark); background: #7f5135; z-index: 10; }
+        #layer-1 { width: 205px; height: 205px; border: 6px dashed #fff; z-index: 11; }
+        #layer-2 { width: 185px; height: 185px; border: 8px solid var(--royal-gold); background: #9c6644; z-index: 12; }
+        #layer-3 { width: 160px; height: 160px; border: 4px solid var(--shield-dark); z-index: 13; }
+        #layer-4 { width: 140px; height: 140px; background: var(--empire-crimson); border: 4px solid #7b1f1f; z-index: 14; }
+        #layer-5 { width: 115px; height: 115px; border: 4px dotted var(--royal-gold); z-index: 15; }
+        #layer-6 { width: 95px; height: 95px; background: #b1865a; border: 3px solid var(--shield-dark); z-index: 16; }
+        #layer-7 { width: 75px; height: 75px; border: 4px solid #fff; z-index: 17; }
+        #layer-8 { width: 55px; height: 55px; background: var(--royal-gold); z-index: 18; }
+        #layer-9 { width: 30px; height: 30px; background: #fff; border: 3px solid var(--empire-crimson); font-size: 12px; z-index: 19; } /* Center Crest Spindle */
+
+        /* Victory screen layout */
+        #victory-screen {
+            display: none;
+            padding: 30px 15px;
+        }
+
+        .score-badge {
+            font-size: 3.2rem;
+            font-weight: 900;
+            color: var(--royal-gold);
+            margin: 18px 0;
+            text-shadow: 1px 2px 0px rgba(0,0,0,0.1);
+        }
+
+        .action-retry {
+            background: var(--empire-crimson);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            padding: 15px 36px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 5px 0 #6b1d1d;
+            transition: transform 0.1s;
+        }
+
+        .action-retry:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 #6b1d1d;
+        }
+
+        @keyframes pulseLogo {
+            0% { transform: scale(0.96); opacity: 0.92; }
+            100% { transform: scale(1.04); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="splash-screen">
+        <img src="assets/innovine-logo.png" alt="Innovine" class="splash-logo">
+    </div>
+
+    <div id="game-container">
+        <img src="assets/innovine-logo.png" alt="Innovine" class="header-logo" onerror="this.style.display='none'">
+        
+        <div id="active-play-zone">
+            <div class="hud-dashboard">
+                <div id="hud-chronicle-index">History Layer: 1 / 10</div>
+                <div id="hud-dynasty-score">Shield Integrity: 🛡️ 0/10</div>
+            </div>
+
+            <div class="game-layout">
+                <div class="quiz-engine">
+                    <div class="clue-display-card" id="clue-card-render">Loading Freedom Struggle Chronicles...</div>
+                    <div class="options-stack" id="options-nodes-wrapper">
+                        </div>
+                </div>
+
+                <div class="shield-arena">
+                    <h3 style="margin: 0 0 12px 0; font-size: 1.1rem; color: var(--empire-crimson);">Forge the Freedom War Shield! 🛡️</h3>
+                    <div class="shield-scaffold" id="shield-matrix">
+                        <div class="shield-segment" id="layer-0">
+                            <div class="shield-segment" id="layer-1">
+                                <div class="shield-segment" id="layer-2">
+                                    <div class="shield-segment" id="layer-3">
+                                        <div class="shield-segment" id="layer-4">
+                                            <div class="shield-segment" id="layer-5">
+                                                <div class="shield-segment" id="layer-6">
+                                                    <div class="shield-segment" id="layer-7">
+                                                        <div class="shield-segment" id="layer-8">
+                                                            <div class="shield-segment" id="layer-9">⭐</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="victory-screen">
+            <div style="font-size: 5rem; margin-bottom: 8px;">🇮🇳</div>
+            <h1 style="color: var(--empire-crimson); margin: 5px 0;">Freedom Shield Completed!</h1>
+            <p style="font-size: 1.2rem; color: #4a5568;">Outstanding! You have successfully mastered the timeline, movements, and heroic leaders of the British Raj era.</p>
+            <div class="score-badge" id="final-tally-output">10 / 10</div>
+            <button class="action-retry" onclick="window.location.reload()">Re-examine History 🔄</button>
+        </div>
+    </div>
+
+    <audio id="sound-correct" src="assets/correct.mp3" preload="auto"></audio>
+    <audio id="sound-wrong" src="assets/wrong.mp3" preload="auto"></audio>
+    <audio id="sound-win" src="assets/freesound_community-claps-4474.mp3" preload="auto"></audio>
+
+    <script>
+        // High-Quality Curriculum Aligned Q&A Dataset for Chapter 8
+        const chronicleDataset = [
+            { text: "In which year was the British East India Company formed by a group of traders seeking to trade with Bharat?", answers: ["1600 AD 🚢", "1526 AD 🏹", "1757 AD ⚔️", "1857 AD 🛡️"], correct: "1600 AD 🚢" },
+            { text: "Who was the first European explorer to discover a sea route and arrive in Bharat?", answers: ["Vasco da Gama 🗺️", "Sir Thomas Roe 🇬🇧", "Lord Curzon 🏛️", "Allan Octavian Hume 🪶"], correct: "Vasco da Gama 🗺️" },
+            { text: "Where did the British East India Company establish their very first factory (warehouse) in Bharat?", answers: ["Surat 🏗️", "Calcutta 🏢", "Madras ⚓", "Cochin 🌊"], correct: "Surat 🏗️" },
+            { text: "Which historic battle fought in 1757 marked the clear expansion of British political control over Bengal?", answers: ["Battle of Plassey ⚔️", "Battle of Panipat 🏹", "Sepoy Mutiny 🛡️", "World War I 🪖"], correct: "Battle of Plassey ⚔️" },
+            { text: "Why were Bharatiya farmers extremely unhappy with the British traders regarding crops like Indigo?", answers: ["They were forced to grow it and paid very little 🌾", "They were banned from planting it 🚫", "It ruined their clothes 🎨", "The British gave it away for free 🪙"], correct: "They were forced to grow it and paid very little 🌾" },
+            { text: "What prominent 100-year milestone event is celebrated as the First War of Independence?", answers: ["The Revolt of 1857 🛡️", "The Swadeshi Andolan 🛒", "The Partition of Bengal 🗺️", "The Formation of Congress 🏛️"], correct: "The Revolt of 1857 🛡️" },
+            { text: "Who was the prominent nationalist leader who declared: 'Freedom is my birth right, and I shall have it'?", answers: ["Bal Gangadhar Tilak 🗣️", "Raja Rammohan Roy 📜", "W.C. Bonnerjee 👥", "Lord Charles Canning 🏛️"], correct: "Bal Gangadhar Tilak 🗣️" },
+            { text: "In 1885, the Indian National Congress (INC) was formed by which retired British official?", answers: ["Allan Octavian Hume 🪶", "Lord Curzon 🗺️", "Sir Thomas Roe 🇬🇧", "Lord Charles Canning 🏛️"], correct: "Allan Octavian Hume 🪶" },
+            { text: "Which British Viceroy officially announced the unfair Partition of Bengal based on religion in 1905?", answers: ["Lord Curzon 🗺️", "Lord Charles Canning 🏛️", "General Bakht Khan ⚔️", "Lord Charles 👑"], correct: "Lord Curzon 🗺️" },
+            { text: "Which movement was started to protest the Partition of Bengal by burning foreign clothes and using the Charkha?", answers: ["Swadeshi Andolan 🎽", "Sepoy Mutiny 🪖", "The Industrial Revolution ⚙️", "The East India Trade 🚢"], correct: "Swadeshi Andolan 🎽" }
+        ];
+
+        let playHead = 0;
+        let successfulMatches = 0;
+        let blockInteraction = false;
+
+        function playSoundTrack(id) {
+            const track = document.getElementById(id);
+            if (track) {
+                track.currentTime = 0;
+                track.play().catch(() => {});
+            }
+        }
+
+        // Strict 5-Second Hold Splash View Block Loop
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                document.getElementById('splash-screen').style.opacity = '0';
+                document.getElementById('splash-screen').style.visibility = 'hidden';
+                document.getElementById('game-container').style.display = 'block';
+                renderNextChronicle();
+            }, 5000);
+        });
+
+        function renderNextChronicle() {
+            blockInteraction = false;
+            const contextItem = chronicleDataset[playHead];
+
+            document.getElementById('hud-chronicle-index').innerText = `History Layer: ${playHead + 1} / ${chronicleDataset.length}`;
+            document.getElementById('hud-dynasty-score').innerText = `Shield Integrity: 🛡️ ${successfulMatches}/10`;
+            document.getElementById('clue-card-render').innerText = contextItem.text;
+
+            const menuWrapper = document.getElementById('options-nodes-wrapper');
+            menuWrapper.innerHTML = '';
+
+            let mixedPool = [...contextItem.answers].sort(() => Math.random() - 0.5);
+
+            mixedPool.forEach(choiceString => {
+                const triggerNode = document.createElement('button');
+                triggerNode.className = 'option-node';
+                triggerNode.innerText = choiceString;
+                triggerNode.onclick = () => evaluationStep(triggerNode, choiceString, contextItem.correct);
+                menuWrapper.appendChild(triggerNode);
+            });
+        }
+
+        function evaluationStep(elementRef, inputString, solutionString) {
+            if (blockInteraction) return;
+            blockInteraction = true;
+
+            if (inputString === solutionString) {
+                elementRef.classList.add('correct-glow');
+                playSoundTrack('sound-correct');
+
+                // Animate and drop the next progressive shield concentric circle layer inward
+                const layerToPlace = document.getElementById(`layer-${successfulMatches}`);
+                if (layerToPlace) layerToPlace.classList.add('placed');
+
+                successfulMatches++;
+            } else {
+                elementRef.classList.add('wrong-glow');
+                playSoundTrack('sound-wrong');
+
+                const alternatives = document.querySelectorAll('.option-node');
+                alternatives.forEach(node => {
+                    if (node.innerText === solutionString) node.classList.add('correct-glow');
+                });
+            }
+
+            // Timeline advance loop timeout 
+            setTimeout(() => {
+                playHead++;
+                if (playHead < chronicleDataset.length) {
+                    renderNextChronicle();
+                } else {
+                    displayVictoryScreen();
+                }
+            }, 2400);
+        }
+
+        function displayVictoryScreen() {
+            document.getElementById('active-play-zone').style.display = 'none';
+            document.getElementById('victory-screen').style.display = 'block';
+            document.getElementById('final-tally-output').innerText = `${successfulMatches} / 10 Elements Forged`;
+            playSoundTrack('sound-win');
+        }
+    </script>
+</body>
+</html>
