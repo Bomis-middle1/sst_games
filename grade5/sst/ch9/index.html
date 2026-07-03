@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grade 5: Bharat's Struggle for Independence - Revolving Quest</title>
+    <style>
+        :root {
+            --royal-gold: #b7791f;
+            --empire-crimson: #9b2c2c;
+            --palace-cream: #f7fafc;
+            --text-dark: #2d3748;
+            --border-muted: #cbd5e0;
+            --success-glow: #c6f6d5;
+            --success-border: #38a169;
+            --fail-glow: #fed7d7;
+            --fail-border: #e53e3e;
+            --orbit-radius: 140px; /* Controls distance of revolving options */
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #fffaf0 0%, #edf2f7 100%);
+            margin: 0;
+            padding: 15px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-dark);
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            overflow-x: hidden;
+        }
+
+        /* 5-Second Pure White Splash Screen */
+        #splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.6s ease-out, visibility 0.6s;
+        }
+
+        .splash-logo {
+            max-width: 260px;
+            width: 80%;
+            height: auto;
+            animation: pulseLogo 2s ease-in-out infinite alternate;
+        }
+
+        /* Main Game Box */
+        #game-container {
+            width: 100%;
+            max-width: 780px;
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.15);
+            border: 4px solid var(--royal-gold);
+            padding: 25px;
+            box-sizing: border-box;
+            display: none;
+            text-align: center;
+            position: relative;
+        }
+
+        .header-logo {
+            max-height: 42px;
+            margin-bottom: 12px;
+        }
+
+        /* Top Bar Dashboard */
+        .hud-dashboard {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--palace-cream);
+            padding: 12px 20px;
+            border-radius: 14px;
+            border: 2px dashed var(--royal-gold);
+            margin-bottom: 20px;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        /* Core Question Card */
+        .clue-display-card {
+            background: var(--palace-cream);
+            border: 2px solid #edf2f7;
+            border-radius: 16px;
+            padding: 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            line-height: 1.5;
+            margin-bottom: 30px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        /* Revolving Orbit Ring Arena */
+        .orbit-arena {
+            position: relative;
+            width: 100%;
+            height: 380px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Central Anchor/Focal Centerpiece */
+        .center-focal-hub {
+            width: 90px;
+            height: 90px;
+            background: linear-gradient(135deg, #fff 0%, #edf2f7 100%);
+            border: 4px solid var(--royal-gold);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.2rem;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+            z-index: 5;
+        }
+
+        /* Rotating Ring Container */
+        .orbit-spinner-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            animation: revolveClockwise 22s linear infinite;
+            transform-origin: center center;
+        }
+
+        /* Paused state when feedback shows */
+        .orbit-spinner-ring.paused {
+            animation-play-state: paused;
+        }
+
+        /* Individual Revolving Option Node Elements */
+        .option-node {
+            position: absolute;
+            width: 130px;
+            height: 130px;
+            background: #ffffff;
+            border: 3px solid var(--border-muted);
+            border-radius: 50%;
+            font-size: 0.95rem;
+            font-weight: bold;
+            color: var(--text-dark);
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 10px;
+            box-sizing: border-box;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.3s;
+            outline: none;
+            
+            /* Counter-rotation keeps text right-side up while parent circles */
+            animation: counterRevolve 22s linear infinite;
+            transform-origin: center center;
+        }
+
+        .orbit-spinner-ring.paused .option-node {
+            animation-play-state: paused;
+        }
+
+        .option-node:hover {
+            border-color: var(--royal-gold);
+        }
+
+        /* Mathematical Placement of 4 Orbiting Items around center */
+        .option-node:nth-child(1) { top: calc(50% - 65px - var(--orbit-radius)); left: calc(50% - 65px); }
+        .option-node:nth-child(2) { top: calc(50% - 65px); left: calc(50% - 65px + var(--orbit-radius)); }
+        .option-node:nth-child(3) { top: calc(50% - 65px + var(--orbit-radius)); left: calc(50% - 65px); }
+        .option-node:nth-child(4) { top: calc(50% - 65px); left: calc(50% - 65px - var(--orbit-radius)); }
+
+        /* Dynamic Feedback Colors */
+        .option-node.correct-glow {
+            background: var(--success-glow) !important;
+            border-color: var(--success-border) !important;
+            color: #1c452f !important;
+            transform: scale(1.15);
+            z-index: 10;
+        }
+
+        .option-node.wrong-glow {
+            background: var(--fail-glow) !important;
+            border-color: var(--fail-border) !important;
+            color: #631717 !important;
+            transform: scale(0.9);
+        }
+
+        /* Summary Panel styling */
+        #victory-screen {
+            display: none;
+            padding: 35px 15px;
+        }
+
+        .score-badge {
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: var(--royal-gold);
+            margin: 20px 0;
+            text-shadow: 1px 2px 0px rgba(0,0,0,0.1);
+        }
+
+        .action-retry {
+            background: var(--empire-crimson);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            padding: 16px 40px;
+            font-size: 1.25rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 5px 0 #6b1d1d;
+            transition: transform 0.1s;
+        }
+
+        .action-retry:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 #6b1d1d;
+        }
+
+        /* Animation Rotations */
+        @keyframes revolveClockwise {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes counterRevolve {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(-360deg); }
+        }
+
+        @keyframes pulseLogo {
+            0% { transform: scale(0.95); opacity: 0.9; }
+            100% { transform: scale(1.05); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="splash-screen">
+        <img src="assets/innovine-logo.png" alt="Innovine" class="splash-logo">
+    </div>
+
+    <div id="game-container">
+        <img src="assets/innovine-logo.png" alt="Innovine" class="header-logo" onerror="this.style.display='none'">
+        
+        <div id="active-play-zone">
+            <div class="hud-dashboard">
+                <div id="hud-chronicle-index">Movement Level: 1 / 10</div>
+                <div id="hud-dynasty-score">Score: ⭐ 0</div>
+            </div>
+
+            <div class="clue-display-card" id="clue-card-render">Preparing Freedom Journey Questions...</div>
+
+            <div class="orbit-arena">
+                <div class="center-focal-hub" id="center-hub-emoji">🇮🇳</div>
+
+                <div class="orbit-spinner-ring" id="spinner-ring">
+                    </div>
+            </div>
+        </div>
+
+        <div id="victory-screen">
+            <div style="font-size: 5.5rem; margin-bottom: 10px;">👑</div>
+            <h1 style="color: var(--empire-crimson); margin: 5px 0;">Independence Quest Completed!</h1>
+            <p style="font-size: 1.25rem; color: #4a5568;">Fantastic! You tracked down the timeline from Gandhiji's arrival to the birth of a free democratic India in 1947 successfully!</p>
+            <div class="score-badge" id="final-tally-output">10 / 10 Points</div>
+            <button class="action-retry" onclick="window.location.reload()">Play Again 🔄</button>
+        </div>
+    </div>
+
+    <audio id="sound-correct" src="assets/correct.mp3" preload="auto"></audio>
+    <audio id="sound-wrong" src="assets/wrong.mp3" preload="auto"></audio>
+    <audio id="sound-win" src="assets/freesound_community-claps-4474.mp3" preload="auto"></audio>
+
+    <script>
+        // High-Quality Grade 5 Curriculum Aligned Dataset for Chapter 9
+        const chronicleDataset = [
+            { text: "Who urged Mahatma Gandhi to return to Bharat and join the struggle for freedom after his work in South Africa?", answers: ["Gopal Krishna Gokhale", "Jawaharlal Nehru", "Bhagat Singh", "Sarojini Naidu"], correct: "Gopal Krishna Gokhale", emoji: "📜" },
+            { text: "Which unfair law passed by the British in 1919 allowed them to arrest people without any trial?", answers: ["The Rowlatt Act", "Indian Independence Act", "The Salt Law", "The Trade Charter"], correct: "The Rowlatt Act", emoji: "⚖️" },
+            { text: "In which city did the tragic Jallianwala Bagh massacre take place on April 13, 1919?", answers: ["Amritsar", "Uttar Pradesh", "Gujarat", "Bombay"], correct: "Amritsar", emoji: "🌲" },
+            { text: "Which peaceful protest movement launched in 1921 asked people to use local Khadi instead of British cloth?", answers: ["Non-Cooperation Movement", "Civil Disobedience", "Quit India Movement", "Chittagong Armoury Raid"], correct: "Non-Cooperation Movement", emoji: "🎽" },
+            { text: "Why did Mahatma Gandhi decide to call off the successful Non-Cooperation Movement in February 1922?", answers: ["Chauri Chaura violence", "World War II began", "The passing of Salt Tax", "He left the country"], correct: "Chauri Chaura violence", emoji: "🔥" },
+            { text: "Which revolutionary association was co-founded in 1924 by brave young leaders like Bhagat Singh and Chandrasekhar Azad?", answers: ["Hindustan Republican", "Indian National Congress", "Satyagraha Ashram", "The Moderates Assembly"], correct: "Hindustan Republican", emoji: "⚔️" },
+            { text: "The famous Dandi Salt March led by Mahatma Gandhi in 1930 marked the start of which movement?", answers: ["Civil Disobedience", "Quit India Andolan", "Non-Cooperation Strike", "Alipore Bomb Case"], correct: "Civil Disobedience", emoji: "🧂" },
+            { text: "On August 8, 1942, Mahatma Gandhi launched which bold historic campaign to demand complete British departure?", answers: ["Quit India Movement", "Satyagraha Movement", "The Rowlatt Protest", "The Baisakhi Assembly"], correct: "Quit India Movement", emoji: "🚪" },
+            { text: "Which act passed by the British Parliament officially created independent India and Pakistan in 1947?", answers: ["Indian Independence Act", "The Rowlatt Act", "The Salt Decree", "Viceroy Proclamation"], correct: "Indian Independence Act", emoji: "🖋️" },
+            { text: "The partition of 1947 resulted in the split of undivided Bharat into India and which new sovereign nation?", answers: ["Pakistan", "South Africa", "Bengal", "Assam"], correct: "Pakistan", emoji: "🗺️" }
+        ];
+
+        let playHead = 0;
+        let successfulMatches = 0;
+        let blockInteraction = false;
+
+        function playSoundTrack(id) {
+            const track = document.getElementById(id);
+            if (track) {
+                track.currentTime = 0;
+                track.play().catch(() => {});
+            }
+        }
+
+        // Exact 5-Second Holding Splash Screen Loop
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                document.getElementById('splash-screen').style.opacity = '0';
+                document.getElementById('splash-screen').style.visibility = 'hidden';
+                document.getElementById('game-container').style.display = 'block';
+                renderNextChronicle();
+            }, 5000);
+        });
+
+        function renderNextChronicle() {
+            blockInteraction = false;
+            const contextItem = chronicleDataset[playHead];
+
+            document.getElementById('hud-chronicle-index').innerText = `Movement Level: ${playHead + 1} / ${chronicleDataset.length}`;
+            document.getElementById('hud-dynasty-score').innerText = `Score: ⭐ ${successfulMatches}`;
+            document.getElementById('clue-card-render').innerText = contextItem.text;
+            
+            // Set contextual theme emoji in central hub ring
+            document.getElementById('center-hub-emoji').innerText = contextItem.emoji || "🇮🇳";
+
+            const ringWrapper = document.getElementById('spinner-ring');
+            ringWrapper.classList.remove('paused');
+            ringWrapper.innerHTML = '';
+
+            // Shuffle option pool
+            let mixedPool = [...contextItem.answers].sort(() => Math.random() - 0.5);
+
+            mixedPool.forEach(choiceString => {
+                const triggerNode = document.createElement('button');
+                triggerNode.className = 'option-node';
+                triggerNode.innerText = choiceString;
+                triggerNode.onclick = () => evaluationStep(triggerNode, choiceString, contextItem.correct);
+                ringWrapper.appendChild(triggerNode);
+            });
+        }
+
+        function evaluationStep(elementRef, inputString, solutionString) {
+            if (blockInteraction) return;
+            blockInteraction = true;
+
+            // Pause the revolving animation movement instantly during review phase
+            const ringWrapper = document.getElementById('spinner-ring');
+            ringWrapper.classList.add('paused');
+
+            if (inputString === solutionString) {
+                elementRef.classList.add('correct-glow');
+                playSoundTrack('sound-correct');
+                successfulMatches++;
+            } else {
+                elementRef.classList.add('wrong-glow');
+                playSoundTrack('sound-wrong');
+
+                const alternatives = document.querySelectorAll('.option-node');
+                alternatives.forEach(node => {
+                    if (node.innerText === solutionString) node.classList.add('correct-glow');
+                });
+            }
+
+            // Buffer transition to next question level
+            setTimeout(() => {
+                playHead++;
+                if (playHead < chronicleDataset.length) {
+                    renderNextChronicle();
+                } else {
+                    displayVictoryScreen();
+                }
+            }, 2400);
+        }
+
+        function displayVictoryScreen() {
+            document.getElementById('active-play-zone').style.display = 'none';
+            document.getElementById('victory-screen').style.display = 'block';
+            document.getElementById('final-tally-output').innerText = `${successfulMatches} / 10 Correct Answers`;
+            playSoundTrack('sound-win');
+        }
+    </script>
+</body>
+</html>
