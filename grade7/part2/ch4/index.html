@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Winds of Change - Interactive Crossword Dashboard</title>
+    <style>
+        :root {
+            --slate-dark: #0b0f19;
+            --panel-bg: #161e2e;
+            --amber-gold: #f59e0b;
+            --amber-glow: rgba(245, 158, 11, 0.25);
+            --emerald-mint: #10b981;
+            --royal-blue: #3b82f6;
+            --text-light: #f3f4f6;
+            --text-muted: #9ca3af;
+            --border-line: #2d3748;
+            --error-red: #ef4444;
+            --cell-black: #090d16;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background-color: var(--slate-dark);
+            color: var(--text-light);
+            line-height: 1.6;
+            padding: 20px 10px;
+            user-select: none;
+        }
+
+        /* 5-Second Interactive Splash Screen Overlay with White Background */
+        #splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease-out;
+        }
+
+        #splash-screen img {
+            max-width: 280px;
+            height: auto;
+            margin-bottom: 30px;
+        }
+
+        #splash-screen .loader {
+            border: 4px solid #e2e8f0;
+            border-top: 4px solid var(--amber-gold);
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            animation: rotateLoader 1s linear infinite;
+        }
+
+        @keyframes rotateLoader {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Game Interface Window wrapper */
+        .game-wrapper {
+            max-width: 1150px;
+            margin: 0 auto;
+            background: var(--panel-bg);
+            border-radius: 14px;
+            border: 1px solid var(--border-line);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            display: none;
+        }
+
+        header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            padding: 25px;
+            text-align: center;
+            border-bottom: 2px solid var(--amber-gold);
+        }
+
+        header h1 {
+            font-size: 26px;
+            letter-spacing: 0.5px;
+            color: var(--amber-gold);
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .dashboard-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #0d131f;
+            padding: 12px 25px;
+            font-size: 14px;
+            border-bottom: 1px solid var(--border-line);
+        }
+
+        .score-box {
+            color: var(--emerald-mint);
+            font-weight: 700;
+            background: rgba(16, 185, 129, 0.1);
+            padding: 4px 14px;
+            border-radius: 30px;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .main-content {
+            padding: 25px;
+        }
+
+        .mission-box {
+            background: rgba(245, 158, 11, 0.05);
+            border-left: 4px solid var(--amber-gold);
+            padding: 14px;
+            margin-bottom: 25px;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #fbbf24;
+        }
+
+        /* Layout Structure for Grid & Clues */
+        .crossword-container {
+            display: grid;
+            grid-template-columns: 1.1fr 1fr;
+            gap: 25px;
+            align-items: start;
+        }
+
+        @media (max-width: 850px) {
+            .crossword-container { grid-template-columns: 1fr; }
+        }
+
+        /* Crossword Matrix Grid Layout */
+        .grid-wrapper {
+            background: #0d131f;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-line);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .crossword-grid {
+            display: grid;
+            grid-template-columns: repeat(15, 1fr);
+            grid-template-rows: repeat(15, 1fr);
+            gap: 2px;
+            width: 100%;
+            max-width: 480px;
+            aspect-ratio: 1 / 1;
+        }
+
+        .cell {
+            position: relative;
+            background: var(--cell-black);
+            aspect-ratio: 1 / 1;
+            border-radius: 2px;
+        }
+
+        .cell.active-letter {
+            background: #1e293b;
+            border: 1px solid #475569;
+        }
+
+        .cell input {
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            border: none;
+            text-align: center;
+            color: var(--text-light);
+            font-size: 16px;
+            font-weight: 700;
+            text-transform: uppercase;
+            outline: none;
+        }
+
+        .cell input:focus {
+            background: rgba(59, 130, 246, 0.15);
+        }
+
+        .cell input.correct-flash {
+            color: var(--emerald-mint);
+            background: rgba(16, 185, 129, 0.08);
+        }
+
+        .cell-number {
+            position: absolute;
+            top: 2px;
+            left: 3px;
+            font-size: 9px;
+            font-weight: 700;
+            color: var(--amber-gold);
+            line-height: 1;
+            pointer-events: none;
+        }
+
+        /* Clues Sheet Panels */
+        .clues-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-height: 510px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .clues-section {
+            background: #090d16;
+            border: 1px solid var(--border-line);
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .clues-section h3 {
+            font-size: 15px;
+            color: var(--amber-gold);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border-line);
+            padding-bottom: 6px;
+            margin-bottom: 12px;
+        }
+
+        .clue-item {
+            font-size: 13.5px;
+            margin-bottom: 8px;
+            color: var(--text-light);
+            padding: 4px;
+            border-radius: 4px;
+        }
+
+        .clue-item strong {
+            color: var(--royal-blue);
+            margin-right: 5px;
+        }
+
+        /* Feedback Panels */
+        .feedback-alert {
+            margin-top: 25px;
+            padding: 14px;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 14px;
+            display: none;
+        }
+
+        .feedback-alert.success {
+            display: block;
+            background: rgba(16, 185, 129, 0.1);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .feedback-alert.error {
+            display: block;
+            background: rgba(239, 68, 68, 0.1);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .control-footer {
+            text-align: center;
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .control-btn {
+            background: transparent;
+            color: var(--text-light);
+            border: 1px solid var(--border-line);
+            padding: 12px 28px;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .control-btn:hover {
+            border-color: var(--text-light);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .control-btn.primary {
+            background: var(--amber-gold);
+            color: var(--slate-dark);
+            border-color: var(--amber-gold);
+        }
+
+        .control-btn.primary:hover {
+            background: #d97706;
+            border-color: #d97706;
+        }
+    </style>
+</head>
+<body>
+
+<!-- 5-Second Splash Screen Loader Display with White Background -->
+<div id="splash-screen">
+    <img src="assets/innovine-logo.png" alt="Innovine Logo">
+    <div class="loader"></div>
+</div>
+
+<div class="game-wrapper" id="main-interface-shell">
+    <header>
+        <h1>Chapter 4 Study Dashboard</h1>
+        <p>Crossword Edition — Transnational Dynamics, Regional Dynasties & Academic Advancements</p>
+    </header>
+
+    <div class="dashboard-bar">
+        <span>STATUS: SYNCHRONIZED MATRIX INDEX LOADED</span>
+        <span>SCORE: <span id="score-val" class="score-box">0</span></span>
+    </div>
+
+    <div class="main-content">
+        <div class="mission-box">
+            <strong>Crossword Mission Parameter:</strong> Review the Across and Down archival history records clues. Click on any valid grid cell to input characters. Press the verification button below to evaluate your solution coordinates.
+        </div>
+
+        <div class="crossword-container">
+            <!-- Grid Container Shell -->
+            <div class="grid-wrapper">
+                <div id="crossword-grid-mesh" class="crossword-grid"></div>
+            </div>
+
+            <!-- Clues Sheet Columns -->
+            <div class="clues-wrapper">
+                <div class="clues-section">
+                    <h3>Across Clues</h3>
+                    <div id="across-clues-box"></div>
+                </div>
+                <div class="clues-section">
+                    <h3>Down Clues</h3>
+                    <div id="down-clues-box"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Alerts Panel -->
+        <div id="system-alert" class="feedback-alert"></div>
+
+        <div class="control-footer">
+            <button class="control-btn primary" onclick="verifyCrosswordMatrix()">Verify Answers</button>
+            <button class="control-btn" onclick="rebootDashboard()">Reboot Game Matrix</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Audio engine setups utilizing precise assets folder links
+    const correctAudio = new Audio('assets/correct.mp3');
+    const wrongAudio = new Audio('assets/wrong.mp3');
+    const clapsAudio = new Audio('assets/freesound_community-claps-44774.mp3');
+
+    function executeSound(soundObject) {
+        soundObject.currentTime = 0;
+        soundObject.play().catch(err => console.log("Audio node triggered safely."));
+    }
+
+    // 15x15 Crossword Puzzle Definition Mapping Data
+    const wordsDataset = [
+        { word: "CHOLA", row: 2, col: 1, dir: "across", num: 1, clue: "Powerful Southern dynasty famous for extensive naval dominance, overseas expeditions, and building the grand Brihadeswarar Temple." },
+        { word: "LILAVATI", row: 5, col: 1, dir: "across", num: 3, clue: "The celebrated arithmetic treatise composed by mathematician Bhaskaracharya, written in the form of engaging puzzles." },
+        { word: "GHAZNI", row: 8, col: 4, dir: "across", num: 5, clue: "The Afghanistan-based empire whose sultan, Mahmud, launched 17 separate plundering raids targeting affluent North Indian temples." },
+        { word: "TARAIN", row: 11, col: 6, dir: "across", num: 7, clue: "The strategic historic battlefield location where Prithviraj Chauhan and Muhammad Ghori fought two pivotal structural battles." },
+        { word: "GUILD", row: 14, col: 9, dir: "across", num: 9, clue: "An association of merchants or craftsmen (like Ayyavole) who organized long-distance maritime trade and protected common assets." },
+        
+        { word: "ALBIRUNI", row: 1, col: 4, dir: "down", num: 2, clue: "Renowned Central Asian court scholar who learned Sanskrit and authored the invaluable historical survey 'Kitab-ul-Hind'." },
+        { word: "KHAJURAHO", row: 4, col: 10, dir: "down", num: 4, clue: "Magnificent central Indian temple city built by the Chandella dynasty, highly famous for its artistic sculptures." },
+        { word: "SENA", row: 7, col: 2, dir: "down", num: 6, clue: "The eastern Indian ruling family of Bengal that succeeded the Palas, supporting Sanskrit literature like poet Jayadeva's works." },
+        { word: "SULTAN", row: 9, col: 13, dir: "down", num: 8, clue: "The formal contemporary political title assigned to an absolute monarch or king ruling a medieval Muslim kingdom." }
+    ];
+
+    const gridSize = 15;
+    let computedScore = 0;
+
+    // Splash screen loader execution loop block (Exactly 5000 milliseconds)
+    window.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+            const overlaySplash = document.getElementById('splash-screen');
+            const systemShell = document.getElementById('main-interface-shell');
+            overlaySplash.style.opacity = '0';
+            setTimeout(() => {
+                overlaySplash.style.display = 'none';
+                systemShell.style.display = 'block';
+                startDashboardEngine();
+            }, 500);
+        }, 5000);
+    });
+
+    function startDashboardEngine() {
+        computedScore = 0;
+        document.getElementById('score-val').textContent = computedScore;
+        clearAlertPanel();
+        buildCrosswordGridSkeleton();
+        renderCluesPanelText();
+    }
+
+    function buildCrosswordGridSkeleton() {
+        const structuralMesh = document.getElementById('crossword-grid-mesh');
+        structuralMesh.innerHTML = '';
+
+        const letterAssignmentMatrix = Array(gridSize).fill(null).map(() => Array(gridSize).fill(null));
+        const cellNumberingMatrix = Array(gridSize).fill(null).map(() => Array(gridSize).fill(null));
+
+        wordsDataset.forEach(item => {
+            let currentX = item.col - 1;
+            let currentY = item.row - 1;
+            cellNumberingMatrix[currentY][currentX] = item.num;
+
+            for (let i = 0; i < item.word.length; i++) {
+                letterAssignmentMatrix[currentY][currentX] = item.word[i];
+                if (item.dir === "across") currentX++;
+                if (item.dir === "down") currentY++;
+            }
+        });
+
+        for (let r = 0; r < gridSize; r++) {
+            for (let c = 0; c < gridSize; c++) {
+                const cellDiv = document.createElement('div');
+                cellDiv.className = 'cell';
+
+                if (letterAssignmentMatrix[r][c] !== null) {
+                    cellDiv.classList.add('active-letter');
+
+                    if (cellNumberingMatrix[r][c] !== null) {
+                        const numLabel = document.createElement('span');
+                        numLabel.className = 'cell-number';
+                        numLabel.textContent = cellNumberingMatrix[r][c];
+                        cellDiv.appendChild(numLabel);
+                    }
+
+                    const charInput = document.createElement('input');
+                    charInput.type = 'text';
+                    charInput.maxLength = 1;
+                    charInput.dataset.answer = letterAssignmentMatrix[r][c];
+                    charInput.id = `input-r${r}-c${c}`;
+                    
+                    charInput.addEventListener('input', (e) => {
+                        if (e.target.value.length === 1) {
+                            focusNextAvailableCell(r, c);
+                        }
+                    });
+
+                    cellDiv.appendChild(charInput);
+                }
+
+                structuralMesh.appendChild(cellDiv);
+            }
+        }
+    }
+
+    function focusNextAvailableCell(row, col) {
+        let nextInput = document.getElementById(`input-r${row}-c${col + 1}`) || document.getElementById(`input-r${row + 1}-c${col}`);
+        if (nextInput) nextInput.focus();
+    }
+
+    function renderCluesPanelText() {
+        const acrossBox = document.getElementById('across-clues-box');
+        const downBox = document.getElementById('down-clues-box');
+        acrossBox.innerHTML = '';
+        downBox.innerHTML = '';
+
+        wordsDataset.forEach(item => {
+            const entry = document.createElement('div');
+            entry.className = 'clue-item';
+            entry.innerHTML = `<strong>${item.num}.</strong> ${item.clue}`;
+            
+            if (item.dir === "across") {
+                acrossBox.appendChild(entry);
+            } else {
+                downBox.appendChild(entry);
+            }
+        });
+    }
+
+    function verifyCrosswordMatrix() {
+        const interactiveInputs = document.querySelectorAll('.active-letter input');
+        let unmappedCount = 0;
+        let accurateCount = 0;
+
+        interactiveInputs.forEach(inputNode => {
+            const playerChar = inputNode.value.trim().toUpperCase();
+            const targetChar = inputNode.dataset.answer;
+
+            if (playerChar === '') {
+                unmappedCount++;
+                inputNode.classList.remove('correct-flash');
+            } else if (playerChar === targetChar) {
+                accurateCount++;
+                inputNode.classList.add('correct-flash');
+            } else {
+                inputNode.classList.remove('correct-flash');
+            }
+        });
+
+        if (unmappedCount > 0) {
+            executeSound(wrongAudio);
+            displayAlert(`Incomplete Archival Mapping: ${unmappedCount} cell nodes remain unfilled. Complete the matrix grid.`, "error");
+            return;
+        }
+
+        if (accurateCount === interactiveInputs.length) {
+            computedScore = 100;
+            executeSound(clapsAudio);
+            displayAlert("🏆 Master Historian Victory! The complete 11th & 12th-century archive record is perfectly calibrated!", "success");
+        } else {
+            computedScore = Math.max(0, Math.floor((accurateCount / interactiveInputs.length) * 80));
+            executeSound(wrongAudio);
+            displayAlert("Chronological Misalignments Detected! Several letter nodes mismatch verified historical accounts. Check your entries.", "error");
+        }
+
+        document.getElementById('score-val').textContent = computedScore;
+    }
+
+    function displayAlert(textMessage, alertType) {
+        const responseElement = document.getElementById('system-alert');
+        responseElement.textContent = textMessage;
+        responseElement.className = `feedback-alert ${alertType}`;
+    }
+
+    function clearAlertPanel() {
+        document.getElementById('system-alert').className = 'feedback-alert';
+    }
+
+    function rebootDashboard() {
+        startDashboardEngine();
+    }
+</script>
+</body>
+</html>
