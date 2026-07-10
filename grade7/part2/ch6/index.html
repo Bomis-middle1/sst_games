@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pillars of Democracy - Vocabulary Builder</title>
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --panel-bg: #1e293b;
+            --accent-gold: #f59e0b;
+            --mint-green: #10b981;
+            --coral-red: #ef4444;
+            --sky-blue: #3b82f6;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* Initial 5-Second White Splash Screen */
+        #splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 99999;
+            transition: opacity 0.5s ease-out;
+        }
+
+        #splash-screen img {
+            max-width: 280px;
+            height: auto;
+            margin-bottom: 20px;
+        }
+
+        #splash-screen .loader-bar {
+            width: 200px;
+            height: 4px;
+            background-color: #e2e8f0;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        #splash-screen .loader-progress {
+            width: 100%;
+            height: 100%;
+            background-color: var(--accent-gold);
+            animation: load 5s linear forwards;
+        }
+
+        @keyframes load {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+
+        /* Main Game Shell Layout */
+        .game-container {
+            width: 100%;
+            max-width: 800px;
+            background: var(--panel-bg);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            display: none;
+        }
+
+        header {
+            background: linear-gradient(135deg, #020617 0%, #0f172a 100%);
+            padding: 24px;
+            text-align: center;
+            border-bottom: 3px solid var(--accent-gold);
+        }
+
+        header h1 {
+            font-size: 26px;
+            color: var(--accent-gold);
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            background: #090d16;
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: 600;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .score-box {
+            color: var(--mint-green);
+        }
+
+        .main-workspace {
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 24px;
+        }
+
+        /* Positive Visual Builder Element */
+        .monument-stage {
+            width: 100%;
+            background: #0f172a;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .pillar-grid {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .pillar-brick {
+            height: 35px;
+            width: 60px;
+            background: #334155;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: bold;
+            color: #1e293b;
+        }
+
+        .pillar-brick.active {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: #000;
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+        }
+
+        /* Clue Box styling */
+        .clue-container {
+            background: rgba(59, 130, 246, 0.08);
+            border-left: 4px solid var(--sky-blue);
+            padding: 16px;
+            border-radius: 0 8px 8px 0;
+            width: 100%;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        /* Blanks & Secret Word display area */
+        .word-display {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .letter-slot {
+            width: 35px;
+            height: 45px;
+            border-bottom: 3px solid var(--text-muted);
+            font-size: 28px;
+            font-weight: 700;
+            text-align: center;
+            text-transform: uppercase;
+            color: var(--text-main);
+            transition: border-color 0.2s;
+        }
+
+        .letter-slot.revealed {
+            border-bottom-color: var(--accent-gold);
+            color: var(--accent-gold);
+        }
+
+        /* Keyboard styles */
+        .keyboard-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 15fr);
+            gap: 8px;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        @media(max-width: 600px) {
+            .keyboard-grid {
+                grid-template-columns: repeat(7, 1fr);
+            }
+        }
+
+        .key-btn {
+            background: #334155;
+            color: var(--text-main);
+            border: none;
+            padding: 12px 4px;
+            font-weight: bold;
+            font-size: 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.1s ease;
+        }
+
+        .key-btn:hover:not(:disabled) {
+            background: #475569;
+            transform: translateY(-2px);
+        }
+
+        .key-btn:disabled {
+            opacity: 0.25;
+            cursor: not-allowed;
+        }
+
+        /* Interaction Panel notifications */
+        .alert-panel {
+            padding: 12px;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 600;
+            width: 100%;
+            display: none;
+        }
+
+        .alert-panel.success { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+        .alert-panel.error { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+
+        .action-container {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .control-btn {
+            background: var(--accent-gold);
+            color: #0f172a;
+            border: none;
+            padding: 12px 32px;
+            font-size: 15px;
+            font-weight: 700;
+            border-radius: 6px;
+            cursor: pointer;
+            text-transform: uppercase;
+            display: none;
+        }
+
+        .control-btn:hover {
+            background: #d97706;
+        }
+
+        /* Game Over Screen Module */
+        .summary-screen {
+            text-align: center;
+            padding: 40px 20px;
+            display: none;
+        }
+
+        .summary-screen h2 {
+            color: var(--accent-gold);
+            font-size: 28px;
+            margin-bottom: 12px;
+        }
+
+        .summary-screen p {
+            color: var(--text-muted);
+            margin-bottom: 24px;
+            font-size: 16px;
+        }
+
+        .restart-btn {
+            background: transparent;
+            color: var(--text-main);
+            border: 2px solid var(--accent-gold);
+            padding: 10px 28px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .restart-btn:hover {
+            background: var(--accent-gold);
+            color: #0f172a;
+        }
+    </style>
+</head>
+<body>
+
+<!-- 5-Second White Splash Screen Layer -->
+<div id="splash-screen">
+    <img src="assets/innovine-logo.png" alt="Innovine Logo">
+    <div class="loader-bar">
+        <div class="loader-progress"></div>
+    </div>
+</div>
+
+<!-- Primary Interactive Matrix Structure -->
+<div class="game-container" id="main-window">
+    <header>
+        <h1>Pillars of Democracy</h1>
+        <p>Build the Architecture of Statehood & Governance</p>
+    </header>
+
+    <div class="status-bar">
+        <span id="term-counter">WORD: 1 / 6</span>
+        <span class="score-box">CONSTITUTIONAL ALIGNMENT: <span id="points-display">0</span></span>
+    </div>
+
+    <!-- Active Gameplay Viewport -->
+    <div id="gameplay-view" class="main-workspace">
+        <div class="monument-stage">
+            <div style="font-size: 13px; font-weight:600; margin-bottom:8px; color: var(--text-muted);">
+                MONUMENT BUILDING BLOCKS (MAX 6 ATTEMPTS PER TERM):
+            </div>
+            <div class="pillar-grid" id="building-blocks"></div>
+        </div>
+
+        <div class="clue-container">
+            <strong>Constitutional Clue:</strong> <span id="clue-text">---</span>
+        </div>
+
+        <div class="word-display" id="word-slots"></div>
+
+        <div class="keyboard-grid" id="virtual-keyboard"></div>
+
+        <div class="alert-panel" id="status-alert"></div>
+
+        <div class="action-container">
+            <button class="control-btn" id="next-term-btn" onclick="loadNextQuestion()">Next Governance Term</button>
+        </div>
+    </div>
+
+    <!-- Celebration / Finish Viewport -->
+    <div id="summary-view" class="summary-screen">
+        <h2>Pillars Securely Established!</h2>
+        <p id="final-stats-text"></p>
+        <button class="restart-btn" onclick="restartEntireGame()">Rebuild the State</button>
+    </div>
+</div>
+
+<script>
+    // Audio Node Definitions maps cleanly onto directory assets
+    const sfxCorrect = new Audio('assets/correct.mp3');
+    const sfxWrong = new Audio('assets/wrong.mp3');
+    const sfxApplause = new Audio('assets/freesound_community-claps-44774.mp3');
+
+    function playSound(audioTrack) {
+        audioTrack.currentTime = 0;
+        audioTrack.play().catch(() => console.log("Audio contextual trigger activated safely."));
+    }
+
+    // Vocabulary Dataset explicitly derived from Chapter 6
+    const vocabularyPool = [
+        { word: "SOVEREIGNTY", clue: "Supreme legal authority within a territory; independence from any external control or dictation." },
+        { word: "LEGISLATURE", clue: "The lawmaking branch of government. In India, this is represented by the Parliament (Lok Sabha + Rajya Sabha)." },
+        { word: "REPUBLIC", clue: "A system where the head of state is elected (not hereditary) and power is limited by a constitution." },
+        { word: "DEMOCRACY", clue: "A system of government in which power originates from the people, exercised through free and fair elections." },
+        { word: "JUDICIARY", clue: "The independent law-interpreting branch; acts as the guardian of justice and protects Fundamental Rights." },
+        { word: "BUREAUCRACY", clue: "The permanent executive consisting of civil servants (like IAS, IPS) who provide continuity of governance." }
+    ];
+
+    let currentItemIndex = 0;
+    let combinedScore = 0;
+    let activeWord = "";
+    let lettersGuessed = [];
+    let unsuccessfulAttempts = 0;
+    const maximumAllowedErrors = 6;
+
+    // Splash Timer Control (Sets explicitly to 5000 milliseconds)
+    window.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+            const splashElement = document.getElementById('splash-screen');
+            const mainAppWindow = document.getElementById('main-window');
+            splashElement.style.opacity = '0';
+            setTimeout(() => {
+                splashElement.style.display = 'none';
+                mainAppWindow.style.display = 'block';
+                startStructureSetup();
+            }, 500);
+        }, 5000);
+    });
+
+    function startStructureSetup() {
+        currentItemIndex = 0;
+        combinedScore = 0;
+        document.getElementById('summary-view').style.display = 'none';
+        document.getElementById('gameplay-view').style.display = 'flex';
+        initializeWordSequence();
+    }
+
+    function initializeWordSequence() {
+        if (currentItemIndex >= vocabularyPool.length) {
+            triggerGameCompletion();
+            return;
+        }
+
+        const currentDataset = vocabularyPool[currentItemIndex];
+        activeWord = currentDataset.word.toUpperCase();
+        lettersGuessed = [];
+        unsuccessfulAttempts = 0;
+
+        // Reset text trackers
+        document.getElementById('term-counter').textContent = `WORD: ${currentItemIndex + 1} / ${vocabularyPool.length}`;
+        document.getElementById('points-display').textContent = combinedScore;
+        document.getElementById('clue-text').textContent = currentDataset.clue;
+        
+        // Dynamic controls clear down
+        document.getElementById('status-alert').style.display = 'none';
+        document.getElementById('next-term-btn').style.display = 'none';
+
+        generateVisualBuildingBlocks();
+        renderWordSlots();
+        renderVirtualKeyboard();
+    }
+
+    function generateVisualBuildingBlocks() {
+        const blocksContainer = document.getElementById('building-blocks');
+        blocksContainer.innerHTML = '';
+        for (let i = 1; i <= maximumAllowedErrors; i++) {
+            const block = document.createElement('div');
+            block.className = 'pillar-brick active';
+            block.id = `brick-${i}`;
+            block.textContent = `Block ${i}`;
+            blocksContainer.appendChild(block);
+        }
+    }
+
+    function renderWordSlots() {
+        const slotsContainer = document.getElementById('word-slots');
+        slotsContainer.innerHTML = '';
+        
+        for (let letter of activeWord) {
+            const slot = document.createElement('div');
+            slot.className = 'letter-slot';
+            // Show spaces or special characters instantly if present, else empty blank
+            if (letter === ' ' || letter === '-') {
+                slot.textContent = letter;
+                slot.style.borderBottom = 'none';
+            } else {
+                slot.textContent = '';
+            }
+            slotsContainer.appendChild(slot);
+        }
+    }
+
+    function renderVirtualKeyboard() {
+        const keyboardContainer = document.getElementById('virtual-keyboard');
+        keyboardContainer.innerHTML = '';
+        const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+        for (let char of alphabet) {
+            const button = document.createElement('button');
+            button.className = 'key-btn';
+            button.textContent = char;
+            button.id = `key-${char}`;
+            button.onclick = () => processLetterGuess(char);
+            keyboardContainer.appendChild(button);
+        }
+    }
+
+    function processLetterGuess(letter) {
+        if (lettersGuessed.includes(letter) || unsuccessfulAttempts >= maximumAllowedErrors) return;
+
+        lettersGuessed.push(letter);
+        const letterKey = document.getElementById(`key-${letter}`);
+        if (letterKey) letterKey.disabled = true;
+
+        if (activeWord.includes(letter)) {
+            playSound(sfxCorrect);
+            revealCorrectLetters();
+            verifyWinCondition();
+        } else {
+            playSound(sfxWrong);
+            unsuccessfulAttempts++;
+            // Remove a brick from the structural block layout positively detailing current capacity
+            const targetedBrick = document.getElementById(`brick-${unsuccessfulAttempts}`);
+            if (targetedBrick) {
+                targetedBrick.classList.remove('active');
+            }
+            verifyLossCondition();
+        }
+    }
+
+    function revealCorrectLetters() {
+        const slots = document.getElementById('word-slots').children;
+        for (let i = 0; i < activeWord.length; i++) {
+            if (activeWord[i] === slots[i].textContent) continue;
+            if (lettersGuessed.includes(activeWord[i])) {
+                slots[i].textContent = activeWord[i];
+                slots[i].classList.add('revealed');
+            }
+        }
+    }
+
+    function verifyWinCondition() {
+        const slots = document.getElementById('word-slots').children;
+        let wordComplete = true;
+        for (let slot of slots) {
+            if (slot.textContent === '') {
+                wordComplete = false;
+                break;
+            }
+        }
+
+        if (wordComplete) {
+            freezeKeyboard();
+            combinedScore += (20 - (unsuccessfulAttempts * 2));
+            document.getElementById('points-display').textContent = combinedScore;
+
+            const alertPanel = document.getElementById('status-alert');
+            alertPanel.className = "alert-panel success";
+            alertPanel.textContent = "✨ Term Decoded! The pillars of governance grow stronger under your watch.";
+            alertPanel.style.display = 'block';
+            document.getElementById('next-term-btn').style.display = 'block';
+        }
+    }
+
+    function verifyLossCondition() {
+        if (unsuccessfulAttempts >= maximumAllowedErrors) {
+            freezeKeyboard();
+            revealFullWordAnswer();
+
+            const alertPanel = document.getElementById('status-alert');
+            alertPanel.className = "alert-panel error";
+            alertPanel.textContent = `Structure Reset! The architectural term was: ${activeWord}.`;
+            alertPanel.style.display = 'block';
+            document.getElementById('next-term-btn').style.display = 'block';
+        }
+    }
+
+    function revealFullWordAnswer() {
+        const slots = document.getElementById('word-slots').children;
+        for (let i = 0; i < activeWord.length; i++) {
+            slots[i].textContent = activeWord[i];
+            slots[i].style.color = 'var(--coral-red)';
+        }
+    }
+
+    function freezeKeyboard() {
+        const keys = document.querySelectorAll('.key-btn');
+        keys.forEach(key => key.disabled = true);
+    }
+
+    function loadNextQuestion() {
+        currentItemIndex++;
+        initializeWordSequence();
+    }
+
+    function triggerGameCompletion() {
+        document.getElementById('gameplay-view').style.display = 'none';
+        const summaryView = document.getElementById('summary-view');
+        const statsText = document.getElementById('final-stats-text');
+        
+        summaryView.style.display = 'block';
+        playSound(sfxApplause);
+
+        if (combinedScore >= 90) {
+            statsText.innerHTML = `Incredible! You earned <strong>${combinedScore} Alignment Points</strong>. You are a Chief architect of statecraft and fully understand how the Indian State operates!`;
+        } else {
+            statsText.innerHTML = `Good job! You earned <strong>${combinedScore} Alignment Points</strong>. Replay the game to maximize your parameters and secure a flawless democratic model.`;
+        }
+    }
+
+    function restartEntireGame() {
+        startStructureSetup();
+    }
+</script>
+</body>
+</html>
