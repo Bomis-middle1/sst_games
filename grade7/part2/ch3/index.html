@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chronicles of Post-Gupta India - Interactive Dashboard</title>
+    <style>
+        :root {
+            --slate-dark: #0b0f19;
+            --panel-bg: #161e2e;
+            --amber-gold: #f59e0b;
+            --amber-glow: rgba(245, 158, 11, 0.25);
+            --emerald-mint: #10b981;
+            --royal-blue: #3b82f6;
+            --text-light: #f3f4f6;
+            --text-muted: #9ca3af;
+            --border-line: #2d3748;
+            --error-red: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background-color: var(--slate-dark);
+            color: var(--text-light);
+            line-height: 1.6;
+            padding: 20px 10px;
+            user-select: none;
+        }
+
+        /* 5-Second Interactive Splash Screen Overlay */
+        #splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--slate-dark);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease-out;
+        }
+
+        #splash-screen img {
+            max-width: 260px;
+            height: auto;
+            margin-bottom: 25px;
+            filter: drop-shadow(0 0 20px var(--amber-glow));
+        }
+
+        #splash-screen .loader {
+            border: 4px solid var(--border-line);
+            border-top: 4px solid var(--amber-gold);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: rotateLoader 1s linear infinite;
+        }
+
+        @keyframes rotateLoader {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Game Interface Window wrapper */
+        .game-wrapper {
+            max-width: 1050px;
+            margin: 0 auto;
+            background: var(--panel-bg);
+            border-radius: 14px;
+            border: 1px solid var(--border-line);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            display: none;
+        }
+
+        header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            padding: 25px;
+            text-align: center;
+            border-bottom: 2px solid var(--amber-gold);
+        }
+
+        header h1 {
+            font-size: 26px;
+            letter-spacing: 0.5px;
+            color: var(--amber-gold);
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .dashboard-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #0d131f;
+            padding: 12px 25px;
+            font-size: 14px;
+            border-bottom: 1px solid var(--border-line);
+        }
+
+        .score-box {
+            color: var(--emerald-mint);
+            font-weight: 700;
+            background: rgba(16, 185, 129, 0.1);
+            padding: 4px 14px;
+            border-radius: 30px;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .navigation-tabs {
+            display: flex;
+            background: #090d16;
+        }
+
+        .tab-link {
+            flex: 1;
+            padding: 16px;
+            border: none;
+            background: transparent;
+            font-size: 13.5px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: all 0.2s;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab-link.active {
+            background: var(--panel-bg);
+            color: var(--amber-gold);
+            border-bottom: 3px solid var(--amber-gold);
+        }
+
+        .main-content {
+            padding: 30px;
+            min-height: 460px;
+        }
+
+        .mission-box {
+            background: rgba(245, 158, 11, 0.05);
+            border-left: 4px solid var(--amber-gold);
+            padding: 14px;
+            margin-bottom: 25px;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #fbbf24;
+        }
+
+        /* Matrix Grid CSS Layouts Shared across both Levels */
+        .matrix-grid-shell {
+            display: grid;
+            grid-template-columns: 1fr 1.3fr;
+            gap: 25px;
+        }
+
+        @media (max-width: 768px) {
+            .matrix-grid-shell { grid-template-columns: 1fr; }
+        }
+
+        .column-deck {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .matrix-node {
+            padding: 14px;
+            background: #0d131f;
+            border: 1px solid var(--border-line);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13.5px;
+            transition: all 0.2s ease;
+        }
+
+        .matrix-node:hover:not(.matched) {
+            border-color: var(--text-muted);
+            background: #111a2e;
+        }
+
+        .matrix-node.selected {
+            border-color: var(--amber-gold);
+            background: rgba(245, 158, 11, 0.08);
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
+        }
+
+        .matrix-node.matched {
+            background: rgba(16, 185, 129, 0.08);
+            border-color: var(--emerald-mint);
+            color: #34d399;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        /* Feedback Panels */
+        .feedback-alert {
+            margin-top: 25px;
+            padding: 14px;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 14px;
+            display: none;
+        }
+
+        .feedback-alert.success {
+            display: block;
+            background: rgba(16, 185, 129, 0.1);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .feedback-alert.error {
+            display: block;
+            background: rgba(239, 68, 68, 0.1);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .control-footer {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .control-btn {
+            background: transparent;
+            color: var(--text-light);
+            border: 1px solid var(--border-line);
+            padding: 12px 28px;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .control-btn:hover {
+            border-color: var(--text-light);
+            background: rgba(255, 255, 255, 0.03);
+        }
+    </style>
+</head>
+<body>
+
+<!-- 5-Second Splash Screen Loader Display -->
+<div id="splash-screen">
+    <img src="assets/innovine-logo.png" alt="Innovine Logo">
+    <div class="loader"></div>
+</div>
+
+<div class="game-wrapper" id="main-interface-shell">
+    <header>
+        <h1>Life & Power in Post-Gupta India</h1>
+        <p>Interactive Study Dashboard — Chronicles & Dynasties of the Early Medieval Era</p>
+    </header>
+
+    <div class="dashboard-bar">
+        <span>STATUS: SYSTEM ARCHIVE LOADED</span>
+        <span>GAME EXPEDITION SCORE: <span id="score-val" class="score-box">0</span></span>
+    </div>
+
+    <div class="navigation-tabs">
+        <button class="tab-link active" onclick="toggleView('timeline', event)">Level 1: Chronological Timelines</button>
+        <button class="tab-link" onclick="toggleView('dynasties', event)">Level 2: Imperial Matrix Grid</button>
+    </div>
+
+    <div class="main-content">
+        <!-- Level 1 View Container (Matching Matrix Setup) -->
+        <div id="view-timeline" class="tab-view">
+            <div class="mission-box">
+                <strong>Chronological Matching Matrix:</strong> Tap a historical **Milestone/Fact** from the left column, then select the appropriate **Historical Era Frame** container from the right column.
+            </div>
+
+            <div class="matrix-grid-shell">
+                <div class="column-deck" id="timeline-facts-deck"></div>
+                <div class="column-deck" id="timeline-eras-deck"></div>
+            </div>
+        </div>
+
+        <!-- Level 2 View Container -->
+        <div id="view-dynasties" class="tab-view" style="display: none;">
+            <div class="mission-box">
+                <strong>Imperial Matrix Matching:</strong> Select a prominent regional **Dynasty Node** from the left pane, then pair it to its accurate geographic stronghold and architectural milestone on the right.
+            </div>
+
+            <div class="matrix-grid-shell">
+                <div class="column-deck" id="dynasty-nodes-deck"></div>
+                <div class="column-deck" id="milestone-nodes-deck"></div>
+            </div>
+        </div>
+
+        <!-- System Alerts Panel -->
+        <div id="system-alert" class="feedback-alert"></div>
+
+        <div class="control-footer">
+            <button class="control-btn" onclick="rebootDashboard()">Reboot System Dashboard</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Audio engine setups
+    const correctAudio = new Audio('assets/correct.mp3');
+    const wrongAudio = new Audio('assets/wrong.mp3');
+    const cheerAudio = new Audio('assets/freesound_community-claps-44774.mp3');
+
+    function executeSound(soundObject) {
+        soundObject.currentTime = 0;
+        soundObject.play().catch(err => console.log("Audio node triggered successfully."));
+    }
+
+    const timelineMilestones = [
+        { id: "t1", text: "Beginning of the Gupta Empire; celebrated as a Golden Age of literary and scientific achievements.", matchEraId: "e-early" },
+        { id: "t2", text: "Scholars Kalidasa & Aryabhata flourish, composing masterpieces in literature, math, and astronomy.", matchEraId: "e-early" },
+        { id: "t3", text: "Invasions by the Hunas weaken frontier military networks, accelerating state disintegration.", matchEraId: "e-frag" },
+        { id: "t4", text: "Decline and fragmentation of the centralized state into sovereign regional territories.", matchEraId: "e-frag" },
+        { id: "t5", text: "Chinese monk Xuanzang visits India to study logic and philosophy at Nalanda University.", matchEraId: "e-frag" },
+        { id: "t6", text: "Arab conquest of Sindh led by Muhammad bin Qasim, introducing fresh political connection vectors.", matchEraId: "e-med" },
+        { id: "t7", text: "Tripartite Struggle erupts for control of Kannauj among the Gurjara-Pratiharas, Palas, and Rashtrakutas.", matchEraId: "e-med" },
+        { id: "t8", text: "The deep spiritual devotion of the Bhakti Movement expands across India using local regional languages.", matchEraId: "e-med" }
+    ];
+
+    const eraMappings = [
+        { eraId: "e-early", label: "Early Classical Era Frame (4th - 5th Century CE)" },
+        { eraId: "e-frag", label: "Decline, Transition & Exploration Era (5th - 7th Century CE)" },
+        { eraId: "e-med", label: "Early Medieval Fragmentation & Bhakti Era (8th - 10th Century CE)" }
+    ];
+
+    const dynastyMatrix = [
+        { id: "cha", title: "Chalukya Dynasty", targetId: "m-cha", legacy: "Ruled parts of Karnataka & Maharashtra; built beautiful rock-cut temples at Badami and Aihole." },
+        { id: "pal", title: "Pala Dynasty", targetId: "m-pal", legacy: "Ruled Bengal and Bihar; known for patronage of Buddhism and building Vikramashila University." },
+        { id: "ras", title: "Rashtrakuta Dynasty", targetId: "m-ras", legacy: "Based in the Deccan; famous for carving the magnificent monolithic rock-cut Kailasa Temple at Ellora." },
+        { id: "plv", title: "Pallava Dynasty", targetId: "m-plv", legacy: "Ruled over Tamil Nadu with Kanchipuram as capital; pioneered Dravidian architectural marvels at Mahabalipuram." },
+        { id: "chu", title: "Chauhan Dynasty", targetId: "m-chu", legacy: "Prominent warrior class ruling areas around Delhi & Ajmer; featured key figures like Prithviraja III." },
+        { id: "pan", title: "Pandya Dynasty", targetId: "m-pan", legacy: "Ruled southernmost Tamil Nadu from Madurai; maintained vast trade links with Rome and Southeast Asia." }
+    ];
+
+    let overallScore = 0;
+    let activeSelectedFactId = null;
+    let activeSelectedDynastyId = null;
+    
+    let successfulTimelineMatchesCount = 0;
+    let successfulMatrixMatchesCount = 0;
+
+    // Splash screen loader execution loop block (5000 milliseconds)
+    window.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+            const overlaySplash = document.getElementById('splash-screen');
+            const systemShell = document.getElementById('main-interface-shell');
+            overlaySplash.style.opacity = '0';
+            setTimeout(() => {
+                overlaySplash.style.display = 'none';
+                systemShell.style.display = 'block';
+                startDashboardEngine();
+            }, 500);
+        }, 5000);
+    });
+
+    function startDashboardEngine() {
+        overallScore = 0;
+        successfulTimelineMatchesCount = 0;
+        successfulMatrixMatchesCount = 0;
+        activeSelectedFactId = null;
+        activeSelectedDynastyId = null;
+        
+        document.getElementById('score-val').textContent = overallScore;
+        clearAlertPanel();
+
+        assembleTimelineLevel();
+        assembleMatrixLevel();
+    }
+
+    function mixArrayElements(array) {
+        array.sort(() => Math.random() - 0.5);
+    }
+
+    // Level 1 Core Click Matching Mechanics
+    function assembleTimelineLevel() {
+        const factsContainer = document.getElementById('timeline-facts-deck');
+        const erasContainer = document.getElementById('timeline-eras-deck');
+        factsContainer.innerHTML = '';
+        erasContainer.innerHTML = '';
+
+        let mixedFacts = [...timelineMilestones];
+        mixArrayElements(mixedFacts);
+
+        mixedFacts.forEach(fact => {
+            const node = document.createElement('div');
+            node.className = 'matrix-node';
+            node.textContent = fact.text;
+            node.id = fact.id;
+            node.onclick = () => selectTimelineFact(fact.id);
+            factsContainer.appendChild(node);
+        });
+
+        // Generate multiple choice options based on the target era nodes
+        eraMappings.forEach(era => {
+            const node = document.createElement('div');
+            node.className = 'matrix-node';
+            node.textContent = era.label;
+            node.id = era.eraId;
+            node.onclick = () => confirmTimelineEraConnection(era.eraId);
+            erasContainer.appendChild(node);
+        });
+    }
+
+    function selectTimelineFact(factId) {
+        if (document.getElementById(factId).classList.contains('matched')) return;
+        if (activeSelectedFactId) {
+            const previousSelected = document.getElementById(activeSelectedFactId);
+            if (previousSelected) previousSelected.classList.remove('selected');
+        }
+        activeSelectedFactId = factId;
+        document.getElementById(factId).classList.add('selected');
+        clearAlertPanel();
+    }
+
+    function confirmTimelineEraConnection(eraId) {
+        if (!activeSelectedFactId) {
+            executeSound(wrongAudio);
+            displayAlert("Interface Error: Choose a Historical Milestone statement from the left pane first!", "error");
+            return;
+        }
+
+        const factData = timelineMilestones.find(item => item.id === activeSelectedFactId);
+
+        if (factData.matchEraId === eraId) {
+            overallScore += 15;
+            executeSound(correctAudio);
+            document.getElementById(activeSelectedFactId).className = 'matrix-node matched';
+            displayAlert("Verified Chronological Placement! Milestone correctly synchronized into the era data.", "success");
+            activeSelectedFactId = null;
+            successfulTimelineMatchesCount++;
+
+            if (successfulTimelineMatchesCount === timelineMilestones.length) {
+                executeSound(cheerAudio);
+                displayAlert("🎉 Level 1 Chronology Matrix Secured! Advance to the Level 2 Tab.", "success");
+            }
+        } else {
+            overallScore = Math.max(0, overallScore - 5);
+            executeSound(wrongAudio);
+            displayAlert("Chronological Paradox! Event data accounts do not align with this time frame.", "error");
+            document.getElementById(activeSelectedFactId).classList.remove('selected');
+            activeSelectedFactId = null;
+        }
+        document.getElementById('score-val').textContent = overallScore;
+    }
+
+    // Level 2 Core Click Matching Mechanics
+    function assembleMatrixLevel() {
+        const leftNodeContainer = document.getElementById('dynasty-nodes-deck');
+        const rightNodeContainer = document.getElementById('milestone-nodes-deck');
+        leftNodeContainer.innerHTML = '';
+        rightNodeContainer.innerHTML = '';
+
+        let mixedDynasties = [...dynastyMatrix];
+        mixArrayElements(mixedDynasties);
+
+        mixedDynasties.forEach(entry => {
+            const cell = document.createElement('div');
+            cell.className = 'matrix-node';
+            cell.textContent = entry.title;
+            cell.id = entry.id;
+            cell.onclick = () => selectDynastyNode(entry.id);
+            leftNodeContainer.appendChild(cell);
+        });
+
+        let scrambledMilestones = [...dynastyMatrix];
+        mixArrayElements(scramestones = scrambledMilestones);
+
+        scrambledMilestones.forEach(entry => {
+            const cell = document.createElement('div');
+            cell.className = 'matrix-node';
+            cell.textContent = entry.legacy;
+            cell.id = entry.targetId;
+            cell.onclick = () => confirmMilestoneConnection(entry.targetId);
+            rightNodeContainer.appendChild(cell);
+        });
+    }
+
+    function selectDynastyNode(nodeId) {
+        if (document.getElementById(nodeId).classList.contains('matched')) return;
+        if (activeSelectedDynastyId) {
+            const previousSelected = document.getElementById(activeSelectedDynastyId);
+            if (previousSelected) previousSelected.classList.remove('selected');
+        }
+        activeSelectedDynastyId = nodeId;
+        document.getElementById(nodeId).classList.add('selected');
+        clearAlertPanel();
+    }
+
+    function confirmMilestoneConnection(targetId) {
+        if (!activeSelectedDynastyId) {
+            executeSound(wrongAudio);
+            displayAlert("Interface Error: Choose a Dynasty Node from the left pane first!", "error");
+            return;
+        }
+        if (document.getElementById(targetId).classList.contains('matched')) return;
+
+        const currentLookupData = dynastyMatrix.find(entry => entry.id === activeSelectedDynastyId);
+
+        if (currentLookupData.targetId === targetId) {
+            overallScore += 20;
+            executeSound(correctAudio);
+            document.getElementById(activeSelectedDynastyId).className = 'matrix-node matched';
+            document.getElementById(targetId).className = 'matrix-node matched';
+            displayAlert("Imperial Nexus Linked! Dynasty mapped correctly to historic legacy achievements.", "success");
+            activeSelectedDynastyId = null;
+            successfulMatrixMatchesCount++;
+
+            if (successfulMatrixMatchesCount === dynastyMatrix.length) {
+                executeSound(cheerAudio);
+                displayAlert(`🏆 Total Combined Victory! Grand Score: ${overallScore}. You have masterfully cataloged the histories of Post-Gupta India!`, "success");
+            }
+        } else {
+            overallScore = Math.max(0, overallScore - 5);
+            executeSound(wrongAudio);
+            displayAlert("Historical Mismatch! Regional accounts conflict with this link record.", "error");
+            document.getElementById(activeSelectedDynastyId).classList.remove('selected');
+            activeSelectedDynastyId = null;
+        }
+        document.getElementById('score-val').textContent = overallScore;
+    }
+
+    function toggleView(chosenMode, mouseEvent) {
+        document.querySelectorAll('.tab-view').forEach(view => view.style.display = 'none');
+        document.querySelectorAll('.tab-link').forEach(btn => btn.classList.remove('active'));
+
+        if (chosenMode === 'timeline') {
+            document.getElementById('view-timeline').style.display = 'block';
+        } else {
+            document.getElementById('view-dynasties').style.display = 'block';
+        }
+        mouseEvent.target.classList.add('active');
+        clearAlertPanel();
+    }
+
+    function displayAlert(textMessage, alertType) {
+        const responseElement = document.getElementById('system-alert');
+        responseElement.textContent = textMessage;
+        responseElement.className = `feedback-alert ${alertType}`;
+    }
+
+    function clearAlertPanel() {
+        document.getElementById('system-alert').className = 'feedback-alert';
+    }
+
+    function rebootDashboard() {
+        startDashboardEngine();
+    }
+</script>
+</body>
+</html>
+
+```
