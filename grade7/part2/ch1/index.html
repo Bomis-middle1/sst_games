@@ -29,15 +29,53 @@
             color: var(--text);
             line-height: 1.6;
             padding: 20px;
+            user-select: none;
+        }
+
+        /* Splash Screen Overlay */
+        #splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease-out;
+        }
+
+        #splash-screen img {
+            max-width: 300px;
+            height: auto;
+            margin-bottom: 20px;
+        }
+
+        #splash-screen .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         .game-container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
             background: var(--card-bg);
             border-radius: 12px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             overflow: hidden;
+            display: none;
         }
 
         header {
@@ -86,7 +124,7 @@
 
         .game-content {
             padding: 25px;
-            min-height: 350px;
+            min-height: 400px;
         }
 
         .instructions {
@@ -98,60 +136,99 @@
             font-size: 15px;
         }
 
-        /* Mode 1 Layout: Season Sorter */
-        .sorter-layout {
+        /* Drag & Drop Season Layout */
+        .drag-zone {
             display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .current-item-card {
-            background: #fff;
-            border: 2px solid var(--primary);
-            border-radius: 8px;
+            justify-content: center;
             padding: 20px;
+            background: #fdfdfd;
+            border: 2px dashed #b5bfc6;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+
+        .draggable-crop {
+            background: var(--secondary);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 18px;
+            cursor: grab;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+            display: inline-block;
             text-align: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
 
-        .current-item-card h3 {
-            font-size: 22px;
-            color: var(--primary);
-            margin-bottom: 10px;
+        .draggable-crop:active {
+            cursor: grabbing;
         }
 
-        .buttons-grid {
+        .hint-text {
+            text-align: center;
+            font-style: italic;
+            color: #555;
+            margin-top: -15px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .drop-targets-container {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 15px;
         }
 
-        .game-btn {
-            padding: 15px;
-            font-size: 16px;
-            font-weight: bold;
-            border: 2px solid var(--border);
+        .drop-bin {
+            background: #f9f9f9;
+            border: 3px dashed var(--border);
             border-radius: 8px;
-            background: white;
-            cursor: pointer;
-            transition: all 0.2s;
+            min-height: 140px;
+            padding: 15px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            transition: all 0.2s ease;
         }
 
-        .game-btn:hover {
-            border-color: var(--primary);
-            background: var(--primary-light);
+        .drop-bin.drag-over {
+            background: #fff3e0;
+            border-color: var(--secondary);
+            transform: scale(1.02);
         }
 
-        /* Mode 2 Layout: Soil Matching */
+        .drop-bin h4 {
+            color: #444;
+            margin-bottom: 10px;
+            font-size: 16px;
+            border-bottom: 2px solid #ddd;
+            width: 100%;
+            padding-bottom: 5px;
+        }
+
+        .dropped-item-tag {
+            background: #e0f2f1;
+            color: #004d40;
+            padding: 5px 10px;
+            margin: 4px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 600;
+            border: 1px solid #b2dfdb;
+        }
+
+        /* Level 2 Matrix Matching Layout */
         .soil-layout {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 20px;
         }
 
-        @media (max-width: 600px) {
+        @media (max-width: 650px) {
+            .drop-targets-container { grid-template-columns: 1fr; }
             .soil-layout { grid-template-columns: 1fr; }
-            .buttons-grid { grid-template-columns: 1fr; }
         }
 
         .list-container {
@@ -168,6 +245,7 @@
             cursor: pointer;
             text-align: center;
             font-weight: 500;
+            transition: all 0.2s;
         }
 
         .interactive-item.selected {
@@ -182,7 +260,7 @@
             opacity: 0.7;
         }
 
-        /* Feedback Area */
+        /* Feedback Notifications */
         .feedback {
             margin-top: 20px;
             padding: 15px;
@@ -227,7 +305,13 @@
 </head>
 <body>
 
-<div class="game-container">
+<!-- 5 Second Initial Flash Screen -->
+<div id="splash-screen">
+    <img src="assets/innovine-logo.png" alt="Innovine Logo">
+    <div class="loader"></div>
+</div>
+
+<div class="game-container" id="main-game-wrapper">
     <header>
         <h1>The Agricultural Planner</h1>
         <p>Grade 7 Social Studies — Chapter 1: The Story of Indian Farming</p>
@@ -235,11 +319,11 @@
 
     <div class="stats-bar">
         <span>Score: <span id="score-display">0</span></span>
-        <span>Target: Match All Elements</span>
+        <span>Target: Drag & Match Everything</span>
     </div>
 
     <div class="nav-tabs">
-        <button class="tab-btn active" onclick="switchMode('seasons')">Level 1: Cropping Seasons</button>
+        <button class="tab-btn active" onclick="switchMode('seasons')">Level 1: Cropping Seasons Drag & Drop</button>
         <button class="tab-btn" onclick="switchMode('soils')">Level 2: Soil Profile Matrix</button>
     </div>
 
@@ -247,17 +331,26 @@
         <!-- Level 1 Area -->
         <div id="seasons-mode" class="mode-view">
             <div class="instructions">
-                <strong>Level 1 Instructions:</strong> Read the climate description and crop attributes carefully. Assign the given crop to its correct Indian cropping season (Kharif, Rabi, or Zaid).
+                <strong>Level 1 Instructions:</strong> Read the profile snippet. Click and <strong>drag</strong> the crop card below, then <strong>drop</strong> it into its accurate matching seasonal agricultural container box!
             </div>
-            <div class="sorter-layout">
-                <div class="current-item-card">
-                    <h3 id="crop-name">Loading...</h3>
-                    <p id="crop-hint">Hint loading...</p>
+            
+            <div class="drag-zone">
+                <div id="crop-card" class="draggable-crop" draggable="true">Loading Crop...</div>
+            </div>
+            <div id="crop-hint" class="hint-text">Hint loading...</div>
+
+            <div class="drop-targets-container">
+                <div class="drop-bin" data-season="Kharif">
+                    <h4>Kharif (Monsoon Bin)</h4>
+                    <div class="bin-contents" id="bin-kharif"></div>
                 </div>
-                <div class="buttons-grid">
-                    <button class="game-btn" onclick="checkSeasonAnswer('Kharif')">Kharif (Monsoon)</button>
-                    <button class="game-btn" onclick="checkSeasonAnswer('Rabi')">Rabi (Winter)</button>
-                    <button class="game-btn" onclick="checkSeasonAnswer('Zaid')">Zaid (Summer Short)</button>
+                <div class="drop-bin" data-season="Rabi">
+                    <h4>Rabi (Winter Bin)</h4>
+                    <div class="bin-contents" id="bin-rabi"></div>
+                </div>
+                <div class="drop-bin" data-season="Zaid">
+                    <h4>Zaid (Summer Bin)</h4>
+                    <div class="bin-contents" id="bin-zaid"></div>
                 </div>
             </div>
         </div>
@@ -265,7 +358,7 @@
         <!-- Level 2 Area -->
         <div id="soils-mode" class="mode-view" style="display: none;">
             <div class="instructions">
-                <strong>Level 2 Instructions:</strong> Click a **Soil Type** on the left, then click its corresponding **Key Crop / Property** on the right to match them up!
+                <strong>Level 2 Instructions:</strong> Interactive Connection Matrix. Tap a <strong>Soil Type</strong> card on the left, then connect it by selecting its corresponding <strong>Text Property Description</strong> on the right.
             </div>
             <div class="soil-layout">
                 <div class="list-container" id="soil-types-list"></div>
@@ -273,24 +366,33 @@
             </div>
         </div>
 
-        <!-- Universal Feedback Panel -->
+        <!-- System Status Feedback Area -->
         <div id="feedback-panel" class="feedback"></div>
 
         <div class="reset-container">
-            <button class="action-btn" onclick="resetGames()">Reset Game Data</button>
+            <button class="action-btn" onclick="resetGames()">Reset Game Grid</button>
         </div>
     </div>
 </div>
 
 <script>
-    // Game Data straight from your textbook content
+    // Asset references mapping directly to your repository folder setup
+    const sndCorrect = new Audio('assets/correct.mp3');
+    const sndWrong = new Audio('assets/wrong.mp3');
+    const sndClaps = new Audio('assets/freesound_community-claps-44774.mp3');
+
+    function playSound(audioObject) {
+        audioObject.currentTime = 0;
+        audioObject.play().catch(e => console.log("Audio waiting for player action dynamic trigger sync."));
+    }
+
     const seasonCrops = [
-        { name: "Rice (Paddy)", season: "Kharif", hint: "Requires a hot, humid climate (20–35°C) and heavy rainfall of 100–200 cm. Sown in June-July." },
-        { name: "Wheat", season: "Rabi", hint: "Grows best in cool conditions (10–15°C) and ripens in warm weather. Harvested in March-April." },
-        { name: "Watermelon", season: "Zaid", hint: "A quick-maturing summer crop grown between March and June. Highly refreshing and irrigation-dependent." },
-        { name: "Cotton", season: "Kharif", hint: "Sown with the southwest monsoon rains, grows beautifully in deep black clayey soils." },
-        { name: "Mustard & Peas", season: "Rabi", hint: "Grown in the dry, cooler months of the winter cycle alongside the northern breadbasket plains." },
-        { name: "Cucumber & Moong", season: "Zaid", hint: "Grown in dry summer months, filling the gap window between the primary winter and monsoon blocks." }
+        { id: "c1", name: "Rice (Paddy)", season: "Kharif", hint: "Requires hot, humid environment (20–35°C) and heavy flooding monsoon rainfall." },
+        { id: "c2", name: "Wheat", season: "Rabi", hint: "Grows best in cool northern conditions (10–15°C) and requires clean, dry weather to ripen." },
+        { id: "c3", name: "Watermelon", season: "Zaid", hint: "A quick-maturing summer crop grown between March and June. Highly refreshment-oriented." },
+        { id: "c4", name: "Cotton", season: "Kharif", hint: "Sown at the start of the rainy season, grows optimally in water-retaining black soil." },
+        { id: "c5", name: "Mustard & Peas", season: "Rabi", hint: "Sown post-monsoon between October & December. Thrives beautifully under cool winter sun cycles." },
+        { id: "c6", name: "Cucumber & Moong", season: "Zaid", hint: "Short duration crop cycle utilizing irrigation methods during peak summer heat blocks." }
     ];
 
     const soilMatrix = [
@@ -307,7 +409,20 @@
     let selectedSoilId = null;
     let matchedSoilsCount = 0;
 
-    // Load initial configurations
+    // Splash Screen timeout trigger (5 seconds display duration window)
+    window.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+            const splash = document.getElementById('splash-screen');
+            const gameWrapper = document.getElementById('main-game-wrapper');
+            splash.style.opacity = '0';
+            setTimeout(() => {
+                splash.style.display = 'none';
+                gameWrapper.style.display = 'block';
+                initGames();
+            }, 500);
+        }, 5000);
+    });
+
     function initGames() {
         score = 0;
         currentSeasonIndex = 0;
@@ -316,58 +431,90 @@
         document.getElementById('score-display').textContent = score;
         hideFeedback();
         
-        // Level 1 Load
+        // Clear old bins
+        document.getElementById('bin-kharif').innerHTML = '';
+        document.getElementById('bin-rabi').innerHTML = '';
+        document.getElementById('bin-zaid').innerHTML = '';
+
         shuffleArray(seasonCrops);
         loadSeasonCrop();
-
-        // Level 2 Setup
         setupSoilLevel();
+        setupDragAndDropEvents();
     }
 
-    // Helper to mix data entries
     function shuffleArray(arr) {
         arr.sort(() => Math.random() - 0.5);
     }
 
-    // Level 1 Logic
+    // Drag and Drop Logic Engine
     function loadSeasonCrop() {
+        const cropCard = document.getElementById('crop-card');
         if (currentSeasonIndex < seasonCrops.length) {
-            document.getElementById('crop-name').textContent = seasonCrops[currentSeasonIndex].name;
-            document.getElementById('crop-hint').textContent = seasonCrops[currentSeasonIndex].hint;
+            cropCard.style.display = "inline-block";
+            cropCard.textContent = seasonCrops[currentSeasonIndex].name;
+            document.getElementById('crop-hint').textContent = `Hint: ${seasonCrops[currentSeasonIndex].hint}`;
         } else {
-            document.getElementById('crop-name').textContent = "🎉 Level 1 Complete!";
-            document.getElementById('crop-hint').textContent = "Excellent processing of cropping patterns. Switch over to Level 2 tab above!";
+            cropCard.style.display = "none";
+            document.getElementById('crop-hint').textContent = "🎉 Level 1 Complete! Move on to Level 2 Tab above.";
+            playSound(sndClaps);
         }
     }
 
-    function checkSeasonAnswer(chosenSeason) {
-        if (currentSeasonIndex >= seasonCrops.length) return;
+    function setupDragAndDropEvents() {
+        const cropCard = document.getElementById('crop-card');
+        const bins = document.querySelectorAll('.drop-bin');
 
-        const correctSeason = seasonCrops[currentSeasonIndex].season;
-        if (chosenSeason === correctSeason) {
-            score += 10;
-            showFeedback(`Correct! That is exactly how Indian farmers balance seasons.`, "success");
-        } else {
-            showFeedback(`Incorrect. That crop actually belongs to the ${correctSeason} cycle. Check its climate requirements!`, "error");
-        }
-        
-        document.getElementById('score-display').textContent = score;
-        currentSeasonIndex++;
-        setTimeout(() => {
-            hideFeedback();
-            loadSeasonCrop();
-        }, 2500);
+        cropCard.addEventListener('dragstart', (e) => {
+            e.dataTransfer.setData('text/plain', currentSeasonIndex);
+        });
+
+        bins.forEach(bin => {
+            bin.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                bin.classList.add('drag-over');
+            });
+
+            bin.addEventListener('dragleave', () => {
+                bin.classList.remove('drag-over');
+            });
+
+            bin.addEventListener('drop', (e) => {
+                e.preventDefault();
+                bin.classList.remove('drag-over');
+                
+                const targetSeason = bin.getAttribute('data-season');
+                const currentCrop = seasonCrops[currentSeasonIndex];
+
+                if (currentCrop && targetSeason === currentCrop.season) {
+                    score += 15;
+                    playSound(sndCorrect);
+                    showFeedback(`Excellent Match! ${currentCrop.name} successfully scheduled inside the ${targetSeason} cycle.`, "success");
+                    
+                    // Render visual card inside drop box
+                    const tag = document.createElement('span');
+                    tag.className = 'dropped-item-tag';
+                    tag.textContent = currentCrop.name;
+                    document.getElementById(`bin-${targetSeason.toLowerCase()}`).appendChild(tag);
+                    
+                    currentSeasonIndex++;
+                    loadSeasonCrop();
+                } else {
+                    score = Math.max(0, score - 5);
+                    playSound(sndWrong);
+                    showFeedback(`Incorrect Planning! Read the weather requirements and try again.`, "error");
+                }
+                document.getElementById('score-display').textContent = score;
+            });
+        });
     }
 
-    // Level 2 Logic
+    // Level 2 Logic Engine
     function setupSoilLevel() {
         const leftList = document.getElementById('soil-types-list');
         const rightList = document.getElementById('soil-props-list');
-        
         leftList.innerHTML = '';
         rightList.innerHTML = '';
 
-        // Generate matching elements
         soilMatrix.forEach(item => {
             const el = document.createElement('div');
             el.className = 'interactive-item';
@@ -377,7 +524,6 @@
             leftList.appendChild(el);
         });
 
-        // Create copies to safely shuffle right side properties
         let propertiesList = [...soilMatrix];
         shuffleArray(propertiesList);
 
@@ -393,13 +539,10 @@
 
     function selectSoilType(id) {
         if (document.getElementById(id).classList.contains('matched')) return;
-        
-        // Remove previous selection formatting
         if (selectedSoilId) {
             const prev = document.getElementById(selectedSoilId);
             if(prev) prev.classList.remove('selected');
         }
-        
         selectedSoilId = id;
         document.getElementById(id).classList.add('selected');
         hideFeedback();
@@ -407,34 +550,37 @@
 
     function selectSoilProperty(matchId) {
         if (!selectedSoilId) {
-            showFeedback("Please select a Soil Type from the left column first!", "error");
+            playSound(sndWrong);
+            showFeedback("Select a Soil Type from the left system matrix first!", "error");
             return;
         }
         if (document.getElementById(matchId).classList.contains('matched')) return;
 
-        // Verify lookup reference match
         const sourceData = soilMatrix.find(item => item.id === selectedSoilId);
         
         if (sourceData.matchId === matchId) {
-            score += 15;
+            score += 20;
+            playSound(sndCorrect);
             document.getElementById(selectedSoilId).className = 'interactive-item matched';
             document.getElementById(matchId).className = 'interactive-item matched';
-            showFeedback(`Perfect Matrix Match! Your structural soil profile mapping is correct.`, "success");
+            showFeedback(`Matrix connection confirmed! Perfectly matched soil geology profiles.`, "success");
             selectedSoilId = null;
             matchedSoilsCount++;
             
             if (matchedSoilsCount === soilMatrix.length) {
-                showFeedback(`🏆 Complete Victory! Final Score: ${score}. You are certified as an Indian Agricultural Planner!`, "success");
+                playSound(sndClaps);
+                showFeedback(`🏆 Dynamic Success! Total Score: ${score}. Outstanding performance agricultural planner!`, "success");
             }
         } else {
-            showFeedback("Mismatch! Review the organic makeup, geology, and crop properties detailed in the text.", "error");
+            score = Math.max(0, score - 5);
+            playSound(sndWrong);
+            showFeedback("Profile disconnect! Review structural traits context notes and try again.", "error");
             document.getElementById(selectedSoilId).classList.remove('selected');
             selectedSoilId = null;
         }
         document.getElementById('score-display').textContent = score;
     }
 
-    // UI Tab View Manager
     function switchMode(mode) {
         document.querySelectorAll('.mode-view').forEach(view => view.style.display = 'none');
         document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -462,9 +608,6 @@
     function resetGames() {
         initGames();
     }
-
-    // Run when browser completely processes HTML layout assets
-    window.onload = initGames;
 </script>
 </body>
 </html>
