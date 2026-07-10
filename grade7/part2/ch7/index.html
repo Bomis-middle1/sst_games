@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>India's Infrastructure Connector - Puzzle Game</title>
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --panel-bg: #1e293b;
+            --accent-gold: #f59e0b;
+            --mint-green: #10b981;
+            --coral-red: #ef4444;
+            --sky-blue: #3b82f6;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* 5-Second White Splash Screen */
+        #splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 99999;
+            transition: opacity 0.5s ease-out;
+        }
+
+        #splash-screen img {
+            max-width: 280px;
+            height: auto;
+            margin-bottom: 20px;
+        }
+
+        #splash-screen .loader-bar {
+            width: 200px;
+            height: 4px;
+            background-color: #e2e8f0;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        #splash-screen .loader-progress {
+            width: 100%;
+            height: 100%;
+            background-color: var(--accent-gold);
+            animation: load 5s linear forwards;
+        }
+
+        @keyframes load {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+
+        /* Main App Layout */
+        .game-container {
+            width: 100%;
+            max-width: 850px;
+            background: var(--panel-bg);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            display: none;
+        }
+
+        header {
+            background: linear-gradient(135deg, #020617 0%, #0f172a 100%);
+            padding: 24px;
+            text-align: center;
+            border-bottom: 3px solid var(--sky-blue);
+        }
+
+        header h1 {
+            font-size: 26px;
+            color: var(--sky-blue);
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            background: #090d16;
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: 600;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .network-status {
+            color: var(--accent-gold);
+        }
+
+        .main-workspace {
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 24px;
+        }
+
+        /* Infrastructure Grid / Puzzle Elements */
+        .puzzle-card {
+            background: #0f172a;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            width: 100%;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .hint-box {
+            background: rgba(59, 130, 246, 0.1);
+            border-left: 4px solid var(--sky-blue);
+            padding: 14px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        /* Scrambled Word Slots Container */
+        .scramble-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+
+        .letter-node {
+            background: #334155;
+            color: var(--text-main);
+            border: 2px solid var(--border-color);
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 700;
+            border-radius: 8px;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s ease;
+        }
+
+        .letter-node:hover {
+            background: #475569;
+            border-color: var(--sky-blue);
+            transform: translateY(-2px);
+        }
+
+        .letter-node.selected {
+            background: var(--sky-blue);
+            border-color: #60a5fa;
+            color: #0f172a;
+        }
+
+        /* Answer Output Area */
+        .answer-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            min-height: 50px;
+            border-bottom: 2px dashed var(--border-color);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .answer-slot {
+            width: 45px;
+            height: 45px;
+            border: 2px dashed var(--text-muted);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--accent-gold);
+            cursor: pointer;
+            background: rgba(255,255,255,0.02);
+        }
+
+        .answer-slot.filled {
+            border-style: solid;
+            border-color: var(--accent-gold);
+            background: rgba(245, 158, 11, 0.05);
+        }
+
+        /* Action Buttons */
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .game-btn {
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: 700;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.2s ease;
+        }
+
+        .btn-secondary {
+            background: #334155;
+            color: var(--text-main);
+        }
+
+        .btn-secondary:hover { background: #475569; }
+
+        .btn-primary {
+            background: var(--mint-green);
+            color: #0f172a;
+        }
+
+        .btn-primary:hover { background: #34d399; }
+
+        .btn-next {
+            background: var(--accent-gold);
+            color: #0f172a;
+            display: none;
+        }
+
+        .btn-next:hover { background: #fbbf24; }
+
+        /* Notification Panel */
+        .feedback-message {
+            padding: 12px;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 600;
+            width: 100%;
+            display: none;
+        }
+
+        .feedback-message.success { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+        .feedback-message.error { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+
+        /* Infrastructure Grid System Visualizer */
+        .grid-visualizer {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .grid-node {
+            background: #1e293b;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 12px;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            transition: all 0.3s;
+        }
+
+        .grid-node.active {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: var(--mint-green);
+            color: var(--mint-green);
+            box-shadow: 0 0 8px rgba(16, 185, 129, 0.2);
+        }
+
+        /* End View Screen */
+        .summary-screen {
+            text-align: center;
+            padding: 40px 20px;
+            display: none;
+        }
+
+        .summary-screen h2 {
+            color: var(--accent-gold);
+            font-size: 28px;
+            margin-bottom: 12px;
+        }
+
+        .summary-screen p {
+            color: var(--text-muted);
+            margin-bottom: 24px;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .restart-btn {
+            background: transparent;
+            color: var(--text-main);
+            border: 2px solid var(--accent-gold);
+            padding: 10px 28px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .restart-btn:hover {
+            background: var(--accent-gold);
+            color: #0f172a;
+        }
+    </style>
+</head>
+<body>
+
+<div id="splash-screen">
+    <img src="assets/innovine-logo.png" alt="Innovine Logo">
+    <div class="loader-bar">
+        <div class="loader-progress"></div>
+    </div>
+</div>
+
+<div class="game-container" id="main-window">
+    <header>
+        <h1>India's Infrastructure Connector</h1>
+        <p>Repair the Lifelines of the Nation: Transport, Communication & Utilities</p>
+    </header>
+
+    <div class="status-bar">
+        <span id="puzzle-counter">LIFELINE: 1 / 5</span>
+        <span class="network-status">GRID INTEGRITY: <span id="score-display">0%</span></span>
+    </div>
+
+    <div id="gameplay-view" class="main-workspace">
+        
+        <div class="puzzle-card">
+            <div class="hint-box">
+                <strong>Infrastructure Directive:</strong> <span id="hint-text">---</span>
+            </div>
+
+            <div class="answer-container" id="answer-slots"></div>
+
+            <div class="scramble-container" id="scramble-letters"></div>
+        </div>
+
+        <div class="feedback-message" id="action-feedback"></div>
+
+        <div class="button-group">
+            <button class="game-btn btn-secondary" id="clear-btn" onclick="clearCurrentAnswer()">Reset Word</button>
+            <button class="game-btn btn-primary" id="verify-btn" onclick="verifyConstructedAnswer()">Verify Grid Connection</button>
+            <button class="game-btn btn-next" id="next-puzzle-btn" onclick="loadNextPuzzle()">Next Infrastructure Sector</button>
+        </div>
+
+        <div style="width: 100%; margin-top: 10px;">
+            <div style="font-size: 12px; font-weight: bold; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase;">
+                National Grid Connectivity Map:
+            </div>
+            <div class="grid-visualizer" id="grid-monitor">
+                <div class="grid-node" id="node-0">ROADS</div>
+                <div class="grid-node" id="node-1">RAILWAYS</div>
+                <div class="grid-node" id="node-2">AIRWAYS</div>
+                <div class="grid-node" id="node-3">DIGITAL COMM</div>
+                <div class="grid-node" id="node-4">UTILITIES</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="summary-view" class="summary-screen">
+        <h2>National Lifeline Synchronized!</h2>
+        <p id="final-stats-text"></p>
+        <button class="restart-btn" onclick="restartEntireGame()">Re-initialize Grid Audit</button>
+    </div>
+</div>
+
+<script>
+    // Asset Audio Nodes mapping
+    const soundCorrect = new Audio('assets/correct.mp3');
+    const soundWrong = new Audio('assets/wrong.mp3');
+    const soundFinish = new Audio('assets/freesound_community-claps-44774.mp3');
+
+    function triggerSound(audioTrack) {
+        audioTrack.currentTime = 0;
+        audioTrack.play().catch(() => console.log("Audio play context deferred until interaction safely."));
+    }
+
+    // Explicitly curated vocabulary and context dataset from Chapter 7
+    const puzzleDatabase = [
+        { 
+            target: "EXPRESSWAY", 
+            hint: "The fastest roads in India featuring limited access with zero stoplights or manual crossroads." 
+        },
+        { 
+            target: "ELECTRIFICATION", 
+            hint: "India's green railway mission helping achieve high long-distance efficiency and working toward Net Zero Carbon by 2030." 
+        },
+        { 
+            target: "METRO", 
+            hint: "Urban mass transport systems operating across 20+ Indian cities to minimize traffic congestion and reduce air emissions." 
+        },
+        { 
+            target: "INTERNET", 
+            hint: "The 21st-century digital transformation backbone allowing rural students to attend online classes and farmers to check market prices." 
+        },
+        { 
+            target: "PIPELINES", 
+            hint: "Underground network used to transport petroleum, natural gas, and water continuously without using tankers or trucks." 
+        }
+    ];
+
+    let currentPuzzleIndex = 0;
+    let successfulRepairs = 0;
+    let targetWord = "";
+    let scrambledLettersArray = [];
+    let standardAnswerSequence = [];
+
+    // 5-Second Splash Screen Timeout
+    window.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+            const splashScreen = document.getElementById('splash-screen');
+            const mainWindow = document.getElementById('main-window');
+            splashScreen.style.opacity = '0';
+            setTimeout(() => {
+                splashScreen.style.display = 'none';
+                mainWindow.style.display = 'block';
+                startNewGridSession();
+            }, 500);
+        }, 5000);
+    });
+
+    function startNewGridSession() {
+        currentPuzzleIndex = 0;
+        successfulRepairs = 0;
+        document.getElementById('summary-view').style.display = 'none';
+        document.getElementById('gameplay-view').style.display = 'flex';
+        
+        // Reset all visualization monitor nodes
+        for(let i=0; i<5; i++) {
+            document.getElementById(`node-${i}`).classList.remove('active');
+        }
+        setupCurrentPuzzle();
+    }
+
+    function setupCurrentPuzzle() {
+        if (currentPuzzleIndex >= puzzleDatabase.length) {
+            concludeGameSession();
+            return;
+        }
+
+        const currentData = puzzleDatabase[currentPuzzleIndex];
+        targetWord = currentData.target.toUpperCase();
+        standardAnswerSequence = [];
+
+        // Update descriptors
+        document.getElementById('puzzle-counter').textContent = `LIFELINE: ${currentPuzzleIndex + 1} / ${puzzleDatabase.length}`;
+        document.getElementById('score-display').textContent = `${Math.round((successfulRepairs / puzzleDatabase.length) * 100)}%`;
+        document.getElementById('hint-text').textContent = currentData.hint;
+        
+        document.getElementById('action-feedback').style.display = 'none';
+        document.getElementById('next-puzzle-btn').style.display = 'none';
+        document.getElementById('verify-btn').style.display = 'block';
+        document.getElementById('clear-btn').style.display = 'block';
+
+        // Scramble logic
+        scrambledLettersArray = targetWord.split('');
+        // Perfect card shuffle mechanism
+        while (JSON.stringify(scrambledLettersArray) === JSON.stringify(targetWord.split(''))) {
+            scrambledLettersArray.sort(() => Math.random() - 0.5);
+        }
+
+        generateAnswerSlots();
+        generateScrambleNodes();
+    }
+
+    function generateAnswerSlots() {
+        const slotsBox = document.getElementById('answer-slots');
+        slotsBox.innerHTML = '';
+        for (let i = 0; i < targetWord.length; i++) {
+            const slot = document.createElement('div');
+            slot.className = 'answer-slot';
+            slot.dataset.index = i;
+            slot.onclick = () => removeLetterFromAnswer(i);
+            slotsBox.appendChild(slot);
+        }
+    }
+
+    function generateScrambleNodes() {
+        const scrambleBox = document.getElementById('scramble-letters');
+        scrambleBox.innerHTML = '';
+        scrambledLettersArray.forEach((letter, index) => {
+            const node = document.createElement('div');
+            node.className = 'letter-node';
+            node.textContent = letter;
+            node.id = `node-letter-${index}`;
+            node.onclick = () => selectLetterNode(letter, index);
+            scrambleBox.appendChild(node);
+        });
+    }
+
+    function selectLetterNode(letter, index) {
+        const node = document.getElementById(`node-letter-${index}`);
+        if (node.classList.contains('selected')) return;
+
+        // Find first empty space in standardAnswerSequence
+        if (standardAnswerSequence.length < targetWord.length) {
+            node.classList.add('selected');
+            standardAnswerSequence.push({ letter: letter, originalIndex: index });
+            updateAnswerSlotsDisplay();
+        }
+    }
+
+    function removeLetterFromAnswer(slotIndex) {
+        if (slotIndex >= standardAnswerSequence.length) return;
+        
+        const removedItem = standardAnswerSequence.splice(slotIndex, 1)[0];
+        const matchingNode = document.getElementById(`node-letter-${removedItem.originalIndex}`);
+        if (matchingNode) {
+            matchingNode.classList.remove('selected');
+        }
+        updateAnswerSlotsDisplay();
+    }
+
+    function updateAnswerSlotsDisplay() {
+        const slots = document.getElementById('answer-slots').children;
+        for (let i = 0; i < slots.length; i++) {
+            if (i < standardAnswerSequence.length) {
+                slots[i].textContent = standardAnswerSequence[i].letter;
+                slots[i].classList.add('filled');
+            } else {
+                slots[i].textContent = '';
+                slots[i].classList.remove('filled');
+            }
+        }
+    }
+
+    function clearCurrentAnswer() {
+        standardAnswerSequence = [];
+        updateAnswerSlotsDisplay();
+        const nodes = document.querySelectorAll('.letter-node');
+        nodes.forEach(node => node.classList.remove('selected'));
+    }
+
+    function verifyConstructedAnswer() {
+        let constructedString = standardAnswerSequence.map(item => item.letter).join('');
+        const feedback = document.getElementById('action-feedback');
+
+        if (constructedString === targetWord) {
+            triggerSound(soundCorrect);
+            successfulRepairs++;
+            document.getElementById('score-display').textContent = `${Math.round((successfulRepairs / puzzleDatabase.length) * 100)}%`;
+            
+            // Activate the mapping node visually
+            const activeMapNode = document.getElementById(`node-${currentPuzzleIndex}`);
+            if (activeMapNode) activeMapNode.classList.add('active');
+
+            feedback.className = "feedback-message success";
+            feedback.textContent = "✔ Connection Restored! Sector operating configuration verified perfectly.";
+            feedback.style.display = 'block';
+
+            document.getElementById('verify-btn').style.display = 'none';
+            document.getElementById('clear-btn').style.display = 'none';
+            document.getElementById('next-puzzle-btn').style.display = 'block';
+        } else {
+            triggerSound(soundWrong);
+            feedback.className = "feedback-message error";
+            feedback.textContent = "❌ Connection Refused. Shuffled parameters do not align with national infrastructure blueprints. Try again!";
+            feedback.style.display = 'block';
+            clearCurrentAnswer();
+        }
+    }
+
+    function loadNextPuzzle() {
+        currentPuzzleIndex++;
+        setupCurrentPuzzle();
+    }
+
+    function concludeGameSession() {
+        document.getElementById('gameplay-view').style.display = 'none';
+        const summaryView = document.getElementById('summary-view');
+        const statsText = document.getElementById('final-stats-text');
+        
+        summaryView.style.display = 'block';
+        triggerSound(soundFinish);
+
+        statsText.innerHTML = `Congratulations, National Architect! You have successfully established a <strong>${Math.round((successfulRepairs / puzzleDatabase.length) * 100)}% Integrated Grid Network</strong> across India.<br><br>From Satish's tomato fields to cross-border online connectivity networks, your spatial analysis has optimized national logistics channels flawlessly!`;
+    }
+
+    function restartEntireGame() {
+        startNewGridSession();
+    }
+</script>
+</body>
+</html>
