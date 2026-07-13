@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SST Chronicles — Money and Banks</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bank-navy:#1b365d;
+  --bank-deep:#0f2240;
+  --mint-green:#2e7d32;
+  --gold-accent:#d4af37;
+  --light-bg:#f4f7f6;
+  --paper-white:#ffffff;
+  --ink-dark:#212529;
+  --good-bg:#e8f5e9;
+  --good-border:#a5d6a7;
+  --bad-bg:#ffebee;
+  --bad-border:#ef9a9a;
+}
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(180deg,#cfd8dc 0%,#e8ecef 55%,#f4f7f6 100%);min-height:100vh;overflow-x:hidden;color:var(--ink-dark)}
+h1,h2,.eyebrow,.tag,button,.top,.stamp{font-family:'Arial Narrow','Helvetica Neue',sans-serif}
+
+/* ---- Splash Screen Configured For White Background & Brand Logo ---- */
+#splash{position:fixed;inset:0;background:#ffffff;display:flex;justify-content:center;align-items:center;z-index:9999}
+.splash-content{text-align:center}
+.splash-logo {max-width:240px;height:auto;animation:pulseLogo 2.5s ease-in-out infinite}
+@keyframes pulseLogo{0%{transform:scale(0.96);opacity:0.9}50%{transform:scale(1.02);opacity:1}100%{transform:scale(0.96);opacity:0.9}}
+
+.hidden{display:none!important}
+.container{max-width:760px;margin:auto;padding:24px}
+
+.panel{background:var(--paper-white);border-radius:16px;overflow:hidden;box-shadow:0 18px 44px rgba(15,34,64,.25);border:1px solid #d1dbe0}
+.panel-inner{padding:28px 30px}
+.center{text-align:center}
+
+/* Financial Vault/Sky Header Line */
+.skystrip{height:34px;width:100%;background:linear-gradient(90deg,var(--bank-navy),var(--bank-deep));position:relative;overflow:hidden}
+.skystrip::after{content:'';position:absolute;bottom:0;left:0;right:0;height:4px;background:var(--gold-accent)}
+
+.eyebrow{text-transform:uppercase;letter-spacing:3px;font-size:12px;color:var(--mint-green);font-weight:700;margin-bottom:6px}
+h1{font-size:28px;color:var(--bank-deep);margin-bottom:6px;letter-spacing:.5px}
+h2{font-size:19px;color:var(--bank-deep);margin-bottom:10px;line-height:1.45;font-weight:700;white-space:pre-line}
+p{line-height:1.6;font-size:15px}
+
+/* ---- Top bar & progress tracking ---- */
+.top{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px;font-size:13.5px;font-weight:700;color:var(--bank-deep)}
+.top span{color:var(--mint-green)}
+.progress{height:13px;background:#e0e0e0;border-radius:999px;overflow:hidden;border:1px solid #b0bec5}
+.bar{height:100%;width:0;background:linear-gradient(90deg,var(--mint-green),var(--bank-navy));transition:width .4s ease}
+
+/* ---- Multiple Choice Options ---- */
+.option{background:#fff;border:1.5px solid #dcdcdc;padding:13px 16px;border-radius:10px;margin:10px 0;cursor:pointer;font-size:15.5px;transition:all .15s ease;display:flex;align-items:center;gap:10px}
+.option:hover{background:#f0f4f8;border-color:var(--bank-navy);transform:translateX(4px)}
+.option .tag{font-weight:800;color:var(--bank-navy);font-size:12px;width:20px;flex:none}
+.option.correct{background:var(--good-bg);border-color:var(--good-border)}
+.option.wrong{background:var(--bad-bg);border-color:var(--bad-border)}
+
+button{padding:13px 24px;border:none;border-radius:10px;background:var(--bank-navy);color:#fff;cursor:pointer;font-weight:700;letter-spacing:.4px;font-size:14px;transition:background .15s ease}
+button:hover{background:var(--mint-green)}
+
+.feedback{margin-top:14px;padding:12px 14px;border-radius:10px;font-size:14.5px;line-height:1.5}
+.good{background:var(--good-bg);color:var(--mint-green);border:1px solid var(--good-border)}
+.bad{background:var(--bad-bg);color:#c62828;border:1px solid var(--bad-border)}
+
+/* ---- Background decorative economy particles ---- */
+.coin-particle{position:fixed;color:rgba(212,175,55,.25);animation:floatUp linear infinite;font-size:24px;pointer-events:none}
+@keyframes floatUp{from{transform:translateY(110vh) rotate(0deg)}to{transform:translateY(-10vh) rotate(360deg)}}
+
+.confetti{position:fixed;animation:up 1.3s forwards;font-size:22px;pointer-events:none}
+@keyframes up{to{transform:translateY(-220px) scale(1.6) rotate(180deg);opacity:0}}
+
+.stamp{display:inline-block;background:var(--bank-deep);color:var(--gold-accent);font-size:11px;font-weight:700;letter-spacing:1px;padding:5px 12px;border-radius:999px;margin-top:10px}
+
+#startBtn{font-size:16px;padding:15px 32px}
+.divider{height:1px;background:linear-gradient(90deg,transparent,#cfd8dc,transparent);margin:16px 0}
+
+@media(max-width:480px){
+  h1{font-size:22px}
+  .panel-inner{padding:20px}
+  .top{font-size:11.5px}
+}
+</style>
+</head>
+<body>
+
+<!-- White Background Loader Panel -->
+<div id="splash">
+ <div class="splash-content">
+  <img src="assets/innovine-logo.png" alt="Innovine Logo" class="splash-logo">
+ </div>
+</div>
+
+<!-- Audio elements utilizing absolute assets paths -->
+<audio id="correctSound" src="assets/correct.mp3"></audio>
+<audio id="wrongSound" src="assets/wrong.mp3"></audio>
+<audio id="clapSound" src="assets/freesound_community-claps-44774.mp3"></audio>
+
+<!-- Welcoming / Explanatory Screen -->
+<div id="intro" class="container hidden">
+<div class="panel">
+<div class="skystrip"></div>
+<div class="panel-inner center">
+<div class="eyebrow">Social Science · Chapter 8</div>
+<h1>🪙 Money and Banks</h1>
+<p style="color:var(--bank-deep);margin-top:10px;opacity:.85">Explore the vibrant flow of India's financial infrastructure! Discover how savings empower entrepreneurs, trace the evolution of banking from ancient temples to modern high-speed UPI channels, and learn how to manage risks in the digital landscape.</p>
+<br><div style="font-size:58px">🏦</div><br>
+<button id="startBtn" onclick="startGame()">Start Financial Challenge</button>
+</div></div></div>
+
+<!-- Main Game Interaction System -->
+<div id="game" class="container hidden">
+<div class="panel">
+<div class="skystrip"></div>
+<div class="panel-inner">
+<div class="top">
+<div>💰 Net Worth: <span id="scoreDisplay">0</span></div>
+<div>⏳ Timer: <span id="time">45</span>s</div>
+<div>Transaction <span id="qnum">1</span>/10</div>
+</div>
+<div class="progress"><div id="bar" class="bar"></div></div><br>
+<h2 id="question"></h2>
+<div id="options"></div>
+<div id="feedback"></div>
+<div class="divider"></div>
+<button id="nextBtn" class="hidden" onclick="nextQ()">Next Analysis →</button>
+</div></div></div>
+
+<!-- Final Performance Dashboard -->
+<div id="result" class="container hidden">
+<div class="panel">
+<div class="skystrip"></div>
+<div class="panel-inner center">
+<div style="font-size:52px" id="resultIcon"></div>
+<h1 id="title"></h1>
+<h2 id="finalScore"></h2>
+<div class="stamp" id="resultStamp"></div><br><br>
+<button onclick="location.reload()">Restart Simulation</button>
+</div></div></div>
+
+<script>
+// Ambient economy background generation
+for(let i=0;i<12;i++){
+  let c=document.createElement('div');c.className='coin-particle';c.innerHTML=i%2===0?'🪙':'₹';
+  c.style.left=Math.random()*100+'vw';c.style.animationDuration=(8+Math.random()*12)+'s';
+  c.style.animationDelay=(Math.random()*-15)+'s';document.body.appendChild(c);
+}
+
+// Fixed 5-second loading delay logic
+window.addEventListener('load',()=>{
+ setTimeout(()=>{
+   document.getElementById('splash').style.display='none';
+   document.getElementById('intro').classList.remove('hidden');
+ },5000);
+});
+
+// Complete 10 Questions Array mapping all Chapter Learning Outcomes
+const qs=[
+{q:"What components form the complete structural system known as the 'financial infrastructure' of an economy?",o:["Only currency notes and coins printed by the state","A secure network of roads, trains, and electric grids","Institutions and systems like banks, payment applications, and stock markets","Private lockboxes kept inside homes"],a:2,e:"Financial infrastructure includes the network of institutions and tools (banks, stock markets, systems) that allow money to securely circulate, invest, and grow."},
+{q:"How do banks actively serve as vital intermediaries between financial savers and borrowing entities?",o:["They store deposits in underground vaults without circulating them","They accept excess savings from depositors and distribute them to productive businesses as loans","They only give money to government agencies","They make all financial services completely free of interest charges"],a:1,e:"Banks gather surplus money from savers who seek security/interest and route it out to businesses or individuals requiring capital via credit loans."},
+{q:"Meera wants to secure a business loan to purchase manufacturing machinery. In financial terms, what must she pay back alongside the principal loan amount?",o:["She only pays back the raw cost of the machinery","The borrowed loan amount combined with an extra charge called interest","A fixed penalty fee to the Reserve Bank","Nothing, because bank business expansion loans are absolute grants"],a:1,e:"Borrowers must return the primary value of the loan coupled with interest, which serves as the fee for acquiring access to the capital."},
+{q:"Anand deposits ₹200 in a savings account at 2% annual interest. The bank uses that capital to grant Shreya a loan at 5% interest. What is this structural difference in rates called?",o:["Compounding Spread","The Interest Spread, which forms the bank's core operational income","A Cybercrime transaction record","The National Minimum Balance policy"],a:1,e:"The difference between the lower interest rate paid to savings accounts and the higher rate charged to borrowers is the 'interest spread', providing operational revenue for the bank."},
+{q:"If interest is calculated not just on your initial deposit, but also on the past interest you have already accumulated, what financial process is occurring?",o:["Linear Depreciation","Compounding","Direct Fiscal Transfer","Capital Distribution"],a:1,e:"Compounding implies earning interest on top of past interest accumulated over successive intervals, causing savings to accelerate over long timeframes."},
+{q:"Which specialized national bank provides targeted financial funds to regional institutions to specifically support farmers and rural business infrastructure?",o:["Bombay Stock Exchange (BSE)","Industrial Finance Corporation of India (IFCI)","National Bank for Agriculture and Rural Development (NABARD)","Unified Payments Interface (NPCI)"],a:2,e:"NABARD is India's dedicated apex body established to look after credit requirements and infrastructure development across rural and agricultural landscapes."},
+{q:"Assertion (A): The Reserve Bank of India (RBI) operates as the central regulatory bank of the country.\nReason (R): The RBI directly supervises and regulates the operations of the entire commercial banking framework.",o:["Both A and R are true, and R correctly explains A","Both A and R are true, but R does not explain A","A is true, but R is false","A is false, but R is true"],a:0,e:"The RBI was setup in 1935 and nationalised in 1949 to strictly serve as the apex central banking authority monitoring India's financial system stability."},
+{q:"What core national objective drove the launch of the Pradhan Mantri Jan Dhan Yojana (PMJDY) initiative in 2014?",o:["To transition the economy instantly into digital stock exchanges","To increase financial inclusion by bringing bank accounts to unbanked, low-income households","To entirely ban the circulation of physical cash","To calculate the compounding interest of corporate companies"],a:1,e:"PMJDY targeted deep financial inclusion across India by enabling zero-minimum balance bank accounts, debit cards, and seamless access to direct benefits."},
+{q:"During an online transaction, a user enters a custom receiver address, validates details, and authenticates the step with a secure PIN. Which national platform processes this instantly?",o:["The Automated Teller Machine network","A standard physical cross-bank Cheque","Unified Payments Interface (UPI) launched by the NPCI","The Bombay Stock Exchange index"],a:2,e:"UPI, introduced in 2016, allows secure, high-speed, peer-to-peer money movement directly between bank accounts instantly via smart devices."},
+{q:"While using modern digital banking systems, what action is considered vital for protecting yourself from cyber fraud?",o:["Clicking on urgent links sent via unknown text messages","Sharing your One-Time Passwords (OTPs) with helpful phone callers","Never sharing passwords or OTPs, and instantly reporting issues to the 1930 helpline","Downloading unknown monitoring applications recommended by strangers"],a:2,e:"Securing credentials, rejecting unverified external hyperlinks, and using portals like the National Cybercrime Reporting Portal are crucial safety rules."}
+];
+
+let c=0,score=0,retry=0,t=45,timer;
+
+function startGame(){intro.classList.add('hidden');game.classList.remove('hidden');loadQ();}
+function loadQ(){
+retry=0;t=45;time.textContent=t;qnum.textContent=c+1;bar.style.width=(c/qs.length*100)+'%';
+question.textContent=qs[c].q;options.innerHTML='';feedback.innerHTML='';nextBtn.classList.add('hidden');
+const labels=['A','B','C','D'];
+qs[c].o.forEach((op,i)=>{let d=document.createElement('div');d.className='option';d.innerHTML='<span class="tag">'+labels[i]+'</span><span>'+op+'</span>';d.onclick=()=>choose(i,d);options.appendChild(d);});
+clearInterval(timer);timer=setInterval(()=>{t--;time.textContent=t;if(t<=0){clearInterval(timer);showAnswer();}},1000);
+}
+function choose(i,el){
+if(i===qs[c].a){score++;scoreEl();correctSound.play().catch(()=>{});el.classList.add('correct');feedback.innerHTML='<div class="feedback good">✔️ Correct! '+qs[c].e+'</div>';confetti();disable();nextBtn.classList.remove('hidden');clearInterval(timer);}
+else if(retry===0){retry=1;el.classList.add('wrong');wrongSound.play().catch(()=>{});feedback.innerHTML='<div class="feedback bad">Incorrect parameters — double check your analysis and try once more!</div>';}
+else{el.classList.add('wrong');showAnswer();}
+}
+function showAnswer(){disable();clearInterval(timer);const labels=['A','B','C','D'];feedback.innerHTML='<div class="feedback bad">Correct Settlement: <b>'+labels[qs[c].a]+'. '+qs[c].o[qs[c].a]+'</b><br>'+qs[c].e+'</div>';nextBtn.classList.remove('hidden');}
+function disable(){document.querySelectorAll('.option').forEach(x=>x.onclick=null)}
+function nextQ(){c++;if(c<qs.length)loadQ();else{game.classList.add('hidden');showResult();}}
+function showResult(){
+result.classList.remove('hidden');
+if(score interstitial >=9){title.textContent='🏆 Chief Financial Economist';resultIcon.textContent='👑';resultStamp.textContent='EXPERT DEPOSITOR — ELITE RANK';clapSound.play().catch(()=>{});}
+else if(score>=6){title.textContent='📈 Asset Manager';resultIcon.textContent='📊';resultStamp.textContent='FINANCIAL FORECASTER RANK';}
+else{title.textContent='🪙 Apprentice Saver';resultIcon.textContent='🌱';resultStamp.textContent='PIGGY BANK SAVER — APPRENTICE';}
+finalScore.textContent='You successfully balanced '+score+' out of 10 market transactions.';}
+function scoreEl(){document.getElementById('scoreDisplay').textContent=score}
+function confetti(){const sym=['🪙','✨','💵'];for(let i=0;i<10;i++){let s=document.createElement('div');s.className='confetti';s.innerHTML=sym[i%sym.length];s.style.left=Math.random()*innerWidth+'px';s.style.top=(innerHeight-80)+'px';document.body.appendChild(s);setTimeout(()=>s.remove(),1300);}}
+</script>
+</body>
+</html>
