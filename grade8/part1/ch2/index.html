@@ -1,0 +1,386 @@
+Here is the refined, production-ready code with the grade level corrected to **Grade 8** to match your exact directory structure (`sst_games/grade8/part1/ch2/assets/`).
+
+Since the `index.html` file lives directly inside the `ch2` directory, using the relative path `assets/` remains perfectly valid and deployment-safe for GitHub Pages.
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>SST Adventure: Reshaping India's Political Landscape</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --emperor-gold:#b45309;
+  --sultanate-green:#065f46;
+  --deccan-purple:#6b21a8;
+  --royal-amber:#d97706;
+  --parchment-bg:#fdfbf7;
+  --ink-dark:#1e293b;
+  --border-sepia:#e2d8c5;
+  --good-bg:#ecfdf5;
+  --good-border:#10b981;
+  --bad-bg:#fef2f2;
+  --bad-border:#ef4444;
+}
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(180deg,#fef3c7 0%,#fdf6e2 60%,#fafaf9 100%);min-height:100vh;overflow-x:hidden;color:var(--ink-dark)}
+h1,h2,.eyebrow,.tag,button,.top-bar,.stamp{font-family:'Georgia',serif}
+
+/* ---- Brand Loader Screen ---- */
+#splash{position:fixed;inset:0;background:#ffffff;display:flex;justify-content:center;align-items:center;z-index:9999}
+.splash-content{text-align:center}
+.splash-logo{max-width:240px;height:auto;animation:pulseLogo 2.5s ease-in-out infinite}
+@keyframes pulseLogo{0%{transform:scale(0.96);opacity:0.9}50%{transform:scale(1.02);opacity:1}100%{transform:scale(0.96);opacity:0.9}}
+
+.hidden{display:none!important}
+.container{max-width:1150px;margin:auto;padding:20px}
+
+/* ---- Architecture Panels ---- */
+.game-layout{display:grid;grid-template-columns:1.2fr 0.8fr;gap:24px;margin-top:10px}
+@media(max-width:900px){.game-layout{grid-template-columns:1fr}}
+
+.panel{background:var(--parchment-bg);border-radius:14px;overflow:hidden;box-shadow:0 10px 25px rgba(180,83,9,0.12);border:2px solid var(--border-sepia);display:flex;flex-direction:column}
+.panel-inner{padding:24px 28px;flex:1;display:flex;flex-direction:column;justify-content:center}
+.center{text-align:center}
+
+.skystrip{height:16px;width:100%;background:linear-gradient(90deg,var(--sultanate-green),var(--emperor-gold),var(--deccan-purple));position:relative;border-bottom:2px solid var(--royal-amber)}
+
+.eyebrow{text-transform:uppercase;letter-spacing:2px;font-size:11px;color:var(--emperor-gold);font-weight:700;margin-bottom:6px}
+h1{font-size:24px;color:var(--emperor-gold);margin-bottom:8px}
+h2{font-size:18px;color:var(--ink-dark);margin-bottom:14px;line-height:1.4;font-weight:700}
+p{line-height:1.6;font-size:15px;color:#475569}
+
+/* ---- Core Controls ---- */
+.top-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;font-size:13.5px;font-weight:700;color:var(--ink-dark);border-bottom:1px dashed var(--border-sepia);padding-bottom:10px}
+.top-bar span{color:var(--emperor-gold)}
+.progress-container{height:8px;background:#e2e8f0;border-radius:999px;overflow:hidden;margin-bottom:18px}
+.progress-bar{height:100%;width:0;background:linear-gradient(90deg,var(--sultanate-green),var(--emperor-gold));transition:width .4s ease}
+
+.action-option{background:#fff;border:2px solid var(--border-sepia);padding:14px;border-radius:10px;margin:10px 0;cursor:pointer;font-size:14.5px;transition:all 0.2s ease;display:flex;align-items:center;gap:12px}
+.action-option:hover{border-color:var(--emperor-gold);background:#fffbeb;transform:translateX(3px)}
+.action-option .badge{background:#f1f5f9;color:var(--ink-dark);font-weight:700;font-size:12px;padding:4px 8px;border-radius:5px;min-width:26px;text-align:center;border:1px solid var(--border-sepia)}
+.action-option.correct{background:var(--good-bg);border-color:var(--good-border)}
+.action-option.wrong{background:var(--bad-bg);border-color:var(--bad-border)}
+
+button{padding:12px 24px;border:none;border-radius:8px;background:var(--emperor-gold);color:#fff;cursor:pointer;font-weight:700;font-size:14px;transition:background 0.15s ease;box-shadow:0 3px 6px rgba(0,0,0,0.1)}
+button:hover{background:var(--sultanate-green)}
+
+.feedback{margin-top:14px;padding:14px;border-radius:8px;font-size:14px;line-height:1.5;border:1px solid transparent}
+.good{background:var(--good-bg);color:#065f46;border-color:var(--good-border)}
+.bad{background:var(--bad-bg);color:#991b1b;border-color:var(--bad-border)}
+
+/* ---- Interactive Chronology Canvas Visualizer ---- */
+.map-canvas{background:#f8fafc;border:2px solid var(--border-sepia);min-height:380px;border-radius:10px;position:relative;overflow:hidden;padding:12px;display:flex;flex-direction:column;justify-content:space-between}
+.timeline-track{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;z-index:10;background:rgba(255,255,255,0.9);padding:6px;border-radius:6px;border:1px solid var(--border-sepia)}
+.timeline-node{font-size:11px;font-weight:700;text-align:center;padding:6px 2px;background:#e2e8f0;border-radius:4px;color:#64748b;transition:all 0.3s ease}
+.timeline-node.passed{background:var(--sultanate-green);color:#fff}
+.timeline-node.current-era{background:var(--emperor-gold);color:#fff;box-shadow:0 0 8px var(--royal-amber);animation:pulseNode 1.5s infinite}
+@keyframes pulseNode{0%,100%{opacity:1}50%{opacity:0.7}}
+
+.landscape-grid{position:absolute;inset:0;top:60px;display:flex;flex-direction:column;justify-content:space-around;align-items:center;padding:20px;z-index:1}
+.empire-banner{font-size:15px;font-weight:700;padding:8px 16px;border-radius:6px;background:#cbd5e1;color:#64748b;border:1px solid #94a3b8;transform:scale(0.85);opacity:0.3;transition:all 0.5s cubic-bezier(0.175,0.885,0.32,1.275)}
+.empire-banner.active-rule{transform:scale(1.1);opacity:1;box-shadow:0 6px 15px rgba(0,0,0,0.15);z-index:5}
+#eb-delhi.active-rule{background:var(--sultanate-green);color:#fff;border-color:#047857}
+#eb-vijay.active-rule{background:var(--royal-amber);color:#fff;border-color:#b45309}
+#eb-bahmani.active-rule{background:var(--deccan-purple);color:#fff;border-color:#7e22ce}
+#eb-mughal.active-rule{background:#991b1b;color:#fff;border-color:#b91c1c}
+
+.dynasty-indicator{margin-top:12px;background:#f1f5f9;color:var(--ink-dark);padding:6px 14px;border-radius:6px;font-weight:700;font-size:12.5px;border:1px solid var(--border-sepia)}
+.stamp{display:inline-block;background:var(--sultanate-green);color:#fff;font-size:11px;font-weight:700;letter-spacing:1px;padding:6px 14px;border-radius:4px;margin-top:10px}
+</style>
+</head>
+<body>
+
+<!-- Global Loader Screen -->
+<div id="splash">
+ <div class="splash-content">
+  <img src="assets/innovine-logo.png" alt="Innovine Logo" class="splash-logo">
+ </div>
+</div>
+
+<!-- Audio Hooks -->
+<audio id="correctSound" src="assets/correct.mp3"></audio>
+<audio id="wrongSound" src="assets/wrong.mp3"></audio>
+<audio id="clapSound" src="assets/freesound_community-claps-44774.mp3"></audio>
+
+<!-- Welcoming Presentation Screen -->
+<div id="intro" class="container hidden">
+<div class="panel">
+<div class="skystrip"></div>
+<div class="panel-inner center" style="padding:40px 30px">
+<div class="eyebrow">Grade 8 Social Science · Chapter 2</div>
+<h1>📜 Reshaping India’s Political Landscape (12th–17th Century)</h1>
+<p style="margin-top:12px;max-width:700px;margin-inline:auto">Step into the shoes of a medieval chronicle collector. As regional boundaries shift from the 12th century through the 17th century, test your understanding of the <b>Delhi Sultanate, Vijayanagara Empire, Bahmani Sultanate, and the Mughal Empire</b> to chart the timeline of the subcontinent!</p>
+<br>
+<div style="display:flex;justify-content:center;align-items:center;gap:20px;font-size:45px">🕌 ➔ ⚔️ ➔ 🏛️ ➔ 👑</div>
+<br>
+<button onclick="startGame()">Commence Chronicle Expedition</button>
+</div></div></div>
+
+<!-- Core Interface Wrapper -->
+<div id="game" class="container hidden">
+<div class="game-layout">
+  
+  <!-- Left Column: Interrogation Framework -->
+  <div class="panel">
+   <div class="skystrip"></div>
+   <div class="panel-inner">
+    <div class="top-bar">
+     <div>📜 Historical Records: <span id="scoreDisplay">0</span>/10</div>
+     <div>⏳ Hourglass: <span id="timeDisplay">45</span>s</div>
+     <div>Era <span id="qnumDisplay">1</span>/10</div>
+    </div>
+    <div class="progress-container"><div id="barDisplay" class="progress-bar"></div></div>
+    <h2 id="questionDisplay"></h2>
+    <div id="optionsDisplay"></div>
+    <div id="feedbackDisplay"></div>
+    <div style="margin-top:15px;text-align:right">
+      <button id="nextBtn" class="hidden" onclick="nextQ()">Advance Timeline →</button>
+    </div>
+   </div>
+  </div>
+
+  <!-- Right Column: Interactive Landscape Mapping Matrix -->
+  <div class="panel">
+   <div class="skystrip"></div>
+   <div class="panel-inner center" style="background:#faf8f5">
+    <div class="eyebrow">Interactive Dynasty Chronology</div>
+    
+    <div class="map-canvas">
+      <!-- Epoch Markers -->
+      <div class="timeline-track">
+        <div class="timeline-node" id="node0">1206 CE</div>
+        <div class="timeline-node" id="node1">1336 CE</div>
+        <div class="timeline-node" id="node2">1526 CE</div>
+        <div class="timeline-node" id="node3">1699 CE</div>
+      </div>
+      
+      <!-- Spatial Alignment Matrix representing Kingdoms across regions -->
+      <div class="landscape-grid">
+        <div class="empire-banner" id="eb-delhi">🕌 Delhi Sultanate (North India)</div>
+        <div class="empire-banner" id="eb-bahmani">🏰 Bahmani Sultanate (Deccan)</div>
+        <div class="empire-banner" id="eb-vijay">🔱 Vijayanagara Empire (South India)</div>
+        <div class="empire-banner" id="eb-mughal">👑 Mughal Empire (Pan-Subcontinent)</div>
+      </div>
+      
+    </div>
+    
+    <div class="dynasty-indicator" id="dynastyStatus">Establish the chronological record to visualize dynastic domains.</div>
+   </div>
+  </div>
+
+</div>
+</div>
+
+<!-- Evaluation Dashboard -->
+<div id="result" class="container hidden">
+<div class="panel">
+<div class="skystrip"></div>
+<div class="panel-inner center" style="padding:40px 30px">
+<div style="font-size:60px" id="resultIcon"></div>
+<h1 id="resultTitle"></h1>
+<h2 id="finalScore"></h2>
+<div class="stamp" id="resultStamp"></div><br><br>
+<button onclick="location.reload()">Restart Chronicle Odyssey</button>
+</div></div></div>
+
+<script>
+// Splash Display Timer (5-second window)
+window.addEventListener('load',()=>{
+ setTimeout(()=>{
+   document.getElementById('splash').style.display='none';
+   document.getElementById('intro').classList.remove('hidden');
+ },5000);
+});
+
+// Chronological Array built on Learning Objectives & Textbook Milestones
+const database=[
+{q:"Following the collapse of classical macro-empires like the Guptas and Cholas, what geopolitical phenomenon reshaped medieval India?",o:["Total desertion of major city hubs","The rise of smaller regional powers and shifting political centers","Unified immediate democratic consolidation","Complete isolation from global trading networks"],a:1,e:"When vast historical empires decline, smaller regional kingdoms and localized political configurations routinely emerge to claim regional authority.",era:0,banner:"eb-delhi"},
+{q:"In 1206 CE, which military commander permanently founded the Delhi Sultanate, initiating more than three centuries of centralized rule from Delhi?",o:["Alauddin Khalji","Muhammad bin Tughlaq","Qutb-ud-din Aibak","Ibrahim Lodi"],a:2,e:"Qutb-ud-din Aibak, having previously served as a general under Muhammad Ghori, laid the operational foundations of the Delhi Sultanate in 1206 CE.",era:0,banner:"eb-delhi"},
+{q:"Why did the geographical location of Delhi enable it to grow into an immensely powerful capital city?",o:["It sat along major trade routes with access to fertile agricultural lands and strong fortifications","It was completely isolated from major agricultural river basins","It lacked any access points for global merchants","It possessed no protective fortifications against frontier invasions"],a:0,e:"Delhi's unique position along lucrative arterial trade networks, combined with nearby fertile agrarian lands and tactical fortifications, enhanced its power.",era:0,banner:"eb-delhi"},
+{q:"Which prominent Sultanate ruler is explicitly remembered for defending northern India against devastating Mongol invasions and introducing strict market reforms?",o:["Babur","Alauddin Khalji","Harihara I","Akbar"],a:1,e:"Alauddin Khalji (1296–1316 CE) successfully repelled aggressive Mongol incursions while introducing comprehensive army and economic policies.",era:0,banner:"eb-delhi"},
+{q:"In 1336 CE, which two brothers founded the prosperous Vijayanagara Empire along the banks of the Tungabhadra River?",o:["Babur and Humayun","Harihara and Bukka","Alauddin Bahman Shah and Mahmud Gawan","Prithviraj Chauhan and Ibrahim Lodi"],a:1,e:"Commanders Harihara and Bukka established the Vijayanagara Empire ('City of Victory') in 1336 CE with the direct advisory support of scholar Vidyaranya.",era:1,banner:"eb-vijay"},
+{q:"Which fertile geographic zone became the primary point of territorial competition between the Vijayanagara Empire and the Bahmani Sultanate?",o:["The Malwa Plateau","The Ganga Basin","The Raichur Doab","The Thar Sub-region"],a:2,e:"The Raichur Doab, situated securely between the Krishna and Tungabhadra rivers, was an agriculturally wealthy tract fiercely contested by both Deccan powers.",era:1,banner:"eb-bahmani"},
+{q:"What technological advancement enabled Central Asian leader Babur to defeat Ibrahim Lodi at the First Battle of Panipat in 1526?",o:["Exclusively traditional horse archers","Gunpowder artillery and field cannons","Massive static elephant lines","Advanced naval blockades across inland rivers"],a:1,e:"The First Battle of Panipat in 1526 CE introduced gunpowder field artillery and cannons on a decisive scale, bringing about the rise of the Mughal Empire.",era:2,banner:"eb-mughal"},
+{q:"Which administrative protocol did Emperor Akbar introduce to structurally organize and rank state officials within the Mughal governance system?",o:["The Iqta System","The Mansabdari System","The Organic Guild Framework","The Barter Matrix"],a:1,e:"The Mansabdari system organized imperial military and civil officials by granting specific institutional ranks (mansabs) determining authority and income.",era:2,banner:"eb-mughal"},
+{q:"During this era, how did everyday village production cross over to connect ordinary Indian weavers directly into international global trade?",o:["Through state bans on internal regional distribution","Local cotton grown by farmers was woven into textiles and exported worldwide from hubs like Surat and Calicut","By bypassing maritime transport entirely","By relying exclusively on domestic royal consumption"],a:1,e:"Local agrarian work had vast global impacts; cotton grown by village farmers was processed by weavers and shipped across the Indian Ocean to international markets.",era:3,banner:"eb-mughal"},
+{q:"Which major milestone marks the closing period of this medieval political transformation in the year 1699?",o:["The Second Battle of Tarain","The founding of the Khalsa by Guru Gobind Singh","The initial arrival of Portuguese ships in Calicut","The total architectural destruction of Fatehpur Sikri"],a:1,e:"The establishment of the Khalsa in 1699 CE represented a vital social and political reorganization near the close of the 12th–17th century medieval timeline.",era:3,banner:"eb-mughal"}
+];
+
+let currentIndex = 0, score = 0, strikeState = 0, timeframe = 45, horizontalClock;
+
+function startGame(){
+  document.getElementById('intro').classList.add('hidden');
+  document.getElementById('game').classList.remove('hidden');
+  refreshCanvas();
+  loadMetric();
+}
+
+function loadMetric(){
+  strikeState = 0; 
+  timeframe = 45;
+  document.getElementById('timeDisplay').textContent = timeframe;
+  document.getElementById('qnumDisplay').textContent = currentIndex + 1;
+  document.getElementById('barDisplay').style.width = (currentIndex / database.length * 100) + '%';
+  document.getElementById('questionDisplay').textContent = database[currentIndex].q;
+  
+  const optionsBox = document.getElementById('optionsDisplay');
+  optionsBox.innerHTML = '';
+  document.getElementById('feedbackDisplay').innerHTML = '';
+  document.getElementById('nextBtn').classList.add('hidden');
+  
+  const tags = ['A', 'B', 'C', 'D'];
+  database[currentIndex].o.forEach((value, idx) => {
+    let card = document.createElement('div');
+    card.className = 'action-option';
+    card.innerHTML = '<span class="badge">' + tags[idx] + '</span><span>' + value + '</span>';
+    card.onclick = () => validateSelection(idx, card);
+    optionsBox.appendChild(card);
+  });
+  
+  clearInterval(horizontalClock);
+  horizontalClock = setInterval(() => {
+    timeframe--;
+    document.getElementById('timeDisplay').textContent = timeframe;
+    if(timeframe <= 0){
+      clearInterval(horizontalClock);
+      revealTruth();
+    }
+  }, 1000);
+}
+
+function validateSelection(idx, node){
+  if(idx === database[currentIndex].a){
+    score++;
+    document.getElementById('scoreDisplay').textContent = score;
+    document.getElementById('correctSound').play().catch(()=>{});
+    node.classList.add('correct');
+    document.getElementById('feedbackDisplay').innerHTML = '<div class="feedback good">👑 Verified Record! ' + database[currentIndex].e + '</div>';
+    
+    refreshCanvas();
+    fireCelebration();
+    freezeOptions();
+    document.getElementById('nextBtn').classList.remove('hidden');
+    clearInterval(horizontalClock);
+  }
+  else if(strikeState === 0){
+    strikeState = 1;
+    node.classList.add('wrong');
+    document.getElementById('wrongSound').play().catch(()=>{});
+    document.getElementById('feedbackDisplay').innerHTML = '<div class="feedback bad">Anachronism Detected! That structural alignment weakens your timeline. Re-analyze the event parameters!</div>';
+  }
+  else{
+    node.classList.add('wrong');
+    revealTruth();
+  }
+}
+
+function revealTruth(){
+  freezeOptions();
+  clearInterval(horizontalClock);
+  const tags = ['A', 'B', 'C', 'D'];
+  document.getElementById('feedbackDisplay').innerHTML = '<div class="feedback bad">Expedition Halted. The factual historical entry was: <b>' + tags[database[currentIndex].a] + '. ' + database[currentIndex].o[database[currentIndex].a] + '</b><br>' + database[currentIndex].e + '</div>';
+  document.getElementById('nextBtn').classList.remove('hidden');
+}
+
+function freezeOptions(){
+  document.querySelectorAll('.action-option').forEach(element => element.onclick = null);
+}
+
+function nextQ(){
+  currentIndex++;
+  if(currentIndex < database.length) {
+    loadMetric();
+  } else {
+    document.getElementById('game').classList.add('hidden');
+    renderSummary();
+  }
+}
+
+function refreshCanvas(){
+  const activeEra = database[currentIndex].era;
+  
+  // Reset timeline classes
+  for(let i=0; i<4; i++){
+    let tNode = document.getElementById('node'+i);
+    if(tNode){
+      tNode.className = 'timeline-node';
+      if(i < activeEra) tNode.classList.add('passed');
+      if(i === activeEra) tNode.classList.add('current-era');
+    }
+  }
+
+  // Deactivate all map overlays smoothly
+  document.querySelectorAll('.empire-banner').forEach(b => b.classList.remove('active-rule'));
+  
+  // Illuminate specific dynastic target overlay
+  const activeBannerId = database[currentIndex].banner;
+  const activeBanner = document.getElementById(activeBannerId);
+  if(activeBanner){
+    activeBanner.classList.add('active-rule');
+  }
+
+  // Text Status Update
+  const indicator = document.getElementById('dynastyStatus');
+  const bannerNames = {
+    'eb-delhi': 'Delhi Sultanate territorial core active.',
+    'eb-vijay': 'Vijayanagara sovereignty active across the Tungabhadra basin.',
+    'eb-bahmani': 'Geopolitical friction rising across the Deccan Sultanates.',
+    'eb-mughal': 'Pan-subcontinental Mughal administrative integration active.'
+  };
+  indicator.innerText = bannerNames[activeBannerId] || 'Territorial map updated.';
+}
+
+function renderSummary(){
+  document.getElementById('result').classList.remove('hidden');
+  const rTitle = document.getElementById('resultTitle');
+  const rIcon = document.getElementById('resultIcon');
+  const rStamp = document.getElementById('resultStamp');
+  
+  if(score >= 9){
+    rTitle.textContent = '👑 Grand Imperial Court Chronicler';
+    rIcon.textContent = '📜';
+    rStamp.textContent = 'TIMELINE MASTERED — HISTORICAL EXCELLENCE CERTIFIED';
+    document.getElementById('clapSound').play().catch(()=>{});
+  }
+  else if(score >= 6){
+    rTitle.textContent = '⚔️ Medieval Archivist';
+    rIcon.textContent = '🏛️';
+    rStamp.textContent = 'DECCAN CAMPAIGN COMPLETE — COMPETENT KNOWLEDGE';
+  }
+  else{
+    rTitle.textContent = '⚠️ Lost Frontier Voyager';
+    rIcon.textContent = '🛡️';
+    rStamp.textContent = 'CHRONOLOGY RE-EXAMINATION ADVISED';
+  }
+  document.getElementById('finalScore').textContent = 'You successfully verified ' + score + ' out of 10 medieval historical transitions.';
+}
+
+function fireCelebration(){
+  const icons = ['📜', '🕌', '🔱', '👑'];
+  for(let i=0; i<8; i++){
+    let particle = document.createElement('div');
+    particle.style.position = 'fixed';
+    particle.style.fontSize = '24px';
+    particle.style.pointerEvents = 'none';
+    particle.style.zIndex = '999';
+    particle.innerHTML = icons[i % icons.length];
+    particle.style.left = Math.random() * window.innerWidth + 'px';
+    particle.style.top = (window.innerHeight - 50) + 'px';
+    particle.style.transition = 'all 1.2s ease-out';
+    document.body.appendChild(particle);
+    
+    setTimeout(() => {
+      particle.style.transform = 'translateY(-180px) scale(1.4) rotate('+(Math.random()*180)+'deg)';
+      particle.style.opacity = '0';
+    }, 20);
+    
+    setTimeout(() => particle.remove(), 1250);
+  }
+}
+</script>
+</body>
+</html>
+
+```
