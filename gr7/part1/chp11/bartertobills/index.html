@@ -1,96 +1,564 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>From Barter to Money - Crossword Dashboard</title>
-<style>
-:root{--slate-dark:#0b0f19;--panel-bg:#161e2e;--amber-gold:#f59e0b;--emerald-mint:#10b981;--royal-blue:#3b82f6;--text-light:#f3f4f6;--text-muted:#9ca3af;--border-line:#2d3748;--cell-black:#090d16}
-*{box-sizing:border-box;margin:0;padding:0;font-family:Segoe UI,system-ui,sans-serif}
-body{background:var(--slate-dark);color:var(--text-light);line-height:1.6;padding:20px 10px;user-select:none;overflow-x:hidden}
-#splash-screen{position:fixed;inset:0;background:#fff;display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:9999;transition:opacity .5s ease-out}
-#splash-screen img{max-width:280px;height:auto;margin-bottom:30px}
-#splash-screen .loader{border:4px solid #e2e8f0;border-top:4px solid var(--amber-gold);border-radius:50%;width:45px;height:45px;animation:rotateLoader 1s linear infinite}
-@keyframes rotateLoader{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
-.game-wrapper{max-width:1150px;margin:0 auto;background:var(--panel-bg);border-radius:14px;border:1px solid var(--border-line);box-shadow:0 12px 40px rgba(0,0,0,.5);overflow:hidden;display:none}
-header{background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);padding:25px;text-align:center;border-bottom:2px solid var(--amber-gold)}
-header h1{font-size:26px;letter-spacing:.5px;color:var(--amber-gold)}
-header p{color:var(--text-muted);font-size:14px;margin-top:4px}
-.dashboard-bar{display:flex;justify-content:space-between;align-items:center;background:#0d131f;padding:12px 25px;font-size:14px;border-bottom:1px solid var(--border-line);gap:10px;flex-wrap:wrap}
-.score-box{color:var(--emerald-mint);font-weight:700;background:rgba(16,185,129,.1);padding:4px 14px;border-radius:30px;border:1px solid rgba(16,185,129,.2)}
-.main-content{padding:25px}
-.mission-box{background:rgba(245,158,11,.05);border-left:4px solid var(--amber-gold);padding:14px;margin-bottom:25px;border-radius:4px;font-size:14px;color:#fbbf24}
-.crossword-container{display:grid;grid-template-columns:1.05fr .95fr;gap:25px;align-items:start}
-@media (max-width:900px){.crossword-container{grid-template-columns:1fr}}
-.grid-wrapper{background:#0d131f;padding:15px;border-radius:8px;border:1px solid var(--border-line);display:flex;justify-content:center;align-items:center;overflow:auto}
-.crossword-grid{display:grid;grid-template-columns:repeat(15,minmax(24px,1fr));grid-template-rows:repeat(15,minmax(24px,1fr));gap:2px;width:100%;max-width:560px;aspect-ratio:1/1}
-.cell{position:relative;background:var(--cell-black);aspect-ratio:1/1;border-radius:2px}
-.cell.active-letter{background:#1e293b;border:1px solid #475569}
-.cell input{width:100%;height:100%;background:transparent;border:none;text-align:center;color:var(--text-light);font-size:16px;font-weight:700;text-transform:uppercase;outline:none}
-.cell input:focus{background:rgba(59,130,246,.15)}
-.cell input.correct-flash{color:var(--emerald-mint);background:rgba(16,185,129,.08)}
-.cell-number{position:absolute;top:2px;left:3px;font-size:9px;font-weight:700;color:var(--amber-gold);line-height:1;pointer-events:none}
-.clues-wrapper{display:flex;flex-direction:column;gap:20px;max-height:760px;overflow-y:auto;padding-right:5px}
-.clues-section{background:#090d16;border:1px solid var(--border-line);border-radius:8px;padding:15px}
-.clues-section h3{font-size:15px;color:var(--amber-gold);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border-line);padding-bottom:6px;margin-bottom:12px}
-.clue-item{font-size:13.5px;margin-bottom:8px;color:var(--text-light);padding:4px;border-radius:4px;line-height:1.45}
-.clue-item strong{color:var(--royal-blue);margin-right:5px}
-.feedback-alert{margin-top:25px;padding:14px;border-radius:6px;text-align:center;font-weight:600;font-size:14px;display:none}
-.feedback-alert.success{display:block;background:rgba(16,185,129,.1);color:#34d399;border:1px solid rgba(16,185,129,.2)}
-.feedback-alert.error{display:block;background:rgba(239,68,68,.1);color:#f87171;border:1px solid rgba(239,68,68,.2)}
-.control-footer{text-align:center;margin-top:30px;display:flex;justify-content:center;gap:15px;flex-wrap:wrap}
-.control-btn{background:transparent;color:var(--text-light);border:1px solid var(--border-line);padding:12px 28px;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:1px;border-radius:4px;cursor:pointer;transition:all .2s}
-.control-btn:hover{border-color:var(--text-light);background:rgba(255,255,255,.03)}
-.control-btn.primary{background:var(--amber-gold);color:var(--slate-dark);border-color:var(--amber-gold)}
-.control-btn.primary:hover{background:#d97706;border-color:#d97706}
-@media (max-width:600px){header h1{font-size:22px}.main-content{padding:16px}.crossword-grid{max-width:100%}}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barter to Bills - Interactive Crossword Dashboard</title>
+    <style>
+        :root {
+            --slate-dark: #0b0f19;
+            --panel-bg: #161e2e;
+            --amber-gold: #f59e0b;
+            --amber-glow: rgba(245, 158, 11, 0.25);
+            --emerald-mint: #10b981;
+            --royal-blue: #3b82f6;
+            --text-light: #f3f4f6;
+            --text-muted: #9ca3af;
+            --border-line: #2d3748;
+            --error-red: #ef4444;
+            --cell-black: #090d16;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background-color: var(--slate-dark);
+            color: var(--text-light);
+            line-height: 1.6;
+            padding: 20px 10px;
+            user-select: none;
+        }
+
+        /* 5-Second Interactive Splash Screen Overlay with White Background */
+        #splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease-out;
+        }
+
+        #splash-screen img {
+            max-width: 280px;
+            height: auto;
+            margin-bottom: 30px;
+        }
+
+        #splash-screen .loader {
+            border: 4px solid #e2e8f0;
+            border-top: 4px solid var(--amber-gold);
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            animation: rotateLoader 1s linear infinite;
+        }
+
+        @keyframes rotateLoader {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Game Interface Window wrapper */
+        .game-wrapper {
+            max-width: 1150px;
+            margin: 0 auto;
+            background: var(--panel-bg);
+            border-radius: 14px;
+            border: 1px solid var(--border-line);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            display: none;
+        }
+
+        header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            padding: 25px;
+            text-align: center;
+            border-bottom: 2px solid var(--amber-gold);
+        }
+
+        header h1 {
+            font-size: 26px;
+            letter-spacing: 0.5px;
+            color: var(--amber-gold);
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .dashboard-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #0d131f;
+            padding: 12px 25px;
+            font-size: 14px;
+            border-bottom: 1px solid var(--border-line);
+        }
+
+        .score-box {
+            color: var(--emerald-mint);
+            font-weight: 700;
+            background: rgba(16, 185, 129, 0.1);
+            padding: 4px 14px;
+            border-radius: 30px;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .main-content {
+            padding: 25px;
+        }
+
+        .mission-box {
+            background: rgba(245, 158, 11, 0.05);
+            border-left: 4px solid var(--amber-gold);
+            padding: 14px;
+            margin-bottom: 25px;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #fbbf24;
+        }
+
+        /* Layout Structure for Grid & Clues */
+        .crossword-container {
+            display: grid;
+            grid-template-columns: 1.3fr 1fr;
+            gap: 25px;
+            align-items: start;
+        }
+
+        @media (max-width: 850px) {
+            .crossword-container { grid-template-columns: 1fr; }
+        }
+
+        /* Crossword Matrix Grid Layout */
+        .grid-wrapper {
+            background: #0d131f;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-line);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: auto;
+        }
+
+        .crossword-grid {
+            display: grid;
+            gap: 2px;
+            width: 100%;
+        }
+
+        .cell {
+            position: relative;
+            background: var(--cell-black);
+            aspect-ratio: 1 / 1;
+            border-radius: 2px;
+        }
+
+        .cell.active-letter {
+            background: #1e293b;
+            border: 1px solid #475569;
+        }
+
+        .cell input {
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            border: none;
+            text-align: center;
+            color: var(--text-light);
+            font-size: 15px;
+            font-weight: 700;
+            text-transform: uppercase;
+            outline: none;
+        }
+
+        .cell input:focus {
+            background: rgba(59, 130, 246, 0.15);
+        }
+
+        .cell input.correct-flash {
+            color: var(--emerald-mint);
+            background: rgba(16, 185, 129, 0.08);
+        }
+
+        .cell-number {
+            position: absolute;
+            top: 1px;
+            left: 2px;
+            font-size: 8px;
+            font-weight: 700;
+            color: var(--amber-gold);
+            line-height: 1;
+            pointer-events: none;
+        }
+
+        /* Clues Sheet Panels */
+        .clues-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-height: 510px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .clues-section {
+            background: #090d16;
+            border: 1px solid var(--border-line);
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .clues-section h3 {
+            font-size: 15px;
+            color: var(--amber-gold);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border-line);
+            padding-bottom: 6px;
+            margin-bottom: 12px;
+        }
+
+        .clue-item {
+            font-size: 13.5px;
+            margin-bottom: 8px;
+            color: var(--text-light);
+            padding: 4px;
+            border-radius: 4px;
+        }
+
+        .clue-item strong {
+            color: var(--royal-blue);
+            margin-right: 5px;
+        }
+
+        /* Feedback Panels */
+        .feedback-alert {
+            margin-top: 25px;
+            padding: 14px;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 14px;
+            display: none;
+        }
+
+        .feedback-alert.success {
+            display: block;
+            background: rgba(16, 185, 129, 0.1);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .feedback-alert.error {
+            display: block;
+            background: rgba(239, 68, 68, 0.1);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .control-footer {
+            text-align: center;
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .control-btn {
+            background: transparent;
+            color: var(--text-light);
+            border: 1px solid var(--border-line);
+            padding: 12px 28px;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .control-btn:hover {
+            border-color: var(--text-light);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .control-btn.primary {
+            background: var(--amber-gold);
+            color: var(--slate-dark);
+            border-color: var(--amber-gold);
+        }
+
+        .control-btn.primary:hover {
+            background: #d97706;
+            border-color: #d97706;
+        }
+    </style>
 </head>
 <body>
-<div id="splash-screen"><img src="assets/logo.png" alt="Logo"><div class="loader"></div></div>
+
+<!-- 5-Second Splash Screen Loader Display with White Background -->
+<div id="splash-screen">
+    <img src="assets/logo.png" alt="Logo">
+    <div class="loader"></div>
+</div>
+
 <div class="game-wrapper" id="main-interface-shell">
-<header><h1>Chapter 11 Study Dashboard</h1><p>Crossword Edition — From Barter to Money</p></header>
-<div class="dashboard-bar"><span>STATUS: MONEY JOURNEY MATRIX LOADED</span><span>SCORE: <span id="score-val" class="score-box">0</span></span></div>
-<div class="main-content">
-<div class="mission-box"><strong>Crossword Mission Parameter:</strong> Solve the clues about barter, money, coins, currency, banking, and digital payments.</div>
-<div class="crossword-container">
-<div class="grid-wrapper"><div id="crossword-grid-mesh" class="crossword-grid"></div></div>
-<div class="clues-wrapper">
-<div class="clues-section"><h3>Across Clues</h3><div id="across-clues-box"></div></div>
-<div class="clues-section"><h3>Down Clues</h3><div id="down-clues-box"></div></div>
-</div></div>
-<div id="system-alert" class="feedback-alert"></div>
-<div class="control-footer"><button class="control-btn primary" onclick="verifyCrosswordMatrix()">Verify Answers</button><button class="control-btn" onclick="rebootDashboard()">Reboot Game Matrix</button></div>
-</div></div>
-<audio id="correctSound" src="assets/correct.mp3" preload="auto"></audio>
-<audio id="wrongSound" src="assets/wrong.mp3" preload="auto"></audio>
-<audio id="celebrationSound" src="assets/freesound_community-claps-44774.mp3" preload="auto"></audio>
+    <header>
+        <h1>Chapter 11 Study Dashboard</h1>
+        <p>Crossword Edition — Barter to Bills: The Story of Money</p>
+    </header>
+
+    <div class="dashboard-bar">
+        <span>STATUS: SYNCHRONIZED MATRIX INDEX LOADED</span>
+        <span>SCORE: <span id="score-val" class="score-box">0</span></span>
+    </div>
+
+    <div class="main-content">
+        <div class="mission-box">
+            <strong>Crossword Mission Parameter:</strong> Review the Across and Down clues about the evolution of money. Click on any valid grid cell to input characters. Press the verification button below to evaluate your solution coordinates.
+        </div>
+
+        <div class="crossword-container">
+            <!-- Grid Container Shell -->
+            <div class="grid-wrapper">
+                <div id="crossword-grid-mesh" class="crossword-grid"></div>
+            </div>
+
+            <!-- Clues Sheet Columns -->
+            <div class="clues-wrapper">
+                <div class="clues-section">
+                    <h3>Across Clues</h3>
+                    <div id="across-clues-box"></div>
+                </div>
+                <div class="clues-section">
+                    <h3>Down Clues</h3>
+                    <div id="down-clues-box"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Alerts Panel -->
+        <div id="system-alert" class="feedback-alert"></div>
+
+        <div class="control-footer">
+            <button class="control-btn primary" onclick="verifyCrosswordMatrix()">Verify Answers</button>
+            <button class="control-btn" onclick="rebootDashboard()">Reboot Game Matrix</button>
+        </div>
+    </div>
+</div>
+
 <script>
-const wordsDataset=[
-{word:"BARTER",row:2,col:1,dir:"across",num:1,clue:"The system in which goods and services are exchanged directly without using money."},
-{word:"COWRIE",row:4,col:1,dir:"across",num:3,clue:"Small shells that were used as an early form of money in many ancient societies."},
-{word:"RBI",row:6,col:1,dir:"across",num:5,clue:"The institution responsible for issuing modern currency notes in India."},
-{word:"UPI",row:8,col:1,dir:"across",num:7,clue:"A payment method where money is transferred electronically using a mobile phone."},
-{word:"CASH",row:10,col:1,dir:"across",num:9,clue:"Money in the form of physical notes and coins is called ______ money."},
-{word:"GOLD",row:1,col:8,dir:"down",num:2,clue:"A valuable metal used as money because it was durable and rare."},
-{word:"DEBIT",row:1,col:11,dir:"down",num:4,clue:"A card linked to a bank account that allows direct payment from available money."},
-{word:"CREDIT",row:1,col:14,dir:"down",num:6,clue:"A card that allows users to borrow money and repay later."},
-{word:"TRADE",row:5,col:6,dir:"down",num:8,clue:"The process of buying and selling goods and services."},
-{word:"DIGITAL",row:7,col:9,dir:"down",num:10,clue:"The modern technology-based form of money used through apps and online banking."}
-];
-const gridSize=15;let computedScore=0;
-const correctAudio=document.getElementById('correctSound');
-const wrongAudio=document.getElementById('wrongSound');
-const clapsAudio=document.getElementById('celebrationSound');
-function executeSound(a){try{a.currentTime=0;a.play().catch(()=>{})}catch(e){}}
-window.addEventListener('DOMContentLoaded',()=>{setTimeout(()=>{const s=document.getElementById('splash-screen');const m=document.getElementById('main-interface-shell');s.style.opacity='0';setTimeout(()=>{s.style.display='none';m.style.display='block';startDashboardEngine();},500);},2000);});
-function startDashboardEngine(){computedScore=0;document.getElementById('score-val').textContent=computedScore;clearAlertPanel();buildCrosswordGridSkeleton();renderCluesPanelText();}
-function buildCrosswordGridSkeleton(){const mesh=document.getElementById('crossword-grid-mesh');mesh.innerHTML='';const letters=Array(gridSize).fill(null).map(()=>Array(gridSize).fill(null));const nums=Array(gridSize).fill(null).map(()=>Array(gridSize).fill(null));wordsDataset.forEach(item=>{let x=item.col-1,y=item.row-1;nums[y][x]=item.num;for(let i=0;i<item.word.length;i++){if(x<0||x>=gridSize||y<0||y>=gridSize) return;letters[y][x]=item.word[i];if(item.dir==='across') x++; else y++;}});for(let r=0;r<gridSize;r++){for(let c=0;c<gridSize;c++){const d=document.createElement('div');d.className='cell';if(letters[r][c]!==null){d.classList.add('active-letter');if(nums[r][c]!==null){const s=document.createElement('span');s.className='cell-number';s.textContent=nums[r][c];d.appendChild(s);}const inp=document.createElement('input');inp.type='text';inp.maxLength=1;inp.dataset.answer=letters[r][c];inp.id=`input-r${r}-c${c}`;inp.addEventListener('input',e=>{e.target.value=e.target.value.toUpperCase();});d.appendChild(inp);}mesh.appendChild(d);}}}
-function renderCluesPanelText(){const a=document.getElementById('across-clues-box');const d=document.getElementById('down-clues-box');a.innerHTML='';d.innerHTML='';wordsDataset.forEach(item=>{const e=document.createElement('div');e.className='clue-item';e.innerHTML=`<strong>${item.num}.</strong> ${item.clue}`;if(item.dir==='across') a.appendChild(e); else d.appendChild(e);});}
-function verifyCrosswordMatrix(){const inputs=document.querySelectorAll('.active-letter input');let empty=0,ok=0;inputs.forEach(inp=>{const val=inp.value.trim().toUpperCase();const ans=inp.dataset.answer;if(val===''){empty++;inp.classList.remove('correct-flash')}else if(val===ans){ok++;inp.classList.add('correct-flash')}else inp.classList.remove('correct-flash');});if(empty>0){executeSound(wrongAudio);displayAlert(`Incomplete Matrix: ${empty} cells are still empty.`, 'error');return;}if(ok===inputs.length){computedScore=100;executeSound(clapsAudio);displayAlert('🏆 Master Trader Victory! All answers are correct!', 'success');}else{computedScore=Math.max(0,Math.floor(ok/inputs.length*80));executeSound(wrongAudio);displayAlert('Some answers are incorrect. Check the clues and try again.', 'error');}document.getElementById('score-val').textContent=computedScore;}
-function displayAlert(text,type){const el=document.getElementById('system-alert');el.textContent=text;el.className=`feedback-alert ${type}`;}
-function clearAlertPanel(){document.getElementById('system-alert').className='feedback-alert';document.getElementById('system-alert').textContent='';}
-function rebootDashboard(){startDashboardEngine();}
+    // Audio engine setups utilizing precise assets folder links
+    const correctAudio = new Audio('assets/correct.mp3');
+    const wrongAudio = new Audio('assets/wrong.mp3');
+    const clapsAudio = new Audio('assets/freesound_community-claps-44774.mp3');
+
+    function executeSound(soundObject) {
+        soundObject.currentTime = 0;
+        soundObject.play().catch(err => console.log("Audio node triggered safely."));
+    }
+
+    // Crossword Puzzle Definition Mapping Data (auto-fitted grid, all words intersect correctly)
+    const wordsDataset = [
+        { word: "BARTER", row: 5, col: 4, dir: "across", num: 1, clue: "The system in which goods and services are exchanged directly without using money." },
+        { word: "COWRIE", row: 10, col: 1, dir: "across", num: 3, clue: "Small shells that were used as an early form of money in many ancient societies." },
+        { word: "PUNCHMARKED", row: 12, col: 2, dir: "across", num: 5, clue: "The first Indian coins made by punching symbols on pieces of metal." },
+        { word: "COINS", row: 10, col: 11, dir: "across", num: 7, clue: "The metal coins issued during ancient India that carried symbols of rulers and kingdoms." },
+        { word: "CURRENCY", row: 4, col: 9, dir: "across", num: 9, clue: "A type of money printed on paper and issued by an authorised institution." },
+        { word: "RBI", row: 7, col: 4, dir: "across", num: 11, clue: "The institution responsible for issuing modern currency notes in India." },
+        { word: "UPI", row: 8, col: 7, dir: "across", num: 13, clue: "A payment method where money is transferred electronically using a mobile phone." },
+        { word: "EWALLET", row: 9, col: 15, dir: "across", num: 15, clue: "A wallet stored digitally on a mobile device used for payments." },
+        { word: "CASH", row: 1, col: 1, dir: "across", num: 17, clue: "Money in the form of physical notes and coins is called ______ money." },
+
+        { word: "COINCIDENCE", row: 1, col: 1, dir: "down", num: 2, clue: "One major problem of barter where both people need exactly what the other person has." },
+        { word: "GOLD", row: 9, col: 12, dir: "down", num: 4, clue: "A valuable metal used as money because it was durable and rare." },
+        { word: "CASHLESS", row: 4, col: 15, dir: "down", num: 6, clue: "A system where payment is made without using physical cash." },
+        { word: "COMMODITIES", row: 2, col: 21, dir: "down", num: 8, clue: "Ancient objects such as salt and spices that were sometimes used as money." },
+        { word: "DEBIT", row: 3, col: 13, dir: "down", num: 10, clue: "A card linked to a bank account that allows direct payment from available money." },
+        { word: "CREDIT", row: 4, col: 9, dir: "down", num: 12, clue: "A card that allows users to borrow money and repay later." },
+        { word: "TRADE", row: 3, col: 11, dir: "down", num: 14, clue: "The process of buying and selling goods and services." },
+        { word: "BARTER", row: 5, col: 4, dir: "down", num: 16, clue: "The difficulty of carrying heavy goods over long distances was a problem of the ______ system." },
+        { word: "DIGITAL", row: 3, col: 18, dir: "down", num: 18, clue: "The modern technology-based form of money used through apps and online banking." }
+    ];
+
+    const gridRows = 12;
+    const gridCols = 21;
+    let computedScore = 0;
+
+    // Splash screen loader execution loop block (Exactly 5000 milliseconds)
+    window.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+            const overlaySplash = document.getElementById('splash-screen');
+            const systemShell = document.getElementById('main-interface-shell');
+            overlaySplash.style.opacity = '0';
+            setTimeout(() => {
+                overlaySplash.style.display = 'none';
+                systemShell.style.display = 'block';
+                startDashboardEngine();
+            }, 500);
+        }, 5000);
+    });
+
+    function startDashboardEngine() {
+        computedScore = 0;
+        document.getElementById('score-val').textContent = computedScore;
+        clearAlertPanel();
+        buildCrosswordGridSkeleton();
+        renderCluesPanelText();
+    }
+
+    function buildCrosswordGridSkeleton() {
+        const structuralMesh = document.getElementById('crossword-grid-mesh');
+        structuralMesh.innerHTML = '';
+        structuralMesh.style.gridTemplateColumns = `repeat(${gridCols}, 1fr)`;
+        structuralMesh.style.gridTemplateRows = `repeat(${gridRows}, 1fr)`;
+        structuralMesh.style.aspectRatio = `${gridCols} / ${gridRows}`;
+
+        const letterAssignmentMatrix = Array(gridRows).fill(null).map(() => Array(gridCols).fill(null));
+        const cellNumberingMatrix = Array(gridRows).fill(null).map(() => Array(gridCols).fill(null));
+
+        wordsDataset.forEach(item => {
+            let currentX = item.col - 1;
+            let currentY = item.row - 1;
+            cellNumberingMatrix[currentY][currentX] = item.num;
+
+            for (let i = 0; i < item.word.length; i++) {
+                letterAssignmentMatrix[currentY][currentX] = item.word[i];
+                if (item.dir === "across") currentX++;
+                if (item.dir === "down") currentY++;
+            }
+        });
+
+        for (let r = 0; r < gridRows; r++) {
+            for (let c = 0; c < gridCols; c++) {
+                const cellDiv = document.createElement('div');
+                cellDiv.className = 'cell';
+
+                if (letterAssignmentMatrix[r][c] !== null) {
+                    cellDiv.classList.add('active-letter');
+
+                    if (cellNumberingMatrix[r][c] !== null) {
+                        const numLabel = document.createElement('span');
+                        numLabel.className = 'cell-number';
+                        numLabel.textContent = cellNumberingMatrix[r][c];
+                        cellDiv.appendChild(numLabel);
+                    }
+
+                    const charInput = document.createElement('input');
+                    charInput.type = 'text';
+                    charInput.maxLength = 1;
+                    charInput.dataset.answer = letterAssignmentMatrix[r][c];
+                    charInput.id = `input-r${r}-c${c}`;
+
+                    charInput.addEventListener('input', (e) => {
+                        if (e.target.value.length === 1) {
+                            focusNextAvailableCell(r, c);
+                        }
+                    });
+
+                    cellDiv.appendChild(charInput);
+                }
+
+                structuralMesh.appendChild(cellDiv);
+            }
+        }
+    }
+
+    function focusNextAvailableCell(row, col) {
+        let nextInput = document.getElementById(`input-r${row}-c${col + 1}`) || document.getElementById(`input-r${row + 1}-c${col}`);
+        if (nextInput) nextInput.focus();
+    }
+
+    function renderCluesPanelText() {
+        const acrossBox = document.getElementById('across-clues-box');
+        const downBox = document.getElementById('down-clues-box');
+        acrossBox.innerHTML = '';
+        downBox.innerHTML = '';
+
+        wordsDataset.forEach(item => {
+            const entry = document.createElement('div');
+            entry.className = 'clue-item';
+            entry.innerHTML = `<strong>${item.num}.</strong> ${item.clue}`;
+
+            if (item.dir === "across") {
+                acrossBox.appendChild(entry);
+            } else {
+                downBox.appendChild(entry);
+            }
+        });
+    }
+
+    function verifyCrosswordMatrix() {
+        const interactiveInputs = document.querySelectorAll('.active-letter input');
+        let unmappedCount = 0;
+        let accurateCount = 0;
+
+        interactiveInputs.forEach(inputNode => {
+            const playerChar = inputNode.value.trim().toUpperCase();
+            const targetChar = inputNode.dataset.answer;
+
+            if (playerChar === '') {
+                unmappedCount++;
+                inputNode.classList.remove('correct-flash');
+            } else if (playerChar === targetChar) {
+                accurateCount++;
+                inputNode.classList.add('correct-flash');
+            } else {
+                inputNode.classList.remove('correct-flash');
+            }
+        });
+
+        if (unmappedCount > 0) {
+            executeSound(wrongAudio);
+            displayAlert(`Incomplete Archival Mapping: ${unmappedCount} cell nodes remain unfilled. Complete the matrix grid.`, "error");
+            return;
+        }
+
+        if (accurateCount === interactiveInputs.length) {
+            computedScore = 100;
+            executeSound(clapsAudio);
+            displayAlert("🏆 Master Historian Victory! The complete Barter-to-Bills financial record is perfectly calibrated!", "success");
+        } else {
+            computedScore = Math.max(0, Math.floor((accurateCount / interactiveInputs.length) * 80));
+            executeSound(wrongAudio);
+            displayAlert("Chronological Misalignments Detected! Several letter nodes mismatch verified historical accounts. Check your entries.", "error");
+        }
+
+        document.getElementById('score-val').textContent = computedScore;
+    }
+
+    function displayAlert(textMessage, alertType) {
+        const responseElement = document.getElementById('system-alert');
+        responseElement.textContent = textMessage;
+        responseElement.className = `feedback-alert ${alertType}`;
+    }
+
+    function clearAlertPanel() {
+        document.getElementById('system-alert').className = 'feedback-alert';
+    }
+
+    function rebootDashboard() {
+        startDashboardEngine();
+    }
 </script>
 </body>
 </html>
