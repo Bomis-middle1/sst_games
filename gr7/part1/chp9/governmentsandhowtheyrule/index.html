@@ -47,7 +47,6 @@
   .btn.primary{background:linear-gradient(135deg,#1d6b77,#184b63);color:#fff}
   .btn.light{background:#fff;color:var(--ink)}
   .btn.gold{background:linear-gradient(135deg,#d9b45b,#b98a28);color:#fff}
-
   .overlay{
     position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;
     background:linear-gradient(180deg,rgba(248,239,224,.98),rgba(237,217,188,.96));
@@ -100,9 +99,7 @@
   .lockline{display:flex;align-items:center;gap:10px;font-weight:900;color:#7a541b;margin-bottom:10px}
   .clue{font-size:17px;line-height:1.65;margin:8px 0 14px}
   .wordTitle{margin:0 0 10px;font-size:18px;font-weight:900;color:#1e6f7a}
-  .scramble,.answerRow{
-    display:flex;flex-wrap:wrap;gap:8px;min-height:54px
-  }
+  .scramble,.answerRow{display:flex;flex-wrap:wrap;gap:8px;min-height:54px}
   .tile,.slot{
     width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;
     font-weight:900;font-size:18px;user-select:none
@@ -124,7 +121,6 @@
   .feedback.good{color:var(--green)}
   .feedback.bad{color:var(--red)}
   .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
-
   .side{padding:16px;display:flex;flex-direction:column;gap:14px}
   .badgeBox,.infoBox,.collection{
     background:linear-gradient(180deg,#fffaf2,#fff4e2);
@@ -238,17 +234,14 @@
         <h3>Badges Collected</h3>
         <div id="badgeList"></div>
       </div>
-
       <div class="collection">
         <h3>Codes Unlocked</h3>
         <div class="collected" id="collection"></div>
       </div>
-
       <div class="infoBox">
         <h3>How it works</h3>
         <p>Drag letters from the shuffled bank into the answer boxes. If your answer is correct, the chamber unlocks and you earn points. If it is wrong, try again before the code is revealed.</p>
       </div>
-
       <div class="infoBox">
         <h3>Scoring</h3>
         <p>First try: 10 points. Second try: 5 points. Reveal: 2 points.</p>
@@ -347,11 +340,7 @@ const els = {
   restartBtn: document.getElementById('restartBtn')
 };
 
-let current = 0;
-let score = 0;
-let attempts = 2;
-let wonLevels = [];
-let locked = false;
+let current = 0, score = 0, attempts = 2, wonLevels = [], locked = false;
 
 function shuffle(arr){ return arr.map(v=>[Math.random(),v]).sort((a,b)=>a[0]-b[0]).map(x=>x[1]); }
 function cleanText(str){ return str.replace(/[^A-Z]/g,''); }
@@ -370,7 +359,6 @@ function showConfetti(count=18){
     setTimeout(()=>d.remove(), 1600);
   }
 }
-
 function renderBadges(){
   els.badgeList.innerHTML = '';
   badgeOrder.forEach(b=>{
@@ -380,7 +368,6 @@ function renderBadges(){
     els.badgeList.appendChild(div);
   });
 }
-
 function renderCollection(){
   els.collection.innerHTML = '';
   wonLevels.forEach(b=>{
@@ -390,7 +377,23 @@ function renderCollection(){
     els.collection.appendChild(s);
   });
 }
-
+function removeTileFromBank(letter, slot){
+  const tile=[...els.letterBank.children].find(t=>t.dataset.letter===letter && !t.dataset.used);
+  if(tile){
+    tile.dataset.used='1';
+    tile.style.display='none';
+    slot.textContent=letter;
+    slot.dataset.letter=letter;
+    slot.classList.add('filled');
+  }
+}
+function returnTile(letter){
+  const tile=[...els.letterBank.children].find(t=>t.dataset.letter===letter && t.dataset.used==='1');
+  if(tile){
+    tile.dataset.used='';
+    tile.style.display='';
+  }
+}
 function makeTile(letter){
   const t=document.createElement('div');
   t.className='tile';
@@ -400,172 +403,142 @@ function makeTile(letter){
   t.addEventListener('dragstart', e=>{
     if(locked) return e.preventDefault();
     e.dataTransfer.setData('text/plain', letter);
+    e.dataTransfer.effectAllowed='move';
     t.classList.add('dragging');
   });
   t.addEventListener('dragend', ()=>t.classList.remove('dragging'));
   return t;
 }
-
 function makeSlot(){
   const s=document.createElement('div');
   s.className='slot';
-  s.addEventListener('dragover', e=>e.preventDefault());
+  s.addEventListener('dragover', e=>{
+    e.preventDefault();
+    e.dataTransfer.dropEffect='move';
+  });
   s.addEventListener('drop', e=>{
     e.preventDefault();
     if(locked) return;
-    const letter = e.dataTransfer.getData('text/plain');
+    const letter=e.dataTransfer.getData('text/plain');
     if(!letter) return;
-    if(s.dataset.letter){
-      dropBackToBank(s.dataset.letter);
-    }
-    s.textContent = letter;
-    s.classList.add('filled');
-    s.dataset.letter = letter;
-    removeLetterFromBank(letter);
+    if(s.dataset.letter) returnTile(s.dataset.letter);
+    removeTileFromBank(letter, s);
   });
   return s;
 }
-
-function removeLetterFromBank(letter){
-  [...els.letterBank.children].forEach(tile=>{
-    if(tile.dataset.letter === letter && !tile.classList.contains('used')){
-      tile.classList.add('used');
-      tile.style.display='none';
-    }
-  });
-}
-
-function dropBackToBank(letter){
-  [...els.letterBank.children].forEach(tile=>{
-    if(tile.dataset.letter === letter && tile.classList.contains('used')){
-      tile.classList.remove('used');
-      tile.style.display='';
-    }
-  });
-}
-
 function resetBoxes(){
   els.answerRow.innerHTML='';
   const answer = cleanText(levels[current].code);
   for(let i=0;i<answer.length;i++) els.answerRow.appendChild(makeSlot());
 }
-
 function renderLevel(){
-  locked = false;
-  attempts = 2;
-  els.attemptsLeft.textContent = attempts;
-  els.levelNum.textContent = current + 1;
-  els.levelBadge.textContent = `🏛 Government Code Chamber ${current + 1}/15`;
-  els.progressBar.style.width = `${(current / levels.length) * 100}%`;
-  els.clueText.textContent = levels[current].clue;
-  els.feedback.textContent = '';
-  els.feedback.className = 'feedback';
-  els.checkBtn.style.display = 'inline-block';
-  els.nextBtn.style.display = 'none';
-  els.letterBank.innerHTML = '';
+  locked=false;
+  attempts=2;
+  els.attemptsLeft.textContent=attempts;
+  els.levelNum.textContent=current+1;
+  els.levelBadge.textContent=`🏛 Government Code Chamber ${current+1}/15`;
+  els.progressBar.style.width=`${(current/levels.length)*100}%`;
+  els.clueText.textContent=levels[current].clue;
+  els.feedback.textContent='';
+  els.feedback.className='feedback';
+  els.checkBtn.style.display='inline-block';
+  els.nextBtn.style.display='none';
+  els.letterBank.innerHTML='';
   resetBoxes();
-  const letters = shuffle(letterMap[levels[current].code].slice());
-  letters.forEach(l=>els.letterBank.appendChild(makeTile(l)));
+  shuffle(letterMap[levels[current].code].slice()).forEach(l=>els.letterBank.appendChild(makeTile(l)));
 }
-
 function getUserAnswer(){
-  return [...els.answerRow.children].map(s => s.dataset.letter || '').join('');
+  return [...els.answerRow.children].map(s=>s.dataset.letter||'').join('');
 }
-
 function revealCorrect(){
-  const correct = cleanText(levels[current].code);
+  const correct=cleanText(levels[current].code);
   [...els.answerRow.children].forEach((s,i)=>{
-    s.textContent = correct[i] || '';
+    s.textContent=correct[i]||'';
     s.classList.add('filled');
   });
 }
-
 function checkAnswer(){
   if(locked) return;
-  const correct = cleanText(levels[current].code);
-  const user = getUserAnswer();
-  if(user.length !== correct.length){
-    els.feedback.textContent = 'Fill all the boxes first.';
-    els.feedback.className = 'feedback bad';
+  const correct=cleanText(levels[current].code);
+  const user=getUserAnswer();
+  if(user.length!==correct.length){
+    els.feedback.textContent='Fill all the boxes first.';
+    els.feedback.className='feedback bad';
     return;
   }
-  if(user === correct){
-    locked = true;
-    const pts = attempts === 2 ? 10 : 5;
-    score += pts;
-    els.score.textContent = score;
-    els.feedback.textContent = `Code Cracked! +${pts} points`;
-    els.feedback.className = 'feedback good';
+  if(user===correct){
+    locked=true;
+    const pts=attempts===2?10:5;
+    score+=pts;
+    els.score.textContent=score;
+    els.feedback.textContent=`Code Cracked! +${pts} points`;
+    els.feedback.className='feedback good';
     playSound(els.correctSound);
     playSound(els.clapSound);
     showConfetti(22);
-    els.progressBar.style.width = `${((current + 1) / levels.length) * 100}%`;
+    els.progressBar.style.width=`${((current+1)/levels.length)*100}%`;
     wonLevels.push(levels[current].badge);
     renderBadges();
     renderCollection();
-    els.checkBtn.style.display = 'none';
-    els.nextBtn.style.display = 'inline-block';
+    els.checkBtn.style.display='none';
+    els.nextBtn.style.display='inline-block';
   } else {
     attempts--;
-    els.attemptsLeft.textContent = attempts;
+    els.attemptsLeft.textContent=attempts;
     playSound(els.wrongSound);
     els.answerRow.classList.add('shake');
     setTimeout(()=>els.answerRow.classList.remove('shake'),350);
-    if(attempts > 0){
-      els.feedback.textContent = 'Not quite! Read the clue again and try rearranging the letters.';
-      els.feedback.className = 'feedback bad';
+    if(attempts>0){
+      els.feedback.textContent='Not quite! Read the clue again and try rearranging the letters.';
+      els.feedback.className='feedback bad';
     } else {
-      locked = true;
-      els.feedback.textContent = 'Correct Code: ' + levels[current].code;
-      els.feedback.className = 'feedback bad';
+      locked=true;
+      els.feedback.textContent='Correct Code: ' + levels[current].code;
+      els.feedback.className='feedback bad';
       revealCorrect();
-      els.checkBtn.style.display = 'none';
-      els.nextBtn.style.display = 'inline-block';
-      score += 2;
-      els.score.textContent = score;
+      els.checkBtn.style.display='none';
+      els.nextBtn.style.display='inline-block';
+      score+=2;
+      els.score.textContent=score;
       wonLevels.push(levels[current].badge);
       renderBadges();
       renderCollection();
     }
   }
 }
-
 function nextLevel(){
   current++;
-  if(current >= levels.length){ finishGame(); return; }
+  if(current>=levels.length){ finishGame(); return; }
   renderLevel();
 }
-
 function finishGame(){
   els.finishScreen.classList.add('active');
-  els.finalScore.textContent = score;
-  els.finalBadges.innerHTML = '';
+  els.finalScore.textContent=score;
+  els.finalBadges.innerHTML='';
   wonLevels.forEach(b=>{
     const s=document.createElement('span');
     s.className='badge earned';
     s.style.display='inline-flex';
     s.style.margin='6px';
-    s.textContent = b;
+    s.textContent=b;
     els.finalBadges.appendChild(s);
   });
-  let msg = 'Great work! You understand how governments function.';
-  if(score >= 135) msg = 'Excellent! You are a Government Code Master.';
-  else if(score < 105) msg = 'Keep exploring the world of governance.';
-  els.finalMessage.textContent = msg;
+  let msg='Great work! You understand how governments function.';
+  if(score>=135) msg='Excellent! You are a Government Code Master.';
+  else if(score<105) msg='Keep exploring the world of governance.';
+  els.finalMessage.textContent=msg;
   playSound(els.clapSound);
   showConfetti(30);
 }
-
 function clearAnswer(){
   if(locked) return;
   [...els.answerRow.children].forEach(s=>{
-    if(s.dataset.letter) dropBackToBank(s.dataset.letter);
+    if(s.dataset.letter) returnTile(s.dataset.letter);
     s.textContent='';
     s.classList.remove('filled');
     delete s.dataset.letter;
   });
 }
-
 els.showInstructionsBtn.addEventListener('click', ()=>{
   els.splashScreen.classList.add('hidden');
   els.instructionsScreen.classList.remove('hidden');
@@ -580,8 +553,8 @@ els.checkBtn.addEventListener('click', checkAnswer);
 els.clearBtn.addEventListener('click', clearAnswer);
 els.nextBtn.addEventListener('click', nextLevel);
 els.restartBtn.addEventListener('click', ()=>{
-  score = 0; current = 0; attempts = 2; wonLevels = []; locked = false;
-  els.score.textContent = '0';
+  score=0; current=0; attempts=2; wonLevels=[]; locked=false;
+  els.score.textContent='0';
   els.finishScreen.classList.remove('active');
   renderBadges();
   renderCollection();
@@ -589,8 +562,8 @@ els.restartBtn.addEventListener('click', ()=>{
 });
 els.playAgainBtn.addEventListener('click', ()=>{
   els.finishScreen.classList.remove('active');
-  score = 0; current = 0; attempts = 2; wonLevels = []; locked = false;
-  els.score.textContent = '0';
+  score=0; current=0; attempts=2; wonLevels=[]; locked=false;
+  els.score.textContent='0';
   renderBadges();
   renderCollection();
   renderLevel();
