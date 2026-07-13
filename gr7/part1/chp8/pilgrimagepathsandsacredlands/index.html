@@ -1,1 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Sacred or Not? Classification Challenge</title>
+<style>
+  :root{
+    --bg1:#fff3d6; --bg2:#f7e7c4; --card:#ffffff; --ink:#2e2a22;
+    --green:#2e9e56; --red:#d84a4a; --teal:#147f86; --orange:#d57a2a; --shadow:0 10px 24px rgba(0,0,0,.14);
+    --natural:#1c8f5a; --built:#c86a2b; --global:#126b7a;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:var(--ink);min-height:100vh;overflow-x:hidden}
+  .wrap{max-width:1200px;margin:0 auto;padding:12px}
+  .top{display:flex;align-items:center;gap:14px;justify-content:space-between;flex-wrap:wrap;background:rgba(255,255,255,.55);backdrop-filter:blur(6px);border:2px solid rgba(0,0,0,.05);border-radius:20px;padding:12px 14px;box-shadow:var(--shadow)}
+  .brand{display:flex;align-items:center;gap:12px;min-width:220px}
+  .brand img{width:62px;height:62px;object-fit:contain;border-radius:14px;background:#fff;padding:6px;box-shadow:0 6px 14px rgba(0,0,0,.1)}
+  .brand h1{font-size:clamp(18px,2.6vw,28px);margin:0;line-height:1.1}
+  .brand p{margin:4px 0 0;font-size:13px;opacity:.8}
+  .hud{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:flex-end}
+  .pill{background:#fff;border-radius:999px;padding:9px 14px;box-shadow:0 6px 16px rgba(0,0,0,.08);border:1px solid rgba(0,0,0,.06);font-weight:700}
+  .btn{border:0;border-radius:16px;padding:12px 16px;font-weight:800;font-size:15px;cursor:pointer;box-shadow:var(--shadow)}
+  .btn.primary{background:#164e63;color:#fff}
+  .btn.light{background:#fff;color:var(--ink)}
+  .screen{display:none}
+  .screen.active{display:block}
+  .hero{margin-top:14px;background:rgba(255,255,255,.7);border-radius:24px;padding:18px;box-shadow:var(--shadow);border:2px solid rgba(0,0,0,.05)}
+  .hero h2{margin:0 0 8px;font-size:clamp(22px,3.2vw,40px)}
+  .hero p{margin:0 0 14px;max-width:900px;line-height:1.5;font-size:16px}
+  .game{margin-top:14px;display:grid;grid-template-columns:1.2fr 1fr;gap:14px}
+  @media (max-width: 900px){.game{grid-template-columns:1fr}}
+  .cardArea,.bins,.board{background:rgba(255,255,255,.7);border-radius:24px;box-shadow:var(--shadow);border:2px solid rgba(0,0,0,.05)}
+  .cardArea{padding:14px}
+  .cardBox{min-height:280px;border:3px dashed rgba(0,0,0,.08);border-radius:22px;padding:14px;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(180deg,#fff,#fffaf1)}
+  .card{background:linear-gradient(180deg,#fff,#fffdf8);border-radius:22px;padding:18px;border:3px solid #f1dcc0;box-shadow:0 10px 20px rgba(0,0,0,.08);cursor:grab;user-select:none;touch-action:none}
+  .card:active{cursor:grabbing}
+  .card h3{margin:0 0 10px;font-size:clamp(22px,3vw,32px)}
+  .clue{font-size:16px;line-height:1.55;background:#fff8e8;border-left:6px solid #e0ad49;padding:12px 14px;border-radius:14px}
+  .nameReveal{margin-top:12px;font-weight:900;font-size:17px;color:#0f5e44;display:none}
+  .status{margin-top:12px;font-weight:800;font-size:15px;min-height:24px}
+  .bins{padding:14px}
+  .binsGrid{display:grid;grid-template-columns:1fr;gap:12px}
+  .bin{min-height:150px;border-radius:22px;padding:14px;border:3px solid transparent;position:relative;overflow:hidden}
+  .bin h4{margin:0 0 8px;font-size:20px;color:#fff;display:flex;align-items:center;gap:8px}
+  .bin p{margin:0;color:rgba(255,255,255,.95);font-size:13px;line-height:1.45}
+  .bin .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .chip{background:rgba(255,255,255,.95);border-radius:999px;padding:7px 11px;font-size:12px;font-weight:800;box-shadow:0 4px 10px rgba(0,0,0,.12)}
+  .natural{background:linear-gradient(135deg,#2aa96a,#147f86)}
+  .built{background:linear-gradient(135deg,#d8842f,#c85c3f)}
+  .global{background:linear-gradient(135deg,#2e78a8,#2d4f8b)}
+  .bin.drop{transform:scale(1.01);filter:brightness(1.08)}
+  .bin.correctGlow{box-shadow:0 0 0 4px rgba(46,158,86,.35), var(--shadow)}
+  .bin.wrongGlow{box-shadow:0 0 0 4px rgba(216,74,74,.35), var(--shadow)}
+  .board{padding:14px;display:flex;flex-direction:column;gap:12px}
+  .progressWrap{height:18px;background:#efe1c8;border-radius:999px;overflow:hidden}
+  .progressBar{height:100%;width:0;background:linear-gradient(90deg,#2e9e56,#1f8f8f)}
+  .small{font-size:13px;opacity:.8}
+  .finish{display:none;position:fixed;inset:0;background:rgba(15,15,15,.4);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:16px}
+  .finish.active{display:flex}
+  .finishCard{max-width:560px;width:100%;background:#fff;border-radius:28px;padding:24px;box-shadow:0 24px 60px rgba(0,0,0,.25);text-align:center}
+  .finishCard h2{margin:0 0 8px;font-size:34px}
+  .finishCard p{margin:0 0 18px;font-size:17px;line-height:1.5}
+  .overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(255,245,220,.95),rgba(248,231,200,.94));z-index:20;padding:20px}
+  .overlay.hidden{display:none}
+  .overlayBox{max-width:700px;text-align:center;background:#fff;border-radius:30px;padding:26px;box-shadow:0 24px 60px rgba(0,0,0,.18)}
+  .overlayBox img{width:96px;height:96px;object-fit:contain}
+  .overlayBox h2{margin:12px 0 8px;font-size:34px}
+  .overlayBox p{margin:0 0 18px;line-height:1.5}
+  .shake{animation:shake .35s linear}
+  @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-4px)}40%{transform:translateX(4px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+  .pop{animation:pop .3s ease}
+  @keyframes pop{0%{transform:scale(.9)}100%{transform:scale(1)}}
+  .floating{position:fixed;pointer-events:none;z-index:30;font-size:34px;animation:floatUp 900ms ease-out forwards}
+  @keyframes floatUp{from{transform:translateY(0) scale(1);opacity:1}to{transform:translateY(-120px) scale(1.4);opacity:0}}
+</style>
+</head>
+<body>
+<div class="overlay" id="startOverlay">
+  <div class="overlayBox">
+    <img src="gr7/part1/chp8/pilgrimagepathsandsacredlands/assets/logo.png" alt="logo" />
+    <h2>Sacred or Not?</h2>
+    <p>Read each clue, drag the card into the correct sacred category, and reveal the answer after you drop it.</p>
+    <button class="btn primary" id="startBtn">Start Game</button>
+  </div>
+</div>
 
+<div class="wrap">
+  <div class="top">
+    <div class="brand">
+      <img src="gr7/part1/chp8/pilgrimagepathsandsacredlands/assets/logo.png" alt="logo" />
+      <div>
+        <h1>Sacred or Not? Classification Challenge</h1>
+        <p>Drag the clue card into the correct bin.</p>
+      </div>
+    </div>
+    <div class="hud">
+      <div class="pill">Score: <span id="score">0</span></div>
+      <div class="pill">Card: <span id="index">0</span>/<span id="total">14</span></div>
+      <div class="pill">Wrong: <span id="wrongCount">0</span></div>
+      <button class="btn light" id="restartBtn">Restart</button>
+    </div>
+  </div>
+
+  <div class="game screen active">
+    <div class="cardArea">
+      <div class="cardBox">
+        <div id="card" class="card" draggable="true" aria-grabbed="false">
+          <h3 id="cardTitle">Clue Card</h3>
+          <div class="clue" id="cardClue"></div>
+          <div class="nameReveal" id="nameReveal"></div>
+          <div class="status" id="status"></div>
+        </div>
+        <div class="small">Tip: Drag the card and drop it on a bin below.</div>
+      </div>
+    </div>
+
+    <div class="board">
+      <div class="progressWrap"><div class="progressBar" id="progressBar"></div></div>
+      <div class="bins">
+        <div class="binsGrid">
+          <div class="bin natural" data-category="natural" id="bin-natural">
+            <h4>🌿 Sacred Natural Landscapes</h4>
+            <p>Rivers, mountains, glaciers, forests, and other sacred natural places.</p>
+            <div class="chips" id="chips-natural"></div>
+          </div>
+          <div class="bin built" data-category="built" id="bin-built">
+            <h4>🏛️ Sacred Built Spaces</h4>
+            <p>Temples, caves, shrines, dargahs, monasteries, and other human-made sacred spaces.</p>
+            <div class="chips" id="chips-built"></div>
+          </div>
+          <div class="bin global" data-category="global" id="bin-global">
+            <h4>🌏 Sacred Places Beyond India</h4>
+            <p>Sacred places located outside India that are important to people worldwide.</p>
+            <div class="chips" id="chips-global"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="finish" id="finish">
+  <div class="finishCard">
+    <h2>Great job!</h2>
+    <p>You finished the classification challenge. Your score and the collected sacred places are shown below.</p>
+    <div class="pill" style="display:inline-block;margin-bottom:14px;">Final Score: <span id="finalScore">0</span>/14</div><br/>
+    <button class="btn primary" id="playAgain">Play Again</button>
+  </div>
+</div>
+
+<audio id="correctSound" src="gr7/part1/chp8/pilgrimagepathsandsacredlands/assets/correct.mp3" preload="auto"></audio>
+<audio id="wrongSound" src="gr7/part1/chp8/pilgrimagepathsandsacredlands/assets/wrong.mp3" preload="auto"></audio>
+<audio id="clapSound" src="gr7/part1/chp8/pilgrimagepathsandsacredlands/assets/freesound_community-claps-44774.mp3" preload="auto"></audio>
+
+<script>
+const cards = [
+  {name:'River Ganga', category:'natural', clue:'For thousands of years, this river has held deep spiritual importance in Indian culture. Many people consider it a divine river and believe that its waters have the power to purify the soul. Pilgrims from different parts of India travel to cities like Haridwar, Varanasi and Prayagraj to perform rituals, take holy baths and collect its water. However, despite its sacred status, this river faces challenges due to pollution caused by waste, sewage and human activities.'},
+  {name:'Mount Kailash', category:'natural', clue:'Rising high in Tibet, this mountain is considered one of the most sacred natural sites in Asia. It holds spiritual importance for followers of Hinduism, Buddhism, Jainism and the Bon tradition. Many believe that this mountain is the abode of Lord Shiva, while others associate it with important spiritual figures and beliefs. Devotees undertake a difficult journey around the mountain, known as parikrama, as an act of faith and devotion.'},
+  {name:'Gangotri Glacier', category:'natural', clue:'Located in the Himalayan region of Uttarakhand, this glacier is considered sacred because it is the source of the River Ganga. For centuries, pilgrims have visited this region believing that the waters flowing from this glacier carry spiritual purity. Apart from its religious importance, the glacier also plays an important role in supporting rivers, agriculture and communities. Today, it faces threats due to rising temperatures, melting ice and environmental changes.'},
+  {name:'Sacred Groves of Meghalaya', category:'natural', clue:'Hidden within forests of Meghalaya are special patches of land protected by local communities for generations. People believe these forests are connected with spirits, ancestors or divine powers. Because of these beliefs, activities like cutting trees and disturbing wildlife are often forbidden. These traditions have helped conserve rare plants, animals and biodiversity even before modern conservation methods existed.'},
+  {name:'Narmada River', category:'natural', clue:'Flowing through central India, this river is considered sacred by many communities. According to traditional beliefs, the river is connected with Lord Shiva and is believed to have spiritual significance. Some devotees undertake a long journey called Narmada Parikrama, where they walk around the river as a mark of devotion. The river is respected not only for religious reasons but also for supporting human settlements and ecosystems.'},
+  {name:'Badrinath Temple', category:'built', clue:'Located among the Himalayan mountains of Uttarakhand, this temple is an important destination for Hindu pilgrims. Dedicated to Lord Vishnu, it is one of the four major pilgrimage centres known as the Char Dham. Due to heavy snowfall, the temple remains open only during certain months of the year. Thousands of devotees visit this place every year to seek blessings and experience its spiritual importance.'},
+  {name:'Jagannath Temple, Puri', category:'built', clue:'Situated on the eastern coast of India in Odisha, this ancient temple is dedicated to Lord Jagannath, a form of Lord Krishna. It is famous for the annual Rath Yatra festival, where huge wooden chariots carrying the deities are pulled through the streets by thousands of devotees. The temple represents not only religious faith but also a long tradition of community participation and cultural celebration.'},
+  {name:'Golden Temple', category:'built', clue:'Located in Amritsar, Punjab, this famous Sikh shrine is known for its golden structure surrounded by a sacred pool. It is not only a place of worship but also a centre of service and equality. The tradition of langar, where free meals are prepared and served to thousands of people every day, reflects the Sikh values of sharing, kindness and community service.'},
+  {name:'Ajanta Caves', category:'built', clue:'Hidden in the hills of Maharashtra, these rock-cut caves contain some of India\'s finest examples of ancient Buddhist art. Monks used these caves as places for meditation, learning and spiritual practice. The beautiful paintings and sculptures inside these caves show how architecture and art were used to create spaces of devotion and reflection.'},
+  {name:'Nizamuddin Dargah', category:'built', clue:'Located in Delhi, this sacred place is associated with the famous Sufi saint Hazrat Nizamuddin Auliya. People from different communities visit this shrine to offer prayers and experience its peaceful atmosphere. The gatherings of qawwali music, prayers and shared traditions show how sacred places can become spaces where culture, music and spirituality come together.'},
+  {name:'Mount Fuji', category:'global', clue:'Located in Japan, this famous mountain is admired not only for its natural beauty but also for its spiritual importance. In Shinto traditions, it is considered a sacred place connected with nature and spiritual harmony. Many people climb the mountain as a meaningful journey and see it as a symbol of strength, beauty and respect for the natural world.'},
+  {name:'Mecca', category:'global', clue:'Located in Saudi Arabia, this city is considered the holiest place in Islam. Millions of Muslims from around the world travel here every year as part of the Hajj pilgrimage. The journey represents devotion, unity and equality, as people from different countries gather together for a common spiritual purpose.'},
+  {name:'Jerusalem', category:'global', clue:'This ancient city holds deep spiritual importance for three major religions: Judaism, Christianity and Islam. It contains several important religious sites visited by pilgrims from around the world. Over centuries, the city has remained a place where history, faith and cultural traditions come together.'},
+  {name:'Mount Athos', category:'global', clue:'Located in Greece, this mountainous region is known for its ancient monasteries and spiritual traditions. For centuries, it has been an important centre of Orthodox Christian monastic life. The combination of natural surroundings, religious practices and cultural heritage has made this region a significant sacred landscape.'}
+];
+
+const els = {
+  score: document.getElementById('score'), wrongCount: document.getElementById('wrongCount'), index: document.getElementById('index'), total: document.getElementById('total'),
+  progressBar: document.getElementById('progressBar'), card: document.getElementById('card'), cardTitle: document.getElementById('cardTitle'), cardClue: document.getElementById('cardClue'),
+  nameReveal: document.getElementById('nameReveal'), status: document.getElementById('status'), finish: document.getElementById('finish'), finalScore: document.getElementById('finalScore'),
+  startOverlay: document.getElementById('startOverlay'), startBtn: document.getElementById('startBtn'), restartBtn: document.getElementById('restartBtn'), playAgain: document.getElementById('playAgain'),
+  correctSound: document.getElementById('correctSound'), wrongSound: document.getElementById('wrongSound'), clapSound: document.getElementById('clapSound')
+};
+
+let order=[], current=0, score=0, wrong=0, locked=false;
+const bins = [...document.querySelectorAll('.bin')];
+const chipMap = {natural: document.getElementById('chips-natural'), built: document.getElementById('chips-built'), global: document.getElementById('chips-global')};
+
+function shuffle(a){ return a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(v=>v[1]); }
+function resetGame(){
+  order = shuffle(cards.slice()); current=0; score=0; wrong=0; locked=false;
+  els.score.textContent = score; els.wrongCount.textContent = wrong; els.total.textContent = order.length; els.index.textContent = 0; els.progressBar.style.width='0%';
+  els.finish.classList.remove('active');
+  Object.values(chipMap).forEach(el=>el.innerHTML='');
+  loadCard();
+}
+function loadCard(){
+  locked=false;
+  const c = order[current];
+  if(!c){ finishGame(); return; }
+  els.card.classList.remove('shake','pop');
+  els.card.dataset.answer = c.category;
+  els.card.dataset.name = c.name;
+  els.card.setAttribute('draggable','true');
+  els.card.style.opacity='1';
+  els.cardTitle.textContent = 'Clue Card';
+  els.cardClue.textContent = c.clue;
+  els.nameReveal.style.display = 'none';
+  els.nameReveal.textContent = '';
+  els.status.textContent = 'Drag this card into the correct category.';
+  els.index.textContent = current+1;
+  els.progressBar.style.width = `${(current/order.length)*100}%`;
+}
+function playSound(a){ try{ a.currentTime=0; a.play().catch(()=>{}); }catch(e){} }
+function floatEmoji(text,x,y){ const d=document.createElement('div'); d.className='floating'; d.textContent=text; d.style.left=x+'px'; d.style.top=y+'px'; document.body.appendChild(d); setTimeout(()=>d.remove(),900); }
+function reveal(){ els.nameReveal.style.display='block'; els.nameReveal.textContent='Answer: ' + order[current].name; }
+function handleDrop(cat, bin){
+  if(locked) return;
+  locked=true;
+  const c = order[current];
+  reveal();
+  if(cat===c.category){
+    score++;
+    els.score.textContent=score;
+    els.status.textContent='Correct! ' + c.name + ' belongs here.';
+    playSound(els.correctSound);
+    playSound(els.clapSound);
+    bin.classList.add('correctGlow','pop');
+    floatEmoji('🎉', window.innerWidth*0.5, window.innerHeight*0.45);
+    addChip(cat, c.name);
+  } else {
+    wrong++;
+    els.wrongCount.textContent=wrong;
+    els.status.textContent='Not quite. ' + c.name + ' belongs in the correct category highlighted in green.';
+    playSound(els.wrongSound);
+    bin.classList.add('wrongGlow','shake');
+    const correctBin = document.querySelector('.bin[data-category="'+c.category+'"]');
+    correctBin.classList.add('correctGlow');
+    addChip(c.category, c.name);
+  }
+  els.card.setAttribute('draggable','false');
+  setTimeout(()=>{
+    bins.forEach(b=>b.classList.remove('correctGlow','wrongGlow','drop','shake','pop'));
+    current++;
+    if(current>=order.length) finishGame();
+    else loadCard();
+  }, 1800);
+}
+function addChip(cat,name){
+  const s=document.createElement('span');
+  s.className='chip';
+  s.textContent=name;
+  chipMap[cat].appendChild(s);
+}
+function finishGame(){
+  els.progressBar.style.width='100%';
+  els.finalScore.textContent = score;
+  els.finish.classList.add('active');
+  playSound(els.clapSound);
+}
+
+els.startBtn.addEventListener('click', ()=>{ els.startOverlay.classList.add('hidden'); resetGame(); });
+els.restartBtn.addEventListener('click', resetGame);
+els.playAgain.addEventListener('click', ()=>{ els.finish.classList.remove('active'); resetGame(); });
+
+els.card.addEventListener('dragstart', e=>{
+  if(locked) {e.preventDefault(); return;}
+  e.dataTransfer.setData('text/plain', els.card.dataset.answer);
+  e.dataTransfer.effectAllowed='move';
+  setTimeout(()=>els.card.style.opacity='.55', 0);
+});
+els.card.addEventListener('dragend', ()=>{ els.card.style.opacity='1'; });
+
+bins.forEach(bin=>{
+  bin.addEventListener('dragover', e=>{ e.preventDefault(); if(!locked) bin.classList.add('drop'); });
+  bin.addEventListener('dragleave', ()=>bin.classList.remove('drop'));
+  bin.addEventListener('drop', e=>{
+    e.preventDefault();
+    bin.classList.remove('drop');
+    handleDrop(e.dataTransfer.getData('text/plain'), bin);
+  });
+});
+
+// Touch-friendly fallback for mobile/tablet browsers.
+let pointerDown=false, startX=0, startY=0, dragging=false;
+els.card.addEventListener('pointerdown', e=>{
+  if(locked) return;
+  pointerDown=true;
+  startX=e.clientX; startY=e.clientY;
+  els.card.setPointerCapture(e.pointerId);
+});
+els.card.addEventListener('pointermove', e=>{
+  if(!pointerDown || locked) return;
+  const dx=e.clientX-startX, dy=e.clientY-startY;
+  if(Math.hypot(dx,dy)>8) dragging=true;
+  if(dragging){
+    els.card.style.transform=`translate(${dx}px, ${dy}px) rotate(${dx/25}deg)`;
+  }
+});
+els.card.addEventListener('pointerup', e=>{
+  if(locked) return;
+  const x=e.clientX, y=e.clientY;
+  els.card.style.transform='';
+  pointerDown=false;
+  if(dragging){
+    const hit = document.elementFromPoint(x,y);
+    const bin = hit && hit.closest && hit.closest('.bin');
+    if(bin) handleDrop(els.card.dataset.answer, bin);
+  }
+  dragging=false;
+});
+</script>
+</body>
+</html>
