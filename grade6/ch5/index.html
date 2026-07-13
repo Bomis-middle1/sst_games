@@ -1,1 +1,1100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#7a3f1d" />
+  <title>Bharat Discovery Trail</title>
+  <style>
+    :root{
+      --ink:#2f271f;
+      --paper:#fffaf0;
+      --paper-2:#f5e7cc;
+      --saffron:#d96b27;
+      --saffron-dark:#a94717;
+      --indigo:#294d73;
+      --river:#2f8fb3;
+      --river-soft:#dff4fb;
+      --green:#2f7d55;
+      --green-soft:#e7f5ed;
+      --red:#b83b38;
+      --red-soft:#fde8e7;
+      --gold:#d8ad47;
+      --brown:#70452b;
+      --shadow:0 20px 48px rgba(67,43,25,.18);
+    }
 
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color:var(--ink);
+      background:
+        radial-gradient(circle at 8% 12%, rgba(217,107,39,.12), transparent 28%),
+        radial-gradient(circle at 90% 88%, rgba(47,143,179,.12), transparent 31%),
+        linear-gradient(135deg,#f9f0de,#efe1c5);
+      overflow-x:hidden;
+    }
+
+    button{font:inherit}
+    button:focus-visible{outline:4px solid rgba(47,143,179,.35);outline-offset:3px}
+
+    .screen{
+      min-height:100vh;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:22px;
+    }
+    .screen.active{display:flex}
+
+    #splash{background:#fff}
+    #splash img{
+      width:min(360px,72vw);
+      max-height:230px;
+      object-fit:contain;
+      animation:logoIn .75s ease both;
+    }
+    @keyframes logoIn{
+      from{opacity:0;transform:scale(.94)}
+      to{opacity:1;transform:scale(1)}
+    }
+
+    .panel{
+      width:min(1080px,100%);
+      background:rgba(255,250,240,.97);
+      border:1px solid rgba(112,69,43,.17);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+
+    .welcome-grid{
+      display:grid;
+      grid-template-columns:1.02fr .98fr;
+      min-height:640px;
+    }
+
+    .welcome-copy{
+      padding:54px 52px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+    }
+
+    .eyebrow{
+      margin:0 0 12px;
+      color:var(--indigo);
+      font-weight:900;
+      font-size:.82rem;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+    }
+
+    h1{
+      margin:0;
+      color:#5d321d;
+      font-family:Georgia, "Times New Roman", serif;
+      font-size:clamp(2.5rem,5vw,4.7rem);
+      line-height:.98;
+    }
+
+    .subtitle{
+      margin:20px 0 28px;
+      max-width:590px;
+      color:#65574c;
+      font-size:1.12rem;
+      line-height:1.65;
+    }
+
+    .instructions{
+      display:grid;
+      gap:12px;
+      margin-bottom:32px;
+    }
+
+    .instruction{
+      display:flex;
+      gap:12px;
+      align-items:flex-start;
+      line-height:1.45;
+    }
+
+    .instruction span:first-child{
+      flex:0 0 31px;
+      width:31px;
+      height:31px;
+      display:grid;
+      place-items:center;
+      border-radius:50%;
+      background:#f9dfbd;
+    }
+
+    .primary{
+      align-self:flex-start;
+      border:0;
+      border-radius:14px;
+      padding:14px 24px;
+      background:var(--saffron);
+      color:#fff;
+      font-weight:900;
+      cursor:pointer;
+      box-shadow:0 9px 0 var(--saffron-dark);
+      transition:transform .15s ease, box-shadow .15s ease;
+    }
+    .primary:hover{transform:translateY(-2px);box-shadow:0 11px 0 var(--saffron-dark)}
+    .primary:active{transform:translateY(5px);box-shadow:0 4px 0 var(--saffron-dark)}
+
+    .heritage-stage{
+      position:relative;
+      min-height:460px;
+      padding:38px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+      background:
+        linear-gradient(rgba(255,255,255,.07),rgba(255,255,255,.07)),
+        repeating-linear-gradient(0deg, transparent 0 45px, rgba(82,48,27,.055) 46px 47px),
+        linear-gradient(150deg,#d9b36f,#bd7f3f);
+    }
+
+    .heritage-stage::before,
+    .heritage-stage::after{
+      content:"";
+      position:absolute;
+      border-radius:50%;
+      background:rgba(255,255,255,.12);
+    }
+    .heritage-stage::before{width:310px;height:310px;right:-120px;top:-110px}
+    .heritage-stage::after{width:220px;height:220px;left:-90px;bottom:-70px}
+
+    .parchment{
+      position:relative;
+      width:min(430px,96%);
+      min-height:500px;
+      border-radius:30px 30px 45px 45px;
+      background:
+        linear-gradient(rgba(255,255,255,.16),rgba(255,255,255,.04)),
+        #f2ddb1;
+      border:8px solid rgba(104,65,36,.40);
+      box-shadow:0 24px 45px rgba(70,42,24,.30), inset 0 0 0 4px rgba(255,255,255,.20);
+      overflow:hidden;
+    }
+
+    .parchment::before,
+    .parchment::after{
+      content:"";
+      position:absolute;
+      left:18px;
+      right:18px;
+      height:22px;
+      border-radius:50%;
+      background:rgba(111,69,43,.23);
+      filter:blur(3px);
+    }
+    .parchment::before{top:-10px}
+    .parchment::after{bottom:-10px}
+
+    .mountains{
+      position:absolute;
+      top:38px;
+      left:44px;
+      font-size:58px;
+      animation:mountainGlow 3.3s ease-in-out infinite;
+    }
+    @keyframes mountainGlow{
+      0%,100%{filter:drop-shadow(0 0 0 rgba(255,255,255,0))}
+      50%{filter:drop-shadow(0 0 10px rgba(255,255,255,.65))}
+    }
+
+    .ocean{
+      position:absolute;
+      left:0;
+      right:0;
+      bottom:15px;
+      height:76px;
+      overflow:hidden;
+    }
+    .wave{
+      position:absolute;
+      left:-15%;
+      width:130%;
+      height:24px;
+      border-radius:50%;
+      border-top:7px solid rgba(47,143,179,.72);
+      animation:waveMove 3s linear infinite;
+    }
+    .wave:nth-child(1){bottom:34px}
+    .wave:nth-child(2){bottom:17px;animation-delay:-1s}
+    .wave:nth-child(3){bottom:0;animation-delay:-2s}
+    @keyframes waveMove{
+      from{transform:translateX(-18px)}
+      to{transform:translateX(18px)}
+    }
+
+    .river{
+      position:absolute;
+      top:105px;
+      left:145px;
+      width:112px;
+      height:300px;
+      border-radius:50%;
+      border-left:13px solid rgba(47,143,179,.78);
+      transform:rotate(-9deg);
+      animation:riverPulse 2.8s ease-in-out infinite;
+    }
+    .river::after{
+      content:"";
+      position:absolute;
+      left:-7px;
+      top:115px;
+      width:115px;
+      height:120px;
+      border-radius:50%;
+      border-bottom:12px solid rgba(47,143,179,.78);
+      transform:rotate(26deg);
+    }
+    @keyframes riverPulse{
+      0%,100%{filter:drop-shadow(0 0 2px rgba(47,143,179,.2))}
+      50%{filter:drop-shadow(0 0 10px rgba(47,143,179,.55))}
+    }
+
+    .heritage-icon{
+      position:absolute;
+      z-index:3;
+      filter:drop-shadow(0 8px 6px rgba(0,0,0,.18));
+      user-select:none;
+    }
+    .pillar{font-size:72px;right:50px;top:80px}
+    .university{font-size:70px;left:52px;bottom:92px}
+    .lion{font-size:66px;right:42px;bottom:92px}
+    .farmer{font-size:54px;left:55px;top:165px}
+
+    .name-scroll{
+      position:absolute;
+      left:50%;
+      top:47%;
+      transform:translate(-50%,-50%);
+      width:210px;
+      min-height:190px;
+      padding:22px 20px;
+      border-radius:12px;
+      background:#fff4d7;
+      border:3px solid rgba(111,69,43,.34);
+      box-shadow:0 12px 25px rgba(74,44,24,.17);
+      text-align:center;
+      font-family:Georgia,serif;
+      font-weight:800;
+      color:#6f3f22;
+    }
+    .name-scroll div{
+      margin:6px 0;
+      opacity:0;
+      transform:translateY(7px);
+      animation:nameReveal 6s ease-in-out infinite;
+    }
+    .name-scroll div:nth-child(2){animation-delay:1.2s}
+    .name-scroll div:nth-child(3){animation-delay:2.4s}
+    .name-scroll div:nth-child(4){animation-delay:3.6s}
+    @keyframes nameReveal{
+      0%,14%{opacity:0;transform:translateY(7px)}
+      22%,78%{opacity:1;transform:translateY(0)}
+      88%,100%{opacity:0;transform:translateY(-4px)}
+    }
+
+    /* Game */
+    #game{align-items:flex-start;padding-top:28px;padding-bottom:28px}
+    .game-shell{width:min(1180px,100%)}
+
+    .topbar{
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:18px;
+      align-items:center;
+      margin-bottom:18px;
+    }
+
+    .progress-wrap{
+      background:rgba(255,250,240,.80);
+      border:1px solid rgba(112,69,43,.17);
+      border-radius:18px;
+      padding:12px 14px;
+      box-shadow:0 7px 20px rgba(68,43,25,.10);
+    }
+
+    .progress-label{
+      display:flex;
+      justify-content:space-between;
+      margin-bottom:8px;
+      color:#665548;
+      font-size:.82rem;
+      font-weight:900;
+    }
+
+    .progress-track{
+      height:12px;
+      border-radius:999px;
+      background:#e7d8bb;
+      overflow:hidden;
+    }
+
+    .progress-fill{
+      width:0;
+      height:100%;
+      border-radius:inherit;
+      background:linear-gradient(90deg,var(--saffron),var(--gold),var(--river));
+      transition:width .4s ease;
+    }
+
+    .score-chip{
+      min-width:132px;
+      padding:14px 18px;
+      border-radius:18px;
+      background:var(--indigo);
+      color:#fff;
+      text-align:center;
+      font-weight:900;
+      box-shadow:0 7px 20px rgba(41,77,115,.22);
+    }
+
+    .game-grid{
+      display:grid;
+      grid-template-columns:310px 1fr;
+      gap:20px;
+      align-items:stretch;
+    }
+
+    .journey{
+      min-height:635px;
+      position:relative;
+      overflow:hidden;
+      padding:28px 22px;
+      border-radius:25px;
+      background:
+        linear-gradient(rgba(255,255,255,.10),rgba(255,255,255,.10)),
+        repeating-linear-gradient(0deg,transparent 0 45px,rgba(73,50,35,.055) 46px 47px),
+        #d9b676;
+      border:1px solid rgba(112,69,43,.17);
+      box-shadow:var(--shadow);
+    }
+
+    .journey h2{
+      margin:0 0 8px;
+      color:#5d321d;
+      text-align:center;
+      font-family:Georgia,serif;
+      font-size:1.35rem;
+    }
+
+    .journey p{
+      margin:0;
+      color:#6b5748;
+      text-align:center;
+      font-size:.9rem;
+    }
+
+    .route{
+      position:absolute;
+      top:112px;
+      bottom:42px;
+      left:50%;
+      width:10px;
+      transform:translateX(-50%);
+      border-radius:99px;
+      background:rgba(41,77,115,.18);
+      overflow:hidden;
+    }
+
+    .route-fill{
+      position:absolute;
+      left:0;
+      bottom:0;
+      width:100%;
+      height:0;
+      border-radius:99px;
+      background:linear-gradient(0deg,var(--river),var(--gold),var(--saffron));
+      transition:height .45s ease;
+    }
+
+    .route-nodes{
+      position:absolute;
+      inset:120px 0 47px;
+      display:flex;
+      flex-direction:column-reverse;
+      align-items:center;
+      justify-content:space-between;
+      pointer-events:none;
+    }
+
+    .node{
+      width:37px;
+      height:37px;
+      display:grid;
+      place-items:center;
+      border-radius:50%;
+      background:#f7e9cb;
+      border:4px solid rgba(73,50,35,.28);
+      font-size:18px;
+      transition:transform .35s ease, background .35s ease, border-color .35s ease;
+    }
+
+    .node.done{
+      transform:scale(1.11);
+      background:#ffe0ac;
+      border-color:var(--saffron-dark);
+    }
+
+    .traveller{
+      position:absolute;
+      left:calc(50% + 28px);
+      bottom:41px;
+      z-index:4;
+      font-size:44px;
+      transition:bottom .45s ease;
+      filter:drop-shadow(0 7px 4px rgba(0,0,0,.18));
+    }
+
+    .question-panel{
+      min-height:635px;
+      padding:34px;
+      display:flex;
+      flex-direction:column;
+      border-radius:25px;
+      background:rgba(255,250,240,.98);
+      border:1px solid rgba(112,69,43,.17);
+      box-shadow:var(--shadow);
+    }
+
+    .chapter-tag{
+      align-self:flex-start;
+      margin:0 0 18px;
+      padding:7px 12px;
+      border-radius:999px;
+      background:#e7f1f7;
+      color:var(--indigo);
+      font-size:.78rem;
+      font-weight:900;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+    }
+
+    .question-text{
+      margin:0 0 22px;
+      color:#4e2f1d;
+      font-family:Georgia, "Times New Roman", serif;
+      font-size:clamp(1.32rem,2.1vw,1.86rem);
+      line-height:1.42;
+      white-space:pre-line;
+    }
+
+    .options{
+      display:grid;
+      gap:13px;
+      margin-top:auto;
+    }
+
+    .option{
+      width:100%;
+      padding:15px 17px;
+      border:2px solid #dfcfb5;
+      border-radius:16px;
+      background:#fffdf7;
+      color:var(--ink);
+      text-align:left;
+      line-height:1.42;
+      font-weight:750;
+      cursor:pointer;
+      transition:transform .15s ease,border-color .15s ease,box-shadow .15s ease,background .15s ease;
+    }
+
+    .option:hover:not(:disabled){
+      transform:translateY(-2px);
+      border-color:#c38c5f;
+      box-shadow:0 7px 14px rgba(73,50,35,.10);
+    }
+
+    .option:disabled{cursor:default}
+    .option.correct{
+      background:var(--green-soft);
+      border-color:var(--green);
+      color:#1e5f3f;
+    }
+    .option.wrong{
+      background:var(--red-soft);
+      border-color:var(--red);
+      color:#8b2927;
+    }
+    .option.used{opacity:.72}
+
+    .feedback{
+      min-height:61px;
+      margin-top:18px;
+      padding:13px 15px;
+      display:flex;
+      align-items:center;
+      border-radius:15px;
+      line-height:1.42;
+      font-weight:750;
+      visibility:hidden;
+    }
+    .feedback.show{visibility:visible}
+    .feedback.good{background:var(--green-soft);color:#1e5f3f}
+    .feedback.try{background:#fff1cf;color:#795314}
+    .feedback.reveal{background:#eaf3f7;color:#294f62}
+
+    .next{
+      align-self:flex-end;
+      margin-top:14px;
+      display:none;
+    }
+    .next.show{display:inline-block}
+
+    /* Final */
+    .final-card{
+      width:min(820px,100%);
+      padding:48px 34px;
+      text-align:center;
+      border-radius:28px;
+      background:rgba(255,250,240,.98);
+      border:1px solid rgba(112,69,43,.17);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      position:relative;
+    }
+
+    .final-card::before{
+      content:"";
+      position:absolute;
+      inset:-40px;
+      pointer-events:none;
+      background:
+        radial-gradient(circle at 20% 25%, rgba(217,107,39,.12), transparent 18%),
+        radial-gradient(circle at 80% 30%, rgba(47,143,179,.12), transparent 18%),
+        radial-gradient(circle at 50% 90%, rgba(216,173,71,.13), transparent 22%);
+    }
+
+    .final-content{position:relative;z-index:2}
+    .final-icon{
+      font-size:82px;
+      animation:emblemRise 1.1s ease both;
+    }
+    @keyframes emblemRise{
+      from{opacity:0;transform:translateY(18px) scale(.9)}
+      to{opacity:1;transform:translateY(0) scale(1)}
+    }
+
+    .final-card h2{
+      margin:12px 0 8px;
+      color:#5d321d;
+      font-family:Georgia,serif;
+      font-size:clamp(2.25rem,5vw,3.8rem);
+    }
+
+    .result{
+      max-width:620px;
+      margin:10px auto 24px;
+      color:#625348;
+      font-size:1.1rem;
+      line-height:1.6;
+    }
+
+    .seal-row{
+      display:flex;
+      justify-content:center;
+      gap:12px;
+      flex-wrap:wrap;
+      margin:24px 0 32px;
+    }
+
+    .seal{
+      padding:11px 14px;
+      border-radius:13px;
+      background:#f8dfb4;
+      color:#65451f;
+      font-weight:900;
+    }
+
+    @media(max-width:860px){
+      .welcome-grid,.game-grid{grid-template-columns:1fr}
+      .heritage-stage{min-height:430px}
+      .journey{min-height:190px;padding:22px}
+      .route{
+        top:auto;
+        left:42px;
+        right:42px;
+        bottom:54px;
+        width:auto;
+        height:10px;
+        transform:none;
+      }
+      .route-fill{
+        left:0;
+        bottom:0;
+        width:0;
+        height:100%;
+      }
+      .route-nodes{
+        inset:auto 42px 41px;
+        flex-direction:row;
+      }
+      .traveller{
+        left:32px;
+        bottom:73px!important;
+        transition:left .45s ease;
+      }
+      .question-panel{min-height:570px}
+    }
+
+    @media(max-width:590px){
+      .screen{padding:12px}
+      .welcome-copy{padding:38px 25px}
+      .heritage-stage{padding:22px}
+      .parchment{min-height:420px}
+      .mountains{font-size:48px;left:28px}
+      .pillar{font-size:60px;right:24px}
+      .university{font-size:58px;left:22px}
+      .lion{font-size:55px;right:20px}
+      .farmer{font-size:45px;left:25px}
+      .name-scroll{width:180px;min-height:165px}
+      .question-panel{padding:24px 18px}
+      .topbar{grid-template-columns:1fr}
+      .score-chip{justify-self:stretch}
+      .journey{display:none}
+    }
+
+    @media(prefers-reduced-motion:reduce){
+      *,*::before,*::after{
+        animation:none!important;
+        transition:none!important;
+        scroll-behavior:auto!important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <section id="splash" class="screen active" aria-label="Innovine">
+    <img src="assets/innovine-logo.png" alt="Innovine logo" />
+  </section>
+
+  <section id="welcome" class="screen">
+    <div class="panel welcome-grid">
+      <div class="welcome-copy">
+        <p class="eyebrow">Grade 6 • Social Science</p>
+        <h1>Bharat Discovery Trail</h1>
+        <p class="subtitle">Follow rivers, ancient names, centres of learning, inscriptions, and national symbols to explore how India’s identity developed through time.</p>
+
+        <div class="instructions" aria-label="How to play">
+          <div class="instruction"><span>🧭</span><span>Choose the best answer to move across the heritage trail.</span></div>
+          <div class="instruction"><span>✌️</span><span>You get two chances for each challenge.</span></div>
+          <div class="instruction"><span>🦁</span><span>Complete every checkpoint to unlock the Bharat Heritage Seal.</span></div>
+        </div>
+
+        <button id="startBtn" class="primary">Begin the Trail</button>
+      </div>
+
+      <div class="heritage-stage" aria-hidden="true">
+        <div class="parchment">
+          <div class="mountains">🏔️</div>
+          <div class="river"></div>
+          <div class="heritage-icon pillar">🪨</div>
+          <div class="heritage-icon university">🏛️</div>
+          <div class="heritage-icon lion">🦁</div>
+          <div class="heritage-icon farmer">🧑‍🌾</div>
+
+          <div class="name-scroll">
+            <div>Jambudvīpa</div>
+            <div>Sapta Sindhava</div>
+            <div>Bhāratavarṣha</div>
+            <div>India</div>
+          </div>
+
+          <div class="ocean">
+            <div class="wave"></div>
+            <div class="wave"></div>
+            <div class="wave"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <main id="game" class="screen">
+    <div class="game-shell">
+      <div class="topbar">
+        <div class="progress-wrap">
+          <div class="progress-label">
+            <span>Heritage trail</span>
+            <span id="progressText">Begin</span>
+          </div>
+          <div class="progress-track" aria-hidden="true">
+            <div id="progressFill" class="progress-fill"></div>
+          </div>
+        </div>
+        <div id="scoreChip" class="score-chip">Score: 0</div>
+      </div>
+
+      <div class="game-grid">
+        <aside class="journey" aria-label="Journey progress">
+          <h2>Path of Bharat</h2>
+          <p>Each completed challenge reveals another part of the story.</p>
+          <div class="route"><div id="routeFill" class="route-fill"></div></div>
+          <div id="routeNodes" class="route-nodes"></div>
+          <div id="traveller" class="traveller" aria-hidden="true">🧭</div>
+        </aside>
+
+        <section class="question-panel">
+          <div class="chapter-tag">India, That Is Bharat</div>
+          <h2 id="questionText" class="question-text"></h2>
+          <div id="options" class="options"></div>
+          <div id="feedback" class="feedback" role="status" aria-live="polite"></div>
+          <button id="nextBtn" class="primary next">Continue</button>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <section id="final" class="screen">
+    <div class="final-card">
+      <div class="final-content">
+        <div class="final-icon" aria-hidden="true">🦁</div>
+        <h2>Heritage Seal Unlocked!</h2>
+        <p id="finalResult" class="result"></p>
+        <div class="seal-row">
+          <span class="seal">River Explorer</span>
+          <span class="seal">Source Detective</span>
+          <span class="seal">Bharat Historian</span>
+        </div>
+        <button id="replayBtn" class="primary">Play Again</button>
+      </div>
+    </div>
+  </section>
+
+  <audio id="correctSound" preload="auto" src="assets/correct.mp3"></audio>
+  <audio id="wrongSound" preload="auto" src="assets/wrong.mp3"></audio>
+  <audio id="clapSound" preload="auto" src="assets/freesound_community-claps-44774.mp3"></audio>
+
+  <script>
+    const questionBank = [
+      {
+        q: `During a museum visit, a guide tells students that the same country has been known by different names throughout history, such as Bhāratavarṣha, Jambudvīpa, Hind, and India.
+
+What does this suggest about India?`,
+        options: [
+          "India had different locations in history.",
+          "India's identity developed through different cultures and historical periods.",
+          "Every ruler created a new country.",
+          "The names were used for different continents."
+        ],
+        answer: "India's identity developed through different cultures and historical periods.",
+        explanation: "The different names reflect the many cultures, languages, and historical periods through which India’s identity developed."
+      },
+      {
+        q: `A farmer settles near a group of rivers because the land is fertile and crops grow well.
+
+Which ancient name best describes such a region?`,
+        options: ["Jambudvīpa","Bharatavarsha","Sapta Sindhava","Hind"],
+        answer: "Sapta Sindhava",
+        explanation: "Sapta Sindhava refers to the land of seven rivers, a region associated with fertile river valleys."
+      },
+      {
+        q: `A historian explains that many early settlements developed near rivers.
+
+Why were rivers so important to ancient communities?`,
+        options: [
+          "They helped people grow crops and settle permanently.",
+          "They prevented people from travelling.",
+          "They created deserts.",
+          "They reduced trade."
+        ],
+        answer: "They helped people grow crops and settle permanently.",
+        explanation: "Rivers supplied water, fertile soil, food, and routes for movement, making permanent settlement possible."
+      },
+      {
+        q: `Scientists have used satellite images and geological studies to trace the possible course of the ancient Sarasvati River. Many believe that changes in climate and movements inside the Earth caused the river to dry up.
+
+Why did scientists use modern technology to study the Sarasvati River?`,
+        options: [
+          "To discover possible evidence of its ancient course.",
+          "To build new dams.",
+          "To increase rainfall.",
+          "To create new rivers."
+        ],
+        answer: "To discover possible evidence of its ancient course.",
+        explanation: "Satellite images and geological studies can reveal buried channels and other clues about where an ancient river may have flowed."
+      },
+      {
+        q: `Scientists believe that changes in climate and movements inside the Earth caused the Sarasvati River to dry up.
+
+What was one likely effect of the river drying up?`,
+        options: [
+          "More volcanoes formed.",
+          "Some settlements declined and people moved elsewhere.",
+          "Oceans became smaller.",
+          "New mountain ranges appeared."
+        ],
+        answer: "Some settlements declined and people moved elsewhere.",
+        explanation: "When a major water source disappeared, some communities would have struggled to farm and live there, leading to migration."
+      },
+      {
+        q: `A student reads an ancient text describing a land stretching between the snowy mountains and the ocean.
+
+Which ancient name is being described?`,
+        options: ["Persia","Bharatavarsha","Mesopotamia","Gandhara"],
+        answer: "Bharatavarsha",
+        explanation: "Bharatavarsha was used for the broad land lying between the Himalayas and the surrounding ocean."
+      },
+      {
+        q: `While visiting an archaeological site, students see an inscription carved on a rock by Emperor Ashoka.
+
+Why are such inscriptions valuable to historians?`,
+        options: [
+          "They provide direct evidence from the past.",
+          "They predict future events.",
+          "They replace all history books.",
+          "They only describe battles."
+        ],
+        answer: "They provide direct evidence from the past.",
+        explanation: "Ashokan inscriptions are primary sources created during the period and preserve direct messages from the past."
+      },
+      {
+        q: `A student wants to study medicine, mathematics, astronomy, and philosophy at one place in ancient India.
+
+Which centre of learning would have been the best choice?`,
+        options: ["Nalanda (during a later period)","Taxila","Hampi","Sarnath"],
+        answer: "Taxila",
+        explanation: "Taxila was an important ancient centre of learning where students studied many different subjects."
+      },
+      {
+        q: `A student visits the new Parliament building and notices a sculpture of four lions standing back-to-back. The guide explains that it is based on an ancient monument.
+
+Why was this symbol chosen as India's National Emblem?`,
+        options: [
+          "It represents India's history, unity, and strength.",
+          "It was the tallest sculpture in ancient India.",
+          "It marks the beginning of the Silk Road.",
+          "It was created by the Greeks."
+        ],
+        answer: "It represents India's history, unity, and strength.",
+        explanation: "The Lion Capital connects modern India with Ashoka’s legacy and symbolises confidence, unity, and strength."
+      },
+      {
+        q: `A history club is preparing an exhibition on symbols that connect ancient India with modern India.
+
+Which object would BEST represent this connection?`,
+        options: [
+          "Roman coins found at Arikamedu",
+          "The Lion Capital of Ashoka",
+          "The Bimaran Casket",
+          "Stone tools from the Stone Age"
+        ],
+        answer: "The Lion Capital of Ashoka",
+        explanation: "The Lion Capital is an ancient monument that continues in modern India as the National Emblem."
+      }
+    ];
+
+    const screens = {
+      splash: document.getElementById("splash"),
+      welcome: document.getElementById("welcome"),
+      game: document.getElementById("game"),
+      final: document.getElementById("final")
+    };
+
+    const startBtn = document.getElementById("startBtn");
+    const replayBtn = document.getElementById("replayBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const questionText = document.getElementById("questionText");
+    const optionsBox = document.getElementById("options");
+    const feedback = document.getElementById("feedback");
+    const progressFill = document.getElementById("progressFill");
+    const progressText = document.getElementById("progressText");
+    const scoreChip = document.getElementById("scoreChip");
+    const routeFill = document.getElementById("routeFill");
+    const routeNodes = document.getElementById("routeNodes");
+    const traveller = document.getElementById("traveller");
+
+    const correctSound = document.getElementById("correctSound");
+    const wrongSound = document.getElementById("wrongSound");
+    const clapSound = document.getElementById("clapSound");
+
+    let questions = [];
+    let index = 0;
+    let score = 0;
+    let attempts = 0;
+    let locked = false;
+
+    function showScreen(name){
+      Object.values(screens).forEach(screen => screen.classList.remove("active"));
+      screens[name].classList.add("active");
+    }
+
+    function shuffle(list){
+      const arr = [...list];
+      for(let i = arr.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function safePlay(audio){
+      audio.currentTime = 0;
+      audio.play().catch(() => {});
+    }
+
+    function buildRoute(){
+      routeNodes.innerHTML = "";
+      const icons = ["🌊","🌾","🏔️","🪨","🏛️","📜","🦁","🧭","📚","🔓"];
+      questions.forEach((_, i) => {
+        const node = document.createElement("div");
+        node.className = "node";
+        node.textContent = icons[i % icons.length];
+        node.setAttribute("aria-hidden","true");
+        routeNodes.appendChild(node);
+      });
+    }
+
+    function updateJourney(){
+      const completed = index;
+      const percent = questions.length ? (completed / questions.length) * 100 : 0;
+
+      progressFill.style.width = percent + "%";
+      progressText.textContent = completed === 0 ? "Begin" : completed === questions.length ? "Complete" : "Keep exploring";
+      scoreChip.textContent = `Score: ${score}`;
+
+      [...routeNodes.children].forEach((node, i) => {
+        node.classList.toggle("done", i < completed);
+      });
+
+      if(window.innerWidth <= 860 && window.innerWidth > 590){
+        routeFill.style.width = percent + "%";
+        routeFill.style.height = "100%";
+        traveller.style.left = `calc(32px + ${Math.min(percent,100)}% * .80)`;
+      }else{
+        routeFill.style.height = percent + "%";
+        routeFill.style.width = "100%";
+        traveller.style.bottom = `calc(41px + ${Math.min(percent,100)}% * 4.85)`;
+      }
+    }
+
+    function beginGame(){
+      questions = shuffle(questionBank).map(item => ({
+        ...item,
+        options: shuffle(item.options)
+      }));
+
+      index = 0;
+      score = 0;
+      attempts = 0;
+      locked = false;
+
+      showScreen("game");
+      buildRoute();
+      updateJourney();
+      renderQuestion();
+    }
+
+    function renderQuestion(){
+      attempts = 0;
+      locked = false;
+
+      feedback.className = "feedback";
+      feedback.textContent = "";
+      nextBtn.classList.remove("show");
+      optionsBox.innerHTML = "";
+
+      const current = questions[index];
+      questionText.textContent = current.q;
+
+      current.options.forEach(optionText => {
+        const button = document.createElement("button");
+        button.className = "option";
+        button.type = "button";
+        button.textContent = optionText;
+        button.addEventListener("click", () => chooseAnswer(button, optionText));
+        optionsBox.appendChild(button);
+      });
+
+      updateJourney();
+      const firstOption = optionsBox.querySelector(".option");
+      if(firstOption) setTimeout(() => firstOption.focus({preventScroll:true}), 80);
+    }
+
+    function finishQuestion(message, type){
+      locked = true;
+      optionsBox.querySelectorAll(".option").forEach(button => button.disabled = true);
+      feedback.textContent = message;
+      feedback.className = `feedback show ${type}`;
+      nextBtn.classList.add("show");
+      nextBtn.focus({preventScroll:true});
+    }
+
+    function chooseAnswer(button, selected){
+      if(locked || button.disabled) return;
+
+      attempts += 1;
+      const current = questions[index];
+
+      if(selected === current.answer){
+        button.classList.add("correct");
+        score += attempts === 1 ? 10 : 5;
+        safePlay(correctSound);
+        finishQuestion(`Correct! ${current.explanation}`, "good");
+        return;
+      }
+
+      button.classList.add("wrong","used");
+      button.disabled = true;
+      safePlay(wrongSound);
+
+      if(attempts === 1){
+        feedback.textContent = "Not quite. Use the historical clue and try once more.";
+        feedback.className = "feedback show try";
+      }else{
+        finishQuestion(`The best answer is “${current.answer}” ${current.explanation}`, "reveal");
+      }
+    }
+
+    function nextStep(){
+      index += 1;
+      updateJourney();
+
+      if(index >= questions.length){
+        finishGame();
+      }else{
+        renderQuestion();
+      }
+    }
+
+    function finishGame(){
+      progressFill.style.width = "100%";
+      routeFill.style.height = "100%";
+
+      const maximum = questions.length * 10;
+      const percentage = Math.round((score / maximum) * 100);
+
+      let message = "You followed the rivers, names, centres of learning, inscriptions, and symbols that shaped the story of Bharat.";
+      if(percentage >= 85){
+        message = "Outstanding work! You connected ancient evidence with the continuing identity of modern India.";
+      }else if(percentage >= 65){
+        message = "Great work! You identified important rivers, sources, centres of learning, and national symbols confidently.";
+      }
+
+      document.getElementById("finalResult").textContent =
+        `${message} Your score is ${score} out of ${maximum}.`;
+
+      showScreen("final");
+      safePlay(clapSound);
+    }
+
+    nextBtn.addEventListener("click", nextStep);
+    startBtn.addEventListener("click", beginGame);
+    replayBtn.addEventListener("click", beginGame);
+    window.addEventListener("resize", updateJourney);
+
+    setTimeout(() => showScreen("welcome"), 5000);
+  </script>
+</body>
+</html>
