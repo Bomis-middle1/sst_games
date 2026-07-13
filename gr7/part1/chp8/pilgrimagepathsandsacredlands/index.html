@@ -10,8 +10,6 @@
     --bg2:#f7e7c4;
     --ink:#2e2a22;
     --shadow:0 10px 24px rgba(0,0,0,.14);
-    --green:#2e9e56;
-    --red:#d84a4a;
   }
   *{box-sizing:border-box}
   body{
@@ -130,7 +128,7 @@
 
 <div class="overlay" id="splash">
   <div class="overlayBox">
-    <img src="gr7/part1/chp8/pilgrimagepathsandsacredlands/assets/logo.png" alt="Logo">
+    <img src="assets/logo.png" alt="Logo">
     <h2>Sacred or Not?</h2>
     <p>Welcome to the classification game.</p>
     <div class="instructions">
@@ -209,9 +207,9 @@
   </div>
 </div>
 
-<audio id="correctSound" src="gr7/part1/chp8/pilgrimagepathsandsacredlands/assets/correct.mp3" preload="auto"></audio>
-<audio id="wrongSound" src="gr7/part1/chp8/pilgrimagepathsandsacredlands/assets/wrong.mp3" preload="auto"></audio>
-<audio id="clapSound" src="gr7/part1/chp8/pilgrimagepathsandsacredlands/assets/freesound_community-claps-44774.mp3" preload="auto"></audio>
+<audio id="correctSound" src="assets/correct.mp3" preload="auto"></audio>
+<audio id="wrongSound" src="assets/wrong.mp3" preload="auto"></audio>
+<audio id="clapSound" src="assets/freesound_community-claps-44774.mp3" preload="auto"></audio>
 
 <script>
 const cards = [
@@ -252,12 +250,7 @@ const els = {
   clapSound: document.getElementById('clapSound')
 };
 
-let order = [];
-let current = 0;
-let score = 0;
-let wrong = 0;
-let locked = false;
-
+let order = [], current = 0, score = 0, wrong = 0, locked = false;
 const bins = [...document.querySelectorAll('.bin')];
 const chipMap = {
   natural: document.getElementById('chips-natural'),
@@ -265,38 +258,11 @@ const chipMap = {
   global: document.getElementById('chips-global')
 };
 
-function shuffle(a){
-  return a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(v=>v[1]);
-}
-
-function playSound(a){
-  try{
-    a.currentTime = 0;
-    a.play().catch(()=>{});
-  }catch(e){}
-}
-
-function floatEmoji(text,x,y){
-  const d = document.createElement('div');
-  d.className = 'floating';
-  d.textContent = text;
-  d.style.left = x + 'px';
-  d.style.top = y + 'px';
-  document.body.appendChild(d);
-  setTimeout(()=>d.remove(),900);
-}
-
-function addChip(cat,name){
-  const s = document.createElement('span');
-  s.className = 'chip';
-  s.textContent = name;
-  chipMap[cat].appendChild(s);
-}
-
-function reveal(){
-  els.nameReveal.style.display = 'block';
-  els.nameReveal.textContent = 'Answer: ' + order[current].name;
-}
+function shuffle(a){ return a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(v=>v[1]); }
+function playSound(a){ try{ a.currentTime=0; a.play().catch(()=>{}); }catch(e){} }
+function floatEmoji(text,x,y){ const d=document.createElement('div'); d.className='floating'; d.textContent=text; d.style.left=x+'px'; d.style.top=y+'px'; document.body.appendChild(d); setTimeout(()=>d.remove(),900); }
+function addChip(cat,name){ const s=document.createElement('span'); s.className='chip'; s.textContent=name; chipMap[cat].appendChild(s); }
+function reveal(){ els.nameReveal.style.display='block'; els.nameReveal.textContent='Answer: ' + order[current].name; }
 
 function loadCard(){
   locked = false;
@@ -370,19 +336,13 @@ function resetGame(){
   els.index.textContent = 0;
   els.progressBar.style.width = '0%';
   els.finish.classList.remove('active');
-  Object.values(chipMap).forEach(el=>el.innerHTML = '');
+  Object.values(chipMap).forEach(el => el.innerHTML = '');
   loadCard();
 }
 
-els.startGameBtn.addEventListener('click', ()=>{
-  els.splash.classList.add('hidden');
-  resetGame();
-});
+els.startGameBtn.addEventListener('click', ()=>{ els.splash.classList.add('hidden'); resetGame(); });
 els.restartBtn.addEventListener('click', resetGame);
-els.playAgain.addEventListener('click', ()=>{
-  els.finish.classList.remove('active');
-  resetGame();
-});
+els.playAgain.addEventListener('click', ()=>{ els.finish.classList.remove('active'); resetGame(); });
 
 els.card.addEventListener('dragstart', e=>{
   if(locked){ e.preventDefault(); return; }
@@ -390,9 +350,7 @@ els.card.addEventListener('dragstart', e=>{
   e.dataTransfer.effectAllowed = 'move';
   setTimeout(()=>els.card.style.opacity = '.55', 0);
 });
-els.card.addEventListener('dragend', ()=>{
-  els.card.style.opacity = '1';
-});
+els.card.addEventListener('dragend', ()=>{ els.card.style.opacity = '1'; });
 
 bins.forEach(bin=>{
   bin.addEventListener('dragover', e=>{
