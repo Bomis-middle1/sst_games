@@ -1,1 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Grade 6 SST – Landforms and Life</title>
+<style>
+*{box-sizing:border-box}
+:root{
+  --navy:#14265f;--blue:#2f72d4;--sky:#7edcff;--green:#53b96a;
+  --yellow:#ffd84b;--purple:#6a4de8;--brown:#8b603a;--orange:#ff8a28
+}
+body{
+  margin:0;font-family:Arial,Helvetica,sans-serif;min-height:100vh;overflow:hidden;color:#fff;
+  background:linear-gradient(180deg,#7ddcff 0%,#d9f6ff 37%,#8fcf77 37%,#4f9259 100%)
+}
+.screen{display:none;min-height:100vh;align-items:center;justify-content:center;padding:16px;position:relative;z-index:3}
+.active{display:flex}
+#splash{background:linear-gradient(135deg,#fff,#ebf9ff)}
+.splashBox{text-align:center}
+.splashLogo{width:min(310px,72vw);display:block;margin:auto}
+.loader{width:min(370px,76vw);height:12px;border-radius:99px;background:#d8eaff;margin:24px auto 0;overflow:hidden}
+.loader span{display:block;height:100%;width:0;background:linear-gradient(90deg,#ec58bc,#6d62ff,#28cfff);animation:load 5s linear forwards}
+@keyframes load{to{width:100%}}
+.landscape{position:fixed;inset:0;overflow:hidden;z-index:0;pointer-events:none}
+.sun{position:absolute;right:8%;top:7%;width:88px;height:88px;border-radius:50%;background:#ffd85d;box-shadow:0 0 45px #ffe999}
+.cloud{position:absolute;width:175px;height:48px;background:#ffffffc9;border-radius:50px;animation:cloudMove 24s linear infinite}
+.cloud:before,.cloud:after{content:"";position:absolute;background:#ffffffd9;border-radius:50%}
+.cloud:before{width:68px;height:68px;left:25px;top:-27px}
+.cloud:after{width:82px;height:82px;left:77px;top:-38px}
+.c1{top:11%;left:-230px}
+.c2{top:23%;left:-260px;animation-delay:9s;transform:scale(.72)}
+@keyframes cloudMove{to{transform:translateX(calc(100vw + 340px))}}
+.modal{
+  width:min(860px,94vw);background:linear-gradient(145deg,#fff,#edfaff);color:#142460;
+  border:4px solid #59d8ff;border-radius:28px;padding:28px;text-align:center;
+  box-shadow:0 22px 60px #0007;position:relative;overflow:hidden
+}
+.modal:before{content:"";position:absolute;left:0;right:0;top:0;height:12px;background:linear-gradient(90deg,#39bd69,#ffd84c,#7b4deb,#28cfff)}
+.modal h1{font-size:clamp(30px,5vw,52px);margin:10px 0 12px;color:#173178}
+.modal p{font-size:clamp(17px,2.6vw,22px);line-height:1.5}
+.btn{
+  border:0;border-radius:16px;padding:14px 24px;background:linear-gradient(135deg,#1768ef,#7447f3);
+  color:#fff;font-size:18px;font-weight:900;cursor:pointer;box-shadow:0 7px 0 #0a235d
+}
+.btn:active{transform:translateY(5px);box-shadow:0 2px 0 #0a235d}
+#game{padding:10px}
+.shell{width:min(1190px,98vw);height:min(790px,96vh);display:grid;grid-template-rows:auto auto 1fr;gap:10px}
+.top{display:grid;grid-template-columns:1fr 1.35fr 1fr;gap:10px}
+.hud{
+  background:linear-gradient(180deg,#273086,#11164e);border:3px solid #6a78ef;border-radius:22px;
+  padding:10px;text-align:center;font-weight:900;box-shadow:0 8px 20px #0005
+}
+.hud strong{display:block;color:var(--yellow);font-size:28px}
+.progress{height:13px;background:#e4f8ff;border-radius:99px;overflow:hidden;margin-top:6px}
+.progress span{display:block;height:100%;width:0;background:linear-gradient(90deg,#5be538,#efff48);transition:.3s}
+.mission{
+  background:linear-gradient(90deg,#214f75,#2f8d70);border:3px solid #73ecb0;border-radius:18px;
+  padding:10px 18px;text-align:center;font-size:clamp(17px,2.1vw,23px);font-weight:900
+}
+.main{display:grid;grid-template-columns:1.08fr .92fr;gap:12px;min-height:0}
+.panel{background:linear-gradient(145deg,#fff,#eaf8ff);border:4px solid #56d9ff;border-radius:25px;box-shadow:0 16px 30px #0005;overflow:hidden}
+.left{padding:16px;display:flex;flex-direction:column;color:#10205a}
+.qbox{
+  background:#fff;border:3px solid #6d57eb;border-radius:20px;padding:17px;min-height:155px;
+  display:flex;align-items:center;font-weight:900;font-size:clamp(17px,2vw,23px);line-height:1.4
+}
+.options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.option{
+  border:3px solid #7b4ce8;border-radius:16px;background:#fff;padding:11px;min-height:68px;
+  font-weight:900;color:#111959;text-align:left;cursor:pointer;display:flex;gap:10px;align-items:center;
+  font-size:clamp(14px,1.7vw,18px);transition:.12s
+}
+.option:nth-child(2){border-color:#31a74a}.option:nth-child(3){border-color:#3478ef}.option:nth-child(4){border-color:#ff861c}
+.option .letter{width:38px;height:38px;border-radius:50%;background:#8147e7;color:#fff;display:grid;place-items:center;flex:0 0 auto;font-size:20px}
+.option:nth-child(2) .letter{background:#28a642}.option:nth-child(3) .letter{background:#3472e8}.option:nth-child(4) .letter{background:#ff7900}
+.option.selected{background:#fff4bd;transform:scale(1.01)}
+.option.correct{background:#cbffdc;border-color:#10a257}
+.option.wrong{background:#ffd4d4;border-color:#d93434;animation:shake .3s}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.feedback{margin-top:10px;background:#18235f;color:#fff;border-radius:14px;padding:10px 14px;font-weight:900;line-height:1.35}
+.hidden{display:none!important}
+#next{margin-top:10px;align-self:center}
+.scene{position:relative;background:linear-gradient(180deg,#8adfff 0%,#d7f6ff 42%,#9dd889 42%,#4e995d 100%);min-height:400px}
+canvas{display:block;width:100%;height:100%}
+.control{position:absolute;left:15px;right:15px;bottom:15px;background:#0b2554dc;border:2px solid #73e6ff;border-radius:14px;padding:10px;text-align:center;font-weight:900}
+.resultIcons{font-size:52px;margin:10px}
+@media(max-width:800px){
+  body{overflow:auto}.screen{min-height:100svh}.shell{height:auto}.top{grid-template-columns:1fr}
+  .main{grid-template-columns:1fr}.scene{min-height:330px}.options{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
 
+<div class="landscape">
+  <div class="sun"></div>
+  <div class="cloud c1"></div>
+  <div class="cloud c2"></div>
+</div>
+
+<section id="splash" class="screen active">
+  <div class="splashBox">
+    <img class="splashLogo" src="assets/innovine-logo.png" alt="Innovine Logo">
+    <div class="loader"><span></span></div>
+  </div>
+</section>
+
+<section id="intro" class="screen">
+  <div class="modal">
+    <h1>⛰️ Landform Explorer Trail</h1>
+    <p>Travel across mountains, plateaus and plains while completing 10 exploration challenges.</p>
+    <p>You get <b>2 attempts</b> for every challenge. Correct answers help the explorer climb towards the summit camp.</p>
+    <button class="btn" onclick="startGame()">Begin Expedition</button>
+  </div>
+</section>
+
+<section id="game" class="screen">
+  <div class="shell">
+    <div class="top">
+      <div class="hud">EXPEDITION SCORE<strong id="score">0</strong></div>
+      <div class="hud">TRAIL STAGE <strong><span id="qnum">1</span> / 10</strong><div class="progress"><span id="bar"></span></div></div>
+      <div class="hud">TIME<strong id="time">60</strong></div>
+    </div>
+    <div class="mission" id="missionTitle">Landform Mission</div>
+    <div class="main">
+      <div class="panel left">
+        <div class="qbox" id="question"></div>
+        <div class="options" id="options"></div>
+        <div class="feedback hidden" id="feedback"></div>
+        <button id="next" class="btn hidden" onclick="nextQuestion()">Next Trail Stage</button>
+      </div>
+      <div class="panel scene">
+        <canvas id="sceneCanvas"></canvas>
+        <div class="control" id="status">Choose an answer to help the explorer move forward.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="result" class="screen">
+  <div class="modal">
+    <h1>Expedition Complete!</h1>
+    <div class="resultIcons">⛰️ 🥾 🏕️</div>
+    <p style="font-size:28px;font-weight:900">Final Score: <span id="final">0</span>/100</p>
+    <p>You completed all Landforms and Life challenges.</p>
+    <button class="btn" onclick="startGame()">Explore Again</button>
+  </div>
+</section>
+
+<audio id="correct" src="assets/correct.mp3"></audio>
+<audio id="wrong" src="assets/wrong.mp3"></audio>
+<audio id="clap" src="assets/freesound_community-claps-44774.mp3"></audio>
+
+<script>
+const questions=[
+{title:"Plateau Discovery",q:"Rohan is travelling across India. First, he sees a very tall area with steep slopes. Later, he reaches a large flat area that is much higher than the surrounding land. Which landform has he reached second?",o:["Plain","Plateau","Valley","Desert"],a:1,e:"A plateau is a large, flat area of land raised above the surrounding region."},
+{title:"Settlement Planning",q:"A family wants to build a large housing colony with schools, hospitals and wide roads. They also want enough land for farming nearby. Which landform would be the best choice?",o:["High mountains","Plains","Rocky cliffs","Desert"],a:1,e:"Plains provide broad, level land suitable for settlements, farming and transport."},
+{title:"Mountain River Mission",q:"A village at the foot of a mountain receives fresh water throughout the year from a nearby river. Where does most of this river water come from?",o:["Underground caves only","Melting snow and glaciers on the mountain","Ocean waves","Desert rainfall"],a:1,e:"Snow and glaciers melt in mountain regions and feed many rivers."},
+{title:"High-Altitude Challenge",q:"A group of trekkers notices that it becomes colder as they climb higher, and fewer trees are seen near the top. Why does this happen?",o:["The air becomes thinner and temperatures decrease with height.","More sunlight reaches the mountain top.","The soil becomes wetter.","Strong winds plant fewer trees."],a:0,e:"At higher altitudes, air is thinner and temperature decreases, so vegetation becomes sparse."},
+{title:"Hill or Mountain?",q:"A student compares two landforms. Landform A has steep slopes and a sharp peak. Landform B has gentle slopes and a rounded top. Which statement is correct?",o:["Both are mountains.","A is a hill and B is a mountain.","A is a mountain and B is a hill.","Both are plateaus."],a:2,e:"Mountains usually have steep slopes and sharp peaks, while hills are lower with gentler slopes."},
+{title:"Mountain Range Record",q:"A student reads: Andes – 7,000 km; Rockies – 4,800 km; Great Dividing Range – 3,500 km; Himalayas – 2,400 km. Which mountain range stretches the longest?",o:["Himalayas","Rockies","Andes","Great Dividing Range"],a:2,e:"At 7,000 km, the Andes is the longest range in the table."},
+{title:"Highest Peak Mission",q:"A mountaineer is choosing the highest peak from this list: Mount Everest – 8,848 m; Kanchenjunga – 8,586 m; Mount Kilimanjaro – 5,895 m; Mont Blanc – 4,810 m. Which mountain should the climber choose?",o:["Kanchenjunga","Mount Kilimanjaro","Mount Everest","Mont Blanc"],a:2,e:"Mount Everest is the highest listed peak at 8,848 metres."},
+{title:"Mineral Industry Mission",q:"A company wants to set up an iron and steel factory. It needs a place where minerals such as iron ore and coal are available nearby. Which landform is the best choice?",o:["Plains","Plateaus","Mountains","Islands"],a:1,e:"Plateaus are often rich in mineral resources such as iron ore and coal."},
+{title:"Plateau Economy",q:"Meera visits a plateau where she sees grazing animals, grasslands and several mines. Which activity is most likely to support the local economy?",o:["Deep-sea fishing","Mining and grazing","Ice climbing","Shipbuilding"],a:1,e:"Plateaus often support mining and animal grazing because of mineral deposits and grasslands."},
+{title:"Farming and Transport",q:"A farmer wants to grow wheat on fertile land with enough water for irrigation. He also wants to transport the crops easily to nearby markets. Which landform is most suitable?",o:["Plateau","Mountain","Plain","Glacier"],a:2,e:"Plains are fertile, well-watered and easier for farming, roads and transport."}
+];
+
+let order=[],index=0,score=0,attempts=0,locked=false,timer,left=60;
+let trailProgress=0;
+let explorer={p:0,target:0,moving:false};
+const letters=["A","B","C","D"];
+const cvs=document.getElementById("sceneCanvas");
+const ctx=cvs.getContext("2d");
+
+setTimeout(()=>show("intro"),5000);
+
+function show(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  if(id==="game")setTimeout(resize,50);
+}
+
+function startGame(){
+  order=[...questions.keys()].sort(()=>Math.random()-.5);
+  index=0;score=0;trailProgress=0;
+  explorer={p:0,target:0,moving:false};
+  document.getElementById("score").textContent="0";
+  show("game");
+  loadQuestion();
+}
+
+function loadQuestion(){
+  clearInterval(timer);
+  attempts=0;locked=false;left=60;
+  document.getElementById("time").textContent=left;
+  document.getElementById("next").classList.add("hidden");
+  document.getElementById("feedback").classList.add("hidden");
+  document.getElementById("status").textContent="Choose an answer to help the explorer move forward.";
+  document.getElementById("qnum").textContent=index+1;
+  document.getElementById("bar").style.width=(index/questions.length*100)+"%";
+
+  const d=questions[order[index]];
+  document.getElementById("missionTitle").textContent=d.title;
+  document.getElementById("question").textContent=d.q;
+
+  const options=document.getElementById("options");
+  options.innerHTML="";
+  d.o.forEach((t,i)=>{
+    const b=document.createElement("button");
+    b.className="option";
+    b.innerHTML=`<span class="letter">${letters[i]}</span><span>${t}</span>`;
+    b.onclick=()=>pick(b,i);
+    options.appendChild(b);
+  });
+
+  explorer.moving=false;
+
+  timer=setInterval(()=>{
+    left--;
+    document.getElementById("time").textContent=left;
+    if(left<=0){
+      clearInterval(timer);
+      reveal("Time is up.");
+    }
+  },1000);
+}
+
+function pick(el,i){
+  if(locked)return;
+
+  document.querySelectorAll(".option").forEach(x=>x.classList.remove("selected"));
+  el.classList.add("selected");
+
+  const d=questions[order[index]];
+  const feedback=document.getElementById("feedback");
+  feedback.classList.remove("hidden");
+
+  if(i===d.a){
+    locked=true;
+    clearInterval(timer);
+    el.classList.add("correct");
+    score+=10;
+    document.getElementById("score").textContent=score;
+    feedback.textContent="Correct! "+d.e;
+    document.getElementById("status").textContent="Correct! The explorer is climbing towards the highest peak.";
+    play("correct");
+    setTimeout(()=>play("clap"),250);
+
+    trailProgress=Math.min(1,trailProgress+1/questions.length);
+    explorer.target=trailProgress;
+    explorer.moving=true;
+
+    confetti();
+    setTimeout(()=>document.getElementById("next").classList.remove("hidden"),900);
+  }else{
+    attempts++;
+    el.classList.add("wrong");
+    play("wrong");
+    document.getElementById("status").textContent="The trail is blocked. Check the clue and try again.";
+
+    if(attempts<2){
+      feedback.textContent="Try again. One more chance!";
+    }else{
+      reveal("Second attempt over.");
+    }
+  }
+}
+
+function reveal(msg){
+  locked=true;
+  clearInterval(timer);
+
+  const d=questions[order[index]];
+  document.querySelectorAll(".option").forEach((x,i)=>{
+    if(i===d.a)x.classList.add("correct");
+  });
+
+  const feedback=document.getElementById("feedback");
+  feedback.classList.remove("hidden");
+  feedback.textContent=msg+" "+d.e;
+  document.getElementById("status").textContent="Correct path revealed. Continue to the next trail stage.";
+  document.getElementById("next").classList.remove("hidden");
+}
+
+function nextQuestion(){
+  index++;
+  if(index>=questions.length){
+    document.getElementById("final").textContent=score;
+    show("result");
+  }else{
+    loadQuestion();
+  }
+}
+
+function play(id){
+  const a=document.getElementById(id);
+  a.currentTime=0;
+  a.play().catch(()=>{});
+}
+
+function confetti(){
+  for(let i=0;i<20;i++){
+    const p=document.createElement("i");
+    p.style.cssText=`position:fixed;z-index:20;left:${Math.random()*100}vw;top:-12px;width:9px;height:14px;background:hsl(${Math.random()*360} 90% 60%);animation:fall ${1+Math.random()}s linear forwards`;
+    document.body.appendChild(p);
+    setTimeout(()=>p.remove(),2200);
+  }
+}
+const extraStyle=document.createElement("style");
+extraStyle.textContent="@keyframes fall{to{transform:translateY(105vh) rotate(700deg);opacity:0}}";
+document.head.appendChild(extraStyle);
+
+function resize(){
+  const r=cvs.parentElement.getBoundingClientRect();
+  const dpr=window.devicePixelRatio||1;
+  cvs.width=Math.max(1,Math.floor(r.width*dpr));
+  cvs.height=Math.max(1,Math.floor(r.height*dpr));
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+
+window.addEventListener("resize",resize);
+
+function draw(){
+  const dpr=window.devicePixelRatio||1;
+  const w=cvs.width/dpr;
+  const h=cvs.height/dpr;
+
+  if(w<=1||h<=1){
+    requestAnimationFrame(draw);
+    return;
+  }
+
+  ctx.clearRect(0,0,w,h);
+  const t=Date.now()/1000;
+
+  // Sky
+  const sky=ctx.createLinearGradient(0,0,0,h);
+  sky.addColorStop(0,"#76d9ff");
+  sky.addColorStop(.48,"#dff8ff");
+  sky.addColorStop(.49,"#8bcf79");
+  sky.addColorStop(1,"#4e9359");
+  ctx.fillStyle=sky;
+  ctx.fillRect(0,0,w,h);
+
+  // Sun
+  ctx.fillStyle="#ffd95c";
+  ctx.beginPath();
+  ctx.arc(w*.83,h*.14,32,0,Math.PI*2);
+  ctx.fill();
+
+  // Natural layered mountain silhouettes
+  drawMountainLayer([
+    [0,h*.60],[w*.12,h*.46],[w*.22,h*.57],[w*.34,h*.34],
+    [w*.46,h*.56],[w*.60,h*.29],[w*.73,h*.52],[w*.85,h*.38],[w,h*.58]
+  ],"#b4bdc8");
+
+  drawMountainLayer([
+    [0,h*.68],[w*.10,h*.55],[w*.20,h*.61],[w*.31,h*.43],
+    [w*.42,h*.64],[w*.55,h*.40],[w*.66,h*.60],[w*.79,h*.45],[w,h*.66]
+  ],"#8793a4");
+
+  drawMountainLayer([
+    [0,h*.76],[w*.12,h*.66],[w*.24,h*.72],[w*.37,h*.54],
+    [w*.50,h*.73],[w*.64,h*.51],[w*.77,h*.70],[w*.90,h*.56],[w,h*.72]
+  ],"#667486");
+
+  // Snow caps on the two tallest peaks
+  drawSnowCap(w*.34,h*.34,28,18);
+  drawSnowCap(w*.60,h*.29,34,21);
+
+  // Plateau on the left
+  ctx.fillStyle="#95683f";
+  ctx.beginPath();
+  ctx.moveTo(0,h*.76);
+  ctx.lineTo(w*.20,h*.68);
+  ctx.lineTo(w*.39,h*.68);
+  ctx.lineTo(w*.48,h);
+  ctx.lineTo(0,h);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle="#6eb96a";
+  ctx.beginPath();
+  ctx.moveTo(0,h*.73);
+  ctx.lineTo(w*.20,h*.65);
+  ctx.lineTo(w*.39,h*.65);
+  ctx.lineTo(w*.41,h*.70);
+  ctx.lineTo(0,h*.80);
+  ctx.closePath();
+  ctx.fill();
+
+  // Plain on right
+  ctx.fillStyle="#79bf6b";
+  ctx.fillRect(w*.39,h*.73,w*.61,h*.27);
+
+  // Clearly visible climbing trail
+  ctx.strokeStyle="#d2a16f";
+  ctx.lineWidth=12;
+  ctx.lineCap="round";
+  ctx.beginPath();
+  ctx.moveTo(w*.08,h*.89);
+  ctx.bezierCurveTo(w*.30,h*.80,w*.47,h*.84,w*.56,h*.66);
+  ctx.bezierCurveTo(w*.59,h*.54,w*.60,h*.40,w*.60,h*.30);
+  ctx.stroke();
+
+  // Summit tent and flag placed on the highest mountain peak
+  drawTent(w*.60,h*.27);
+
+  // Smooth explorer movement after each correct answer
+  if(explorer.moving){
+    explorer.p += (explorer.target-explorer.p)*.055;
+    if(Math.abs(explorer.target-explorer.p)<.004){
+      explorer.p=explorer.target;
+      explorer.moving=false;
+    }
+  }
+
+  const pt=trailPoint(explorer.p,w,h);
+  drawExplorer(pt.x,pt.y+Math.sin(t*4)*1.5);
+
+  requestAnimationFrame(draw);
+}
+
+function drawMountainLayer(points,color){
+  ctx.fillStyle=color;
+  ctx.beginPath();
+  ctx.moveTo(points[0][0],points[0][1]);
+  for(let i=1;i<points.length;i++) ctx.lineTo(points[i][0],points[i][1]);
+  ctx.lineTo(cvs.width/(window.devicePixelRatio||1),cvs.height/(window.devicePixelRatio||1));
+  ctx.lineTo(0,cvs.height/(window.devicePixelRatio||1));
+  ctx.closePath();
+  ctx.fill();
+}
+
+function drawSnowCap(x,y,wid,hei){
+  ctx.fillStyle="#eefaff";
+  ctx.beginPath();
+  ctx.moveTo(x,y);
+  ctx.lineTo(x-wid*.55,y+hei);
+  ctx.lineTo(x-wid*.18,y+hei*.68);
+  ctx.lineTo(x,y+hei*.95);
+  ctx.lineTo(x+wid*.20,y+hei*.65);
+  ctx.lineTo(x+wid*.58,y+hei);
+  ctx.closePath();
+  ctx.fill();
+}
+
+function trailPoint(p,w,h){
+  if(p<.58){
+    const u=p/.58;
+    return {
+      x:w*(.08+.48*u),
+      y:h*(.89-.23*u+Math.sin(u*Math.PI)*.025)
+    };
+  }
+  const u=(p-.58)/.42;
+  return {
+    x:w*(.56+.04*u),
+    y:h*(.66-.36*u)
+  };
+}
+
+function drawTent(x,y){
+  ctx.fillStyle="#ff7c38";
+  ctx.beginPath();
+  ctx.moveTo(x-26,y+28);
+  ctx.lineTo(x,y-10);
+  ctx.lineTo(x+26,y+28);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle="#6f3d24";
+  ctx.beginPath();
+  ctx.moveTo(x,y-10);
+  ctx.lineTo(x+26,y+28);
+  ctx.lineTo(x+5,y+28);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.strokeStyle="#4f3320";
+  ctx.lineWidth=3;
+  ctx.beginPath();
+  ctx.moveTo(x,y-10);
+  ctx.lineTo(x,y+28);
+  ctx.stroke();
+
+  ctx.strokeStyle="#5a3b24";
+  ctx.beginPath();
+  ctx.moveTo(x+22,y-18);
+  ctx.lineTo(x+22,y+20);
+  ctx.stroke();
+
+  ctx.fillStyle="#ffdc49";
+  ctx.fillRect(x+22,y-16,25,12);
+}
+
+function drawExplorer(x,y){
+  ctx.save();
+  ctx.translate(x,y);
+
+  // backpack
+  ctx.fillStyle="#f3a13b";
+  ctx.fillRect(-15,-15,8,17);
+
+  // body
+  ctx.fillStyle="#2468d3";
+  ctx.fillRect(-8,-19,16,24);
+
+  // head
+  ctx.fillStyle="#f2c39d";
+  ctx.beginPath();
+  ctx.arc(0,-29,9,0,Math.PI*2);
+  ctx.fill();
+
+  // cap
+  ctx.fillStyle="#e44e3d";
+  ctx.beginPath();
+  ctx.arc(0,-33,10,Math.PI,Math.PI*2);
+  ctx.fill();
+  ctx.fillRect(0,-34,9,3);
+
+  // legs
+  ctx.strokeStyle="#2f2a28";
+  ctx.lineWidth=4;
+  ctx.beginPath();
+  ctx.moveTo(-4,5);
+  ctx.lineTo(-8,19);
+  ctx.moveTo(4,5);
+  ctx.lineTo(9,19);
+  ctx.stroke();
+
+  // arms
+  ctx.beginPath();
+  ctx.moveTo(-7,-12);
+  ctx.lineTo(-15,-2);
+  ctx.moveTo(7,-12);
+  ctx.lineTo(14,-2);
+  ctx.stroke();
+
+  // walking stick
+  ctx.strokeStyle="#5a3b25";
+  ctx.lineWidth=3;
+  ctx.beginPath();
+  ctx.moveTo(14,-4);
+  ctx.lineTo(20,20);
+  ctx.stroke();
+
+  ctx.restore();
+}
+draw();
+</script>
+</body>
+</html>
