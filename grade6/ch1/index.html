@@ -1,1 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Earth & Space Explorer Mission</title>
+<style>
+*{box-sizing:border-box}
+:root{--navy:#07184a;--blue:#1368d8;--cyan:#42d8ff;--yellow:#ffd84d;--pink:#ff6ccf;--green:#43d67f}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(180deg,#07133c,#19246d 46%,#0b4c78);color:#fff;min-height:100vh;overflow:hidden}
+#stars{position:fixed;inset:0;background-image:radial-gradient(#fff 1px,transparent 1px);background-size:34px 34px;opacity:.25;animation:drift 18s linear infinite}
+@keyframes drift{to{background-position:68px 34px}}
+.screen{display:none;min-height:100vh;align-items:center;justify-content:center;padding:16px;position:relative;z-index:2}.active{display:flex}
+#splash{background:linear-gradient(135deg,#fff,#eef9ff)}
+.splashBox{text-align:center}
+.splashLogo{width:min(310px,72vw);display:block;margin:auto}
+.loader{width:min(360px,75vw);height:12px;border-radius:99px;background:#d8e9ff;margin:25px auto 0;overflow:hidden}.loader span{display:block;height:100%;width:0;background:linear-gradient(90deg,#ee57bd,#6b62ff,#2fc6ff);animation:load 5s linear forwards}@keyframes load{to{width:100%}}
+.modal{width:min(820px,94vw);background:linear-gradient(145deg,#fff,#eaf8ff);color:#10215e;border:4px solid #56d7ff;border-radius:28px;padding:28px;text-align:center;box-shadow:0 22px 60px #0008}
+.modal h1{font-size:clamp(30px,5vw,52px);margin:8px 0 12px}.modal p{font-size:clamp(17px,2.6vw,22px);line-height:1.5}
+.btn{border:0;border-radius:16px;padding:14px 24px;background:linear-gradient(135deg,#196dff,#8447ff);color:#fff;font-size:18px;font-weight:900;cursor:pointer;box-shadow:0 7px 0 #0a1956}.btn:active{transform:translateY(5px);box-shadow:0 2px 0 #0a1956}
+#game{padding:10px}
+.shell{width:min(1180px,98vw);height:min(760px,96vh);display:grid;grid-template-rows:auto auto 1fr auto;gap:10px}
+.top{display:grid;grid-template-columns:1fr 1.3fr 1fr;gap:10px}
+.hud{background:linear-gradient(180deg,#24177d,#100846);border:3px solid #6257df;border-radius:22px;padding:10px;text-align:center;font-weight:900;box-shadow:0 8px 20px #0005}
+.hud strong{display:block;color:var(--yellow);font-size:29px}.progress{height:13px;background:#dff7ff;border-radius:99px;overflow:hidden;margin-top:6px}.progress span{display:block;height:100%;width:0;background:linear-gradient(90deg,#65ef35,#f0ff46);transition:.3s}
+.mission{background:linear-gradient(90deg,#12235e,#213c9a);border:3px solid #48dcff;border-radius:18px;padding:10px 18px;text-align:center;font-size:clamp(17px,2.1vw,23px);font-weight:900}
+.main{display:grid;grid-template-columns:1.08fr .92fr;gap:12px;min-height:0}
+.panel{background:linear-gradient(145deg,#f9fdff,#e8f7ff);border:4px solid #50d7ff;border-radius:25px;box-shadow:0 16px 30px #0005;overflow:hidden}
+.left{padding:16px;display:flex;flex-direction:column;color:#101b59}
+.qbox{background:#fff;border:3px solid #7865ef;border-radius:20px;padding:17px;min-height:145px;display:flex;align-items:center;font-weight:900;font-size:clamp(17px,2vw,23px);line-height:1.4}
+.options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.option{border:3px solid #7a4be8;border-radius:16px;background:#fff;padding:11px;min-height:66px;font-weight:900;color:#111959;text-align:left;cursor:pointer;display:flex;gap:10px;align-items:center;font-size:clamp(14px,1.7vw,18px)}
+.option:nth-child(2){border-color:#31a74a}.option:nth-child(3){border-color:#3478ef}.option:nth-child(4){border-color:#ff861c}
+.option .letter{width:38px;height:38px;border-radius:50%;background:#8147e7;color:white;display:grid;place-items:center;flex:0 0 auto;font-size:20px}.option:nth-child(2) .letter{background:#28a642}.option:nth-child(3) .letter{background:#3472e8}.option:nth-child(4) .letter{background:#ff7900}
+.option.selected{background:#fff4bd;transform:scale(1.01)}.option.correct{background:#cbffdc;border-color:#10a257}.option.wrong{background:#ffd4d4;border-color:#d93434;animation:shake .3s}@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.feedback{margin-top:10px;background:#211766;color:#fff;border-radius:14px;padding:10px 14px;font-weight:900;line-height:1.35}.hidden{display:none!important}
+.scene{position:relative;background:linear-gradient(180deg,#081449,#1e2783 60%,#093f66);min-height:340px}
+canvas{display:block;width:100%;height:100%}
+.control{position:absolute;left:15px;right:15px;bottom:15px;background:#0b144fd9;border:2px solid #66ddff;border-radius:14px;padding:10px;text-align:center;font-weight:900}
+#next{margin-top:10px;align-self:center}
+.resultStars{font-size:52px;margin:10px}
+@media(max-width:780px){body{overflow:auto}.screen{min-height:100svh}.shell{height:auto}.top{grid-template-columns:1fr}.main{grid-template-columns:1fr}.scene{min-height:300px}.options{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="stars"></div>
 
+<section id="splash" class="screen active">
+ <div class="splashBox">
+  <img class="splashLogo" src="assets/innovine-logo.png" alt="Innovine Logo">
+  <div class="loader"><span></span></div>
+ </div>
+</section>
+
+<section id="intro" class="screen">
+ <div class="modal">
+  <h1>🚀 Earth & Space Explorer</h1>
+  <p>Complete 10 missions across space and Earth. Select an answer, then launch the explorer. Correct answers move the spacecraft to the next checkpoint.</p>
+  <p>You get <b>2 attempts</b> for each mission.</p>
+  <button class="btn" onclick="startGame()">Begin Mission</button>
+ </div>
+</section>
+
+<section id="game" class="screen">
+ <div class="shell">
+  <div class="top">
+   <div class="hud">MISSION SCORE<strong id="score">0</strong></div>
+   <div class="hud">CHECKPOINT <strong><span id="qnum">1</span> / 10</strong><div class="progress"><span id="bar"></span></div></div>
+   <div class="hud">TIME<strong id="time">60</strong></div>
+  </div>
+  <div class="mission" id="missionTitle">Solar System Mission</div>
+  <div class="main">
+   <div class="panel left">
+    <div class="qbox" id="question"></div>
+    <div class="options" id="options"></div>
+    <div class="feedback hidden" id="feedback"></div>
+    <button id="next" class="btn hidden" onclick="nextQuestion()">Next Mission</button>
+   </div>
+   <div class="panel scene">
+    <canvas id="sceneCanvas"></canvas>
+    <div class="control" id="status">Choose an answer to launch the explorer.</div>
+   </div>
+  </div>
+ </div>
+</section>
+
+<section id="result" class="screen">
+ <div class="modal">
+  <h1>Mission Complete!</h1>
+  <div class="resultStars">🌍 🚀 🛰️</div>
+  <p style="font-size:28px;font-weight:900">Final Score: <span id="final">0</span>/100</p>
+  <p>You completed all checkpoints in the Earth and Space Explorer mission.</p>
+  <button class="btn" onclick="startGame()">Play Again</button>
+ </div>
+</section>
+
+<audio id="wrong" src="assets/wrong.mp3"></audio>
+<audio id="clap" src="assets/freesound_community-claps-44774.mp3"></audio>
+
+<script>
+const questions=[
+{type:"space",title:"Solar System Formation",q:"Rohan watches a science video showing a huge cloud of gas and dust slowly spinning after a nearby star exploded. Later, planets begin forming around a new star. What is most likely happening?",o:["A black hole is forming.","A new solar system is being formed.","The planets are breaking apart.","A comet is entering Earth's atmosphere."],a:1,e:"A rotating cloud of gas and dust can form a new star and planets around it."},
+{type:"planet",title:"Research Station Mission",q:"Two astronauts are comparing planets for setting up a research station. One planet has liquid water, breathable air, and suitable temperatures. Which planet would be the best choice?",o:["Mercury","Venus","Earth","Jupiter"],a:2,e:"Earth has liquid water, breathable air, and temperatures suitable for human life."},
+{type:"comet",title:"Comet Watch",q:"A student observes a bright object with a long glowing tail moving across the sky over several nights. Which celestial body is the student most likely seeing?",o:["Asteroid","Comet","Moon","Planet"],a:1,e:"A comet develops a bright tail when it approaches the Sun."},
+{type:"map",title:"Map Decoder",q:"Riya's family is visiting a wildlife sanctuary. Their map shows roads, rivers, picnic spots, and hospitals using different small pictures instead of words. Which map feature is helping them understand the map easily?",o:["Scale","Symbols","Border","Latitude"],a:1,e:"Symbols use simple signs or pictures to represent features on a map."},
+{type:"distance",title:"Distance Scanner",q:"A map shows the scale 1 cm = 20 km. Two villages are 4 cm apart on the map. What is the real distance?",o:["24 km","40 km","60 km","80 km"],a:3,e:"4 × 20 = 80 km."},
+{type:"terrain",title:"Trekking Route Mission",q:"A forest officer wants to study rivers, mountains, and valleys before planning a trekking route. Which map will help the most?",o:["Political map","Thematic map","Physical map","Road map"],a:2,e:"A physical map shows natural features such as mountains, rivers, and valleys."},
+{type:"globe",title:"Globe Comparison",q:"A student wants to compare the true size of Africa and South America. Why should she use a globe instead of a flat map?",o:["It has brighter colours.","It avoids distortion.","It shows more countries.","It is easier to fold."],a:1,e:"A globe shows Earth's shapes and sizes with less distortion than a flat map."},
+{type:"sun",title:"Sunlight Research Mission",q:"A research team wants to study places that receive sunlight almost directly throughout the year. Which region should they choose?",o:["Near the Equator","Near the Arctic Circle","Near the South Pole","Near the International Date Line"],a:0,e:"The Equator receives nearly direct sunlight throughout the year."},
+{type:"longitude",title:"Navigation Mission",q:"A pilot wants to know whether a city lies east or west of Greenwich. Which imaginary lines will help?",o:["Latitudes","Longitudes","Heat zones","Equator only"],a:1,e:"Longitudes measure positions east or west of the Prime Meridian."},
+{type:"coordinates",title:"Rescue Location Mission",q:"A rescue helicopter receives the location 20°N, 78°E. Why are both values needed?",o:["One shows climate and one shows weather.","One shows north-south position and the other east-west position.","One measures height and one measures distance.","One shows time and one shows rainfall."],a:1,e:"Latitude gives north-south position and longitude gives east-west position."}
+];
+
+let order=[],index=0,score=0,attempts=0,locked=false,timer,left=60,anim={x:.12,target:.12,moving:false,success:false};
+const letters=["A","B","C","D"];
+const cvs=document.getElementById("sceneCanvas"),ctx=cvs.getContext("2d");
+
+setTimeout(()=>show("intro"),5000);
+function show(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active");if(id==="game")resize()}
+function startGame(){order=[...questions.keys()].sort(()=>Math.random()-.5);index=0;score=0;document.getElementById("score").textContent=0;show("game");loadQuestion()}
+function loadQuestion(){clearInterval(timer);attempts=0;locked=false;left=60;time.textContent=left;next.classList.add("hidden");feedback.classList.add("hidden");status.textContent="Choose an answer to launch the explorer.";qnum.textContent=index+1;bar.style.width=(index/10*100)+"%";let d=questions[order[index]];missionTitle.textContent=d.title;question.textContent=d.q;options.innerHTML="";d.o.forEach((t,i)=>{let b=document.createElement("button");b.className="option";b.innerHTML=`<span class="letter">${letters[i]}</span><span>${t}</span>`;b.onclick=()=>pick(b,i);options.appendChild(b)});anim={x:.12,target:.12,moving:false,success:false};timer=setInterval(()=>{left--;time.textContent=left;if(left<=0){clearInterval(timer);reveal("Time is up.")}},1000)}
+function pick(el,i){if(locked)return;document.querySelectorAll(".option").forEach(x=>x.classList.remove("selected"));el.classList.add("selected");let d=questions[order[index]];feedback.classList.remove("hidden");if(i===d.a){locked=true;clearInterval(timer);el.classList.add("correct");score+=10;document.getElementById("score").textContent=score;feedback.textContent="Correct! "+d.e;status.textContent="Correct! Explorer moving to the next checkpoint.";tone();play("clap");anim.target=.82;anim.moving=true;anim.success=true;confetti();setTimeout(()=>next.classList.remove("hidden"),900)}else{attempts++;el.classList.add("wrong");play("wrong");status.textContent="Mission blocked. Check the clue and try again.";if(attempts<2)feedback.textContent="Try again. One more chance!";else reveal("Second attempt over.")}}
+function reveal(msg){locked=true;clearInterval(timer);let d=questions[order[index]];document.querySelectorAll(".option").forEach((x,i)=>{if(i===d.a)x.classList.add("correct")});feedback.classList.remove("hidden");feedback.textContent=msg+" "+d.e;status.textContent="Correct route revealed. Continue to the next checkpoint.";next.classList.remove("hidden")}
+function nextQuestion(){index++;if(index>=10){final.textContent=score;show("result")}else loadQuestion()}
+function play(id){let a=document.getElementById(id);a.currentTime=0;a.play().catch(()=>{})}
+function tone(){try{let C=window.AudioContext||window.webkitAudioContext,c=new C,o=c.createOscillator(),g=c.createGain();o.frequency.setValueAtTime(620,c.currentTime);o.frequency.setValueAtTime(880,c.currentTime+.12);g.gain.setValueAtTime(.2,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.35);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.36)}catch(e){}}
+function confetti(){for(let i=0;i<22;i++){let p=document.createElement("i");p.style.cssText=`position:fixed;z-index:20;left:${Math.random()*100}vw;top:-12px;width:9px;height:14px;background:hsl(${Math.random()*360} 90% 60%);animation:fall ${1+Math.random()}s linear forwards`;document.body.appendChild(p);setTimeout(()=>p.remove(),2200)}}
+const style=document.createElement("style");style.textContent="@keyframes fall{to{transform:translateY(105vh) rotate(700deg);opacity:0}}";document.head.appendChild(style);
+
+function resize(){const r=cvs.parentElement.getBoundingClientRect();cvs.width=r.width*devicePixelRatio;cvs.height=r.height*devicePixelRatio;ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0)}
+addEventListener("resize",resize);
+
+function draw(){
+ const w=cvs.width/devicePixelRatio,h=cvs.height/devicePixelRatio;
+ ctx.clearRect(0,0,w,h);
+ let d=questions[order[index]||0],type=d?d.type:"space";
+ // stars
+ for(let i=0;i<38;i++){let x=(i*83)%w,y=(i*47)%h;ctx.fillStyle=i%4?"#ffffff88":"#ffe45a";ctx.fillRect(x,y,2,2)}
+ // path
+ ctx.strokeStyle="#55ddff66";ctx.lineWidth=4;ctx.setLineDash([10,10]);ctx.beginPath();ctx.moveTo(w*.12,h*.7);ctx.quadraticCurveTo(w*.5,h*.25,w*.84,h*.5);ctx.stroke();ctx.setLineDash([]);
+ drawCheckpoint(w*.12,h*.7,"1");drawCheckpoint(w*.47,h*.38,"2");drawCheckpoint(w*.84,h*.5,"3");
+ // themed object
+ if(["map","distance","terrain","globe","sun","longitude","coordinates"].includes(type)) drawEarth(w*.76,h*.22,54);
+ else drawPlanet(w*.78,h*.2,48,type==="comet"?"#f6a3ff":"#66c7ff");
+ if(type==="comet"){ctx.strokeStyle="#fff8";ctx.lineWidth=15;ctx.beginPath();ctx.moveTo(w*.62,h*.23);ctx.lineTo(w*.35,h*.1);ctx.stroke()}
+ if(type==="terrain"){drawMountains(w,h)}
+ if(type==="coordinates"){drawGrid(w,h)}
+ // rocket
+ if(anim.moving){anim.x+=(anim.target-anim.x)*.06;if(Math.abs(anim.target-anim.x)<.01)anim.moving=false}
+ let rx=w*anim.x,ry=h*(.72-.28*Math.sin(anim.x*Math.PI));
+ drawRocket(rx,ry);
+ requestAnimationFrame(draw)
+}
+function drawCheckpoint(x,y,t){ctx.fillStyle="#15256f";ctx.strokeStyle="#65e6ff";ctx.lineWidth=4;ctx.beginPath();ctx.arc(x,y,22,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle="#fff";ctx.font="bold 16px Arial";ctx.textAlign="center";ctx.fillText(t,x,y+6)}
+function drawPlanet(x,y,r,c){ctx.fillStyle=c;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();ctx.strokeStyle="#ffffff55";ctx.lineWidth=3;ctx.stroke()}
+function drawEarth(x,y,r){ctx.fillStyle="#2b9cff";ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();ctx.fillStyle="#43d67f";ctx.beginPath();ctx.ellipse(x-15,y-10,18,11,.4,0,Math.PI*2);ctx.ellipse(x+17,y+12,20,13,-.5,0,Math.PI*2);ctx.fill()}
+function drawMountains(w,h){ctx.fillStyle="#4b3e9d";ctx.beginPath();ctx.moveTo(0,h);ctx.lineTo(w*.25,h*.55);ctx.lineTo(w*.42,h);ctx.lineTo(w*.63,h*.62);ctx.lineTo(w,h);ctx.fill()}
+function drawGrid(w,h){ctx.strokeStyle="#48dfff44";ctx.lineWidth=1;for(let x=0;x<w;x+=35){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke()}for(let y=0;y<h;y+=35){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke()}}
+function drawRocket(x,y){ctx.save();ctx.translate(x,y);ctx.rotate(-.15);ctx.fillStyle="#f5f7ff";ctx.beginPath();ctx.moveTo(28,0);ctx.quadraticCurveTo(0,-22,-25,0);ctx.quadraticCurveTo(0,22,28,0);ctx.fill();ctx.fillStyle="#ff573b";ctx.beginPath();ctx.moveTo(-22,-10);ctx.lineTo(-35,-22);ctx.lineTo(-28,-2);ctx.fill();ctx.beginPath();ctx.moveTo(-22,10);ctx.lineTo(-35,22);ctx.lineTo(-28,2);ctx.fill();ctx.fillStyle="#49d9ff";ctx.beginPath();ctx.arc(3,0,8,0,Math.PI*2);ctx.fill();ctx.fillStyle="#ffd84d";ctx.beginPath();ctx.moveTo(-27,-6);ctx.lineTo(-46,0);ctx.lineTo(-27,6);ctx.fill();ctx.restore()}
+draw();
+</script>
+</body>
+</html>
