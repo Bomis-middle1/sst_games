@@ -6,21 +6,20 @@
 <title>From Barter to Money - Crossword Dashboard</title>
 <style>
     :root {
-        --slate-dark: #07111f;
-        --panel-bg: #101b2e;
-        --amber-gold: #f59e0b;
-        --amber-glow: rgba(245, 158, 11, 0.22);
-        --emerald-mint: #10b981;
-        --royal-blue: #38bdf8;
-        --text-light: #eef4ff;
-        --text-muted: #98a6c6;
-        --border-line: #24324a;
-        --error-red: #ef4444;
-        --cell-black: #08111d;
-        --paper: #f6f0e2;
-        --paper-2: #e9dcc1;
-        --success-bg: rgba(16,185,129,0.12);
-        --error-bg: rgba(239,68,68,0.12);
+        --bg: #0c1220;
+        --panel: #111b2d;
+        --panel-2: #0e1625;
+        --gold: #f5b642;
+        --gold-soft: rgba(245, 182, 66, 0.18);
+        --mint: #21c58d;
+        --blue: #4ea3ff;
+        --text: #eef4ff;
+        --muted: #9fb0cc;
+        --line: #263752;
+        --blackcell: #08111d;
+        --paper: #f8f1de;
+        --paper2: #ead9b4;
+        --red: #ef4444;
     }
 
     * {
@@ -32,178 +31,176 @@
 
     body {
         background:
-            radial-gradient(circle at top, rgba(255,255,255,0.08), transparent 28%),
-            linear-gradient(180deg, var(--slate-dark), #0b1527 55%, #09101b);
-        color: var(--text-light);
-        line-height: 1.6;
-        padding: 20px 10px;
-        user-select: none;
+            radial-gradient(circle at top, rgba(255,255,255,0.07), transparent 28%),
+            linear-gradient(180deg, #09101b 0%, #0c1220 55%, #0a0f18 100%);
+        color: var(--text);
         min-height: 100vh;
+        padding: 16px;
+        overflow-x: hidden;
     }
 
     #splash-screen {
         position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
+        inset: 0;
         background: linear-gradient(180deg, #ffffff, #f7f1e3);
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
         z-index: 9999;
-        transition: opacity 0.5s ease-out;
+        transition: opacity 0.5s ease;
     }
 
     #splash-screen img {
         max-width: 280px;
-        height: auto;
-        margin-bottom: 30px;
+        width: 80%;
+        margin-bottom: 22px;
     }
 
-    #splash-screen .loader {
+    .loader {
         border: 4px solid #e2e8f0;
-        border-top: 4px solid var(--amber-gold);
+        border-top: 4px solid var(--gold);
         border-radius: 50%;
-        width: 45px;
-        height: 45px;
-        animation: rotateLoader 1s linear infinite;
+        width: 44px;
+        height: 44px;
+        animation: spin 1s linear infinite;
     }
 
-    @keyframes rotateLoader {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
+    @keyframes spin {
+        to { transform: rotate(360deg); }
     }
 
     .game-wrapper {
-        max-width: 1150px;
+        max-width: 1350px;
         margin: 0 auto;
-        background: var(--panel-bg);
-        border-radius: 14px;
-        border: 1px solid var(--border-line);
-        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+        background: linear-gradient(180deg, var(--panel), var(--panel-2));
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        box-shadow: 0 16px 50px rgba(0,0,0,0.45);
         overflow: hidden;
         display: none;
     }
 
     header {
-        background: linear-gradient(135deg, #10263d 0%, #183252 100%);
-        padding: 25px;
+        background: linear-gradient(135deg, #14263d 0%, #1b3554 100%);
+        padding: 22px 18px;
         text-align: center;
-        border-bottom: 2px solid var(--amber-gold);
+        border-bottom: 2px solid var(--gold);
     }
 
     header h1 {
-        font-size: 26px;
-        letter-spacing: 0.5px;
-        color: #ffd36b;
+        color: #ffd56b;
+        font-size: clamp(22px, 3vw, 30px);
     }
 
     header p {
-        color: var(--text-muted);
-        font-size: 14px;
         margin-top: 4px;
+        color: var(--muted);
+        font-size: 14px;
     }
 
     .dashboard-bar {
+        background: #0a111c;
+        border-bottom: 1px solid var(--line);
+        padding: 12px 18px;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        background: #09101b;
-        padding: 12px 25px;
-        font-size: 14px;
-        border-bottom: 1px solid var(--border-line);
         gap: 10px;
         flex-wrap: wrap;
+        font-size: 14px;
     }
 
     .score-box {
-        color: var(--emerald-mint);
-        font-weight: 700;
-        background: rgba(16, 185, 129, 0.1);
-        padding: 4px 14px;
-        border-radius: 30px;
-        border: 1px solid rgba(16, 185, 129, 0.2);
+        display: inline-block;
+        min-width: 54px;
+        text-align: center;
+        color: var(--mint);
+        font-weight: 800;
+        background: rgba(33, 197, 141, 0.12);
+        padding: 4px 12px;
+        border: 1px solid rgba(33, 197, 141, 0.22);
+        border-radius: 999px;
     }
 
     .main-content {
-        padding: 25px;
+        padding: 18px;
     }
 
     .mission-box {
-        background: rgba(245, 158, 11, 0.08);
-        border-left: 4px solid var(--amber-gold);
+        background: rgba(245, 182, 66, 0.08);
+        border-left: 4px solid var(--gold);
         padding: 14px;
-        margin-bottom: 25px;
-        border-radius: 4px;
+        border-radius: 6px;
+        margin-bottom: 18px;
+        color: #ffd56b;
+        line-height: 1.5;
         font-size: 14px;
-        color: #ffd36b;
     }
 
     .crossword-container {
         display: grid;
-        grid-template-columns: 1.1fr 1fr;
-        gap: 25px;
+        grid-template-columns: minmax(380px, 1.1fr) minmax(320px, 0.9fr);
+        gap: 18px;
         align-items: start;
     }
 
-    @media (max-width: 850px) {
-        .crossword-container { grid-template-columns: 1fr; }
+    @media (max-width: 1050px) {
+        .crossword-container {
+            grid-template-columns: 1fr;
+        }
     }
 
     .grid-wrapper {
-        background: #09101b;
-        padding: 15px;
-        border-radius: 8px;
-        border: 1px solid var(--border-line);
-        display: flex;
-        justify-content: center;
-        align-items: center;
+        background: #0a111c;
+        padding: 14px;
+        border-radius: 10px;
+        border: 1px solid var(--line);
+        overflow: auto;
     }
 
     .crossword-grid {
         display: grid;
-        grid-template-columns: repeat(15, 1fr);
-        grid-template-rows: repeat(15, 1fr);
+        grid-template-columns: repeat(15, minmax(26px, 1fr));
+        grid-template-rows: repeat(15, minmax(26px, 1fr));
         gap: 2px;
-        width: 100%;
-        max-width: 480px;
+        width: min(100%, 640px);
+        margin: 0 auto;
         aspect-ratio: 1 / 1;
     }
 
     .cell {
         position: relative;
-        background: var(--cell-black);
-        aspect-ratio: 1 / 1;
+        background: var(--blackcell);
         border-radius: 2px;
+        aspect-ratio: 1 / 1;
     }
 
     .cell.active-letter {
-        background: #132036;
-        border: 1px solid #334968;
+        background: #14233a;
+        border: 1px solid #38506f;
     }
 
     .cell input {
         width: 100%;
         height: 100%;
-        background: transparent;
         border: none;
-        text-align: center;
-        color: var(--text-light);
-        font-size: 16px;
-        font-weight: 700;
-        text-transform: uppercase;
         outline: none;
+        background: transparent;
+        color: var(--text);
+        text-align: center;
+        font-size: clamp(12px, 1.4vw, 17px);
+        font-weight: 800;
+        text-transform: uppercase;
     }
 
     .cell input:focus {
-        background: rgba(56, 189, 248, 0.15);
+        background: rgba(78, 163, 255, 0.14);
     }
 
     .cell input.correct-flash {
-        color: var(--emerald-mint);
-        background: rgba(16, 185, 129, 0.08);
+        background: rgba(33, 197, 141, 0.1);
+        color: var(--mint);
     }
 
     .cell-number {
@@ -211,123 +208,127 @@
         top: 2px;
         left: 3px;
         font-size: 9px;
-        font-weight: 700;
-        color: #ffd36b;
-        line-height: 1;
+        color: #ffd56b;
+        font-weight: 800;
         pointer-events: none;
+        line-height: 1;
     }
 
     .clues-wrapper {
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-        max-height: 510px;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 14px;
+        max-height: 760px;
         overflow-y: auto;
-        padding-right: 5px;
+        padding-right: 4px;
     }
 
     .clues-section {
-        background: #09101b;
-        border: 1px solid var(--border-line);
-        border-radius: 8px;
-        padding: 15px;
+        background: #0a111c;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 14px;
     }
 
     .clues-section h3 {
+        color: #ffd56b;
         font-size: 15px;
-        color: #ffd36b;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
-        border-bottom: 1px solid var(--border-line);
-        padding-bottom: 6px;
-        margin-bottom: 12px;
+        letter-spacing: 0.6px;
+        border-bottom: 1px solid var(--line);
+        padding-bottom: 8px;
+        margin-bottom: 10px;
     }
 
     .clue-item {
         font-size: 13.5px;
-        margin-bottom: 8px;
-        color: var(--text-light);
-        padding: 4px;
-        border-radius: 4px;
+        margin-bottom: 10px;
+        padding: 6px 4px;
+        color: var(--text);
+        line-height: 1.45;
     }
 
     .clue-item strong {
-        color: var(--royal-blue);
-        margin-right: 5px;
+        color: var(--blue);
+        margin-right: 6px;
     }
 
     .feedback-alert {
-        margin-top: 25px;
+        margin-top: 18px;
         padding: 14px;
-        border-radius: 6px;
+        border-radius: 8px;
+        font-weight: 700;
         text-align: center;
-        font-weight: 600;
-        font-size: 14px;
         display: none;
     }
 
     .feedback-alert.success {
         display: block;
-        background: var(--success-bg);
-        color: #34d399;
-        border: 1px solid rgba(16, 185, 129, 0.2);
+        background: rgba(33, 197, 141, 0.12);
+        color: #5ee7b0;
+        border: 1px solid rgba(33, 197, 141, 0.22);
     }
 
     .feedback-alert.error {
         display: block;
-        background: var(--error-bg);
-        color: #f87171;
-        border: 1px solid rgba(239, 68, 68, 0.2);
+        background: rgba(239, 68, 68, 0.12);
+        color: #fca5a5;
+        border: 1px solid rgba(239, 68, 68, 0.22);
     }
 
     .control-footer {
-        text-align: center;
-        margin-top: 30px;
         display: flex;
         justify-content: center;
-        gap: 15px;
+        gap: 12px;
         flex-wrap: wrap;
+        margin-top: 20px;
     }
 
     .control-btn {
         background: transparent;
-        color: var(--text-light);
-        border: 1px solid var(--border-line);
-        padding: 12px 28px;
-        font-size: 13px;
-        font-weight: 600;
+        color: var(--text);
+        border: 1px solid var(--line);
+        padding: 12px 22px;
+        border-radius: 6px;
+        font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 1px;
-        border-radius: 4px;
+        letter-spacing: 0.8px;
         cursor: pointer;
-        transition: all 0.2s;
+        transition: all 0.2s ease;
     }
 
     .control-btn:hover {
-        border-color: var(--text-light);
-        background: rgba(255, 255, 255, 0.03);
+        background: rgba(255,255,255,0.04);
+        border-color: #4b6386;
     }
 
     .control-btn.primary {
-        background: var(--amber-gold);
-        color: var(--slate-dark);
-        border-color: var(--amber-gold);
+        background: var(--gold);
+        color: #0c1220;
+        border-color: var(--gold);
     }
 
     .control-btn.primary:hover {
-        background: #d97706;
-        border-color: #d97706;
+        background: #e09a1d;
+        border-color: #e09a1d;
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 640px) {
+        body {
+            padding: 10px;
+        }
+
+        .main-content {
+            padding: 12px;
+        }
+
         .crossword-grid {
+            width: 100%;
             max-width: 100%;
         }
-        header h1 {
-            font-size: 22px;
-        }
-        .main-content {
-            padding: 16px;
+
+        .clue-item {
+            font-size: 13px;
         }
     }
 </style>
@@ -352,7 +353,7 @@
 
     <div class="main-content">
         <div class="mission-box">
-            <strong>Crossword Mission Parameter:</strong> Solve the Across and Down clues about barter, currency, coins, RBI, UPI, and digital money. Type letters into the active grid cells, then press verify to check your answers.
+            <strong>Crossword Mission Parameter:</strong> Solve the clues about barter, money, coins, currency, banking, and digital payments. The clues are fully visible now, and the grid is spaced for easier solving.
         </div>
 
         <div class="crossword-container">
@@ -507,7 +508,6 @@ function renderCluesPanelText() {
         const entry = document.createElement('div');
         entry.className = 'clue-item';
         entry.innerHTML = `<strong>${item.num}.</strong> ${item.clue}`;
-
         if (item.dir === "across") {
             acrossBox.appendChild(entry);
         } else {
