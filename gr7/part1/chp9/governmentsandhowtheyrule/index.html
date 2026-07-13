@@ -1,1 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Crack the Government Code</title>
+<style>
+  :root{
+    --bg1:#f9efe0;
+    --bg2:#edd9bc;
+    --card:#fffaf2;
+    --ink:#2f2a24;
+    --gold:#c89b3c;
+    --teal:#1e6f7a;
+    --red:#c94e4e;
+    --green:#2a9a60;
+    --shadow:0 16px 34px rgba(44, 32, 18, .18);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    background:
+      radial-gradient(circle at top left, rgba(255,255,255,.45), transparent 30%),
+      linear-gradient(180deg,var(--bg1),var(--bg2));
+    color:var(--ink);
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+  .wrap{max-width:1280px;margin:0 auto;padding:14px}
+  .topbar{
+    display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;
+    padding:14px 16px;border-radius:24px;background:rgba(255,255,255,.6);backdrop-filter:blur(8px);
+    box-shadow:var(--shadow);border:1px solid rgba(0,0,0,.06)
+  }
+  .title h1{margin:0;font-size:clamp(20px,3vw,34px);line-height:1.1;color:#332812}
+  .title p{margin:6px 0 0;font-size:13px;opacity:.82}
+  .stats{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+  .pill{
+    background:#fff;border-radius:999px;padding:10px 14px;min-width:90px;text-align:center;
+    box-shadow:0 8px 18px rgba(0,0,0,.08);font-weight:800;border:1px solid rgba(0,0,0,.05)
+  }
+  .btn{
+    border:0;border-radius:16px;padding:12px 16px;font-weight:900;cursor:pointer;
+    box-shadow:var(--shadow);font-size:15px
+  }
+  .btn.primary{background:linear-gradient(135deg,#1d6b77,#184b63);color:#fff}
+  .btn.light{background:#fff;color:var(--ink)}
+  .btn.gold{background:linear-gradient(135deg,#d9b45b,#b98a28);color:#fff}
+  .screen{display:none}
+  .screen.active{display:block}
 
+  .overlay{
+    position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(180deg,rgba(248,239,224,.98),rgba(237,217,188,.96));
+    padding:18px
+  }
+  .overlay.hidden{display:none}
+  .panel{
+    width:min(900px,100%);background:rgba(255,252,247,.98);border-radius:32px;box-shadow:0 24px 70px rgba(0,0,0,.2);
+    padding:28px;border:1px solid rgba(0,0,0,.06);text-align:center
+  }
+  .panel img{
+    width:130px;height:130px;object-fit:contain;display:block;margin:0 auto 10px;
+    filter:drop-shadow(0 10px 20px rgba(0,0,0,.12))
+  }
+  .panel h2{margin:6px 0 10px;font-size:clamp(28px,4vw,44px);color:#2d251a}
+  .panel .sub{font-size:16px;line-height:1.6;max-width:700px;margin:0 auto 18px}
+  .mission{
+    text-align:left;max-width:760px;margin:0 auto 20px;padding:18px 18px 16px;border-radius:22px;
+    background:linear-gradient(180deg,#fff8ea,#fff4dd);border:2px solid #e7c97f
+  }
+  .mission h3{margin:0 0 10px;font-size:20px;color:#5a4212}
+  .mission ul{margin:10px 0 0;padding-left:20px;line-height:1.7}
+  .mission li{margin:4px 0}
+  .game{
+    margin-top:14px;display:grid;grid-template-columns:1.15fr .85fr;gap:14px
+  }
+  @media (max-width: 980px){.game{grid-template-columns:1fr}}
+  .stage,.side{
+    background:rgba(255,255,255,.72);border:1px solid rgba(0,0,0,.06);border-radius:28px;box-shadow:var(--shadow)
+  }
+  .stage{padding:16px}
+  .stageTop{
+    display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px
+  }
+  .levelBadge{
+    background:linear-gradient(135deg,#f7d97d,#c79d32);color:#2e2413;
+    padding:10px 14px;border-radius:999px;font-weight:900;box-shadow:0 8px 18px rgba(0,0,0,.08)
+  }
+  .progressWrap{
+    width:100%;height:14px;background:#f0e0c4;border-radius:999px;overflow:hidden
+  }
+  .progressBar{
+    height:100%;width:0;background:linear-gradient(90deg,#2a9a60,#1e6f7a);transition:width .3s ease
+  }
+
+  .scroll{
+    background:linear-gradient(180deg,#fffdf8,#fff5e3);
+    border-radius:26px;padding:18px;border:2px solid #ecd4a2;
+    box-shadow:0 12px 24px rgba(0,0,0,.08);position:relative;overflow:hidden
+  }
+  .scroll:before,.scroll:after{
+    content:"";position:absolute;left:0;right:0;height:18px;background:linear-gradient(90deg,rgba(0,0,0,.05),rgba(0,0,0,0));
+    opacity:.3
+  }
+  .scroll:before{top:0}
+  .scroll:after{bottom:0;transform:scaleY(-1)}
+  .lockline{
+    display:flex;align-items:center;gap:10px;font-weight:900;color:#7a541b;margin-bottom:10px
+  }
+  .clue{
+    font-size:17px;line-height:1.65;margin:8px 0 14px
+  }
+  .wordTitle{
+    margin:0 0 10px;font-size:18px;font-weight:900;color:#1e6f7a
+  }
+  .scramble{
+    display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 16px;min-height:48px
+  }
+  .tile,.slot{
+    width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;
+    font-weight:900;font-size:18px;user-select:none
+  }
+  .tile{
+    background:linear-gradient(180deg,#fff,#f7efe0);
+    border:2px solid #d9c29c;box-shadow:0 8px 14px rgba(0,0,0,.08);
+    cursor:grab
+  }
+  .tile:active{cursor:grabbing}
+  .tile.dragging{opacity:.45;transform:scale(.96)}
+  .answerRow{
+    display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;min-height:54px
+  }
+  .slot{
+    background:#fff;border:2px dashed #c8aa72;color:#99835d
+  }
+  .slot.filled{
+    background:#f7f0e2;border-style:solid;color:#2f2a24
+  }
+  .slot.correct{background:#e3f6ea;border-color:#4eb171}
+  .slot.wrong{background:#ffe5e5;border-color:#e06d6d}
+  .feedback{
+    margin-top:14px;font-weight:800;min-height:24px
+  }
+  .feedback.good{color:var(--green)}
+  .feedback.bad{color:var(--red)}
+  .actions{
+    display:flex;gap:10px;flex-wrap:wrap;margin-top:14px
+  }
+
+  .side{padding:16px;display:flex;flex-direction:column;gap:14px}
+  .badgeBox,.infoBox,.collection{
+    background:linear-gradient(180deg,#fffaf2,#fff4e2);
+    border:1px solid #edd3a2;border-radius:22px;padding:14px
+  }
+  .badgeBox h3,.infoBox h3,.collection h3{
+    margin:0 0 8px;font-size:18px;color:#5a4212
+  }
+  .badge{
+    display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid rgba(0,0,0,.07);
+    padding:8px 12px;border-radius:999px;font-weight:800;margin:6px 8px 0 0;box-shadow:0 6px 12px rgba(0,0,0,.05)
+  }
+  .badge.earned{background:#fff6d8;border-color:#e2c15c}
+  .badge small{font-weight:700;opacity:.8}
+  .collected{
+    display:flex;flex-wrap:wrap;gap:8px;margin-top:10px
+  }
+  .chip{
+    padding:7px 10px;border-radius:999px;background:#fff;border:1px solid rgba(0,0,0,.08);font-weight:800;font-size:12px
+  }
+  .infoBox p{margin:0;line-height:1.6;font-size:14px}
+  .small{font-size:13px;opacity:.8;line-height:1.5}
+  .shake{animation:shake .35s linear}
+  @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-4px)}40%{transform:translateX(4px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+  .pop{animation:pop .3s ease}
+  @keyframes pop{0%{transform:scale(.9)}100%{transform:scale(1)}}
+  .confetti{
+    position:fixed;pointer-events:none;z-index:40;font-size:24px;animation:fall 1000ms ease-in forwards
+  }
+  @keyframes fall{
+    from{transform:translateY(-20px) rotate(0deg);opacity:1}
+    to{transform:translateY(420px) rotate(360deg);opacity:0}
+  }
+
+  .finish{
+    display:none;position:fixed;inset:0;z-index:50;background:rgba(18,15,10,.45);backdrop-filter:blur(4px);
+    align-items:center;justify-content:center;padding:18px
+  }
+  .finish.active{display:flex}
+  .finishCard{
+    width:min(720px,100%);background:#fffdf8;border-radius:30px;box-shadow:0 28px 70px rgba(0,0,0,.25);
+    border:1px solid rgba(0,0,0,.06);padding:26px;text-align:center
+  }
+  .finishCard h2{margin:0 0 8px;font-size:clamp(28px,4vw,44px)}
+  .finishCard p{margin:0 auto 14px;max-width:620px;line-height:1.65;font-size:16px}
+  .resultLine{font-size:22px;font-weight:900;color:#1e6f7a;margin:10px 0 14px}
+</style>
+</head>
+<body>
+
+<div class="overlay" id="splashScreen">
+  <div class="panel">
+    <img src="assets/logo.png" alt="Game Logo">
+    <h2>Crack the Government Code</h2>
+    <p class="sub">Decode the hidden words and unlock the secrets of how governments rule.</p>
+    <div class="mission">
+      <h3>Mission</h3>
+      <ul>
+        <li>You have entered the Government Archive.</li>
+        <li>Each chamber has a clue and a scrambled government term.</li>
+        <li>Drag the letters into the boxes in the correct order.</li>
+        <li>You get 2 chances for each code.</li>
+      </ul>
+    </div>
+    <button class="btn primary" id="startBtn">START MISSION</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="topbar">
+    <div class="title">
+      <h1>Crack the Government Code</h1>
+      <p>A Social Studies Puzzle Adventure</p>
+    </div>
+    <div class="stats">
+      <div class="pill">Score: <span id="score">0</span></div>
+      <div class="pill">Level: <span id="levelNum">1</span>/15</div>
+      <div class="pill">Attempts: <span id="attemptsLeft">2</span></div>
+      <button class="btn light" id="restartBtn">Restart</button>
+    </div>
+  </div>
+
+  <div class="game">
+    <div class="stage">
+      <div class="stageTop">
+        <div class="levelBadge" id="levelBadge">🏛 Government Code Chamber 1/15</div>
+        <div style="min-width:220px;flex:1">
+          <div class="progressWrap"><div class="progressBar" id="progressBar"></div></div>
+        </div>
+      </div>
+
+      <div class="scroll">
+        <div class="lockline">🔐 Secret Clue</div>
+        <div class="clue" id="clueText"></div>
+        <div class="wordTitle">Unscrambled Letters</div>
+        <div class="scramble" id="letterBank"></div>
+        <div class="wordTitle">Your Answer</div>
+        <div class="answerRow" id="answerRow"></div>
+        <div class="feedback" id="feedback"></div>
+        <div class="actions">
+          <button class="btn gold" id="checkBtn">CHECK CODE</button>
+          <button class="btn light" id="clearBtn">CLEAR</button>
+          <button class="btn primary" id="nextBtn" style="display:none;">NEXT CODE</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="side">
+      <div class="badgeBox">
+        <h3>Badges Collected</h3>
+        <div id="badgeList"></div>
+      </div>
+
+      <div class="collection">
+        <h3>Codes Unlocked</h3>
+        <div class="collected" id="collection"></div>
+      </div>
+
+      <div class="infoBox">
+        <h3>How it works</h3>
+        <p>Drag letters from the shuffled bank into the answer boxes. If your answer is correct, the chamber unlocks and you earn points. If it is wrong, try again before the code is revealed.</p>
+      </div>
+
+      <div class="infoBox">
+        <h3>Scoring</h3>
+        <p>First try: 10 points. Second try: 5 points. Reveal: 2 points.</p>
+      </div>
+
+      <div class="infoBox">
+        <h3>Tip</h3>
+        <p class="small">Some answers ignore spaces when checked, so long phrases still work smoothly.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="finish" id="finishScreen">
+  <div class="finishCard">
+    <h2>Government Code Master 🏆</h2>
+    <div class="resultLine">Your Score: <span id="finalScore">0</span>/150</div>
+    <p id="finalMessage">Great work!</p>
+    <div id="finalBadges"></div>
+    <div style="margin-top:18px">
+      <button class="btn primary" id="playAgainBtn">🔄 Play Again</button>
+    </div>
+  </div>
+</div>
+
+<audio id="correctSound" src="assets/correct.mp3" preload="auto"></audio>
+<audio id="wrongSound" src="assets/wrong.mp3" preload="auto"></audio>
+<audio id="clapSound" src="assets/freesound_community-claps-44774.mp3" preload="auto"></audio>
+
+<script>
+const levels = [
+  {code:'DEMOCRACY', badge:'🏛 Citizen Badge', clue:'In this form of government, citizens are not ruled by a king or a single powerful leader. Instead, people have the right to choose their representatives through elections. The government is expected to listen to citizens, protect their rights, and remain accountable to the people.', title:'Unlock the Democracy Chamber 🔐'},
+  {code:'LEGISLATURE', badge:'📜 Law Maker Badge', clue:'This organ of government is responsible for discussing important issues, debating proposals, and creating laws that guide society. In India, Parliament performs this role through two Houses that represent the people and the states.', title:'Unlock the Law-Making Room 📜'},
+  {code:'EXECUTIVE', badge:'🏢 Administration Badge', clue:'After laws are created, they need to be put into practice. This branch of government includes leaders and officials who make sure decisions are implemented and public services reach citizens.', title:'Unlock the Action Centre 🏢'},
+  {code:'JUDICIARY', badge:'⚖ Justice Badge', clue:'When people disagree about laws or when someone\'s rights are violated, this organ of government steps in. Courts under this branch interpret laws, settle disputes, and ensure justice is given fairly.', title:'Unlock the Justice Gate ⚖️'},
+  {code:'LOKSABHA', badge:'🏛 Citizen Voice Badge', clue:'This House of India\'s Parliament consists of members who are directly elected by citizens. It represents the voice of people and plays an important role in making laws and approving financial decisions.', title:'Unlock the People\'s House 🏛️'},
+  {code:'RAJYASABHA', badge:'🏛 State Voice Badge', clue:'This House of Parliament represents India\'s states and union territories. Its members discuss laws and review decisions made by the other House, ensuring that different regions have representation.', title:'Unlock the States\' Voice Chamber 🏛️'},
+  {code:'SEPARATIONOFPOWERS', badge:'⚖ Balance Badge', clue:'A good government does not allow all powers to remain with one person or one institution. Different organs are given separate responsibilities so that they can check and balance each other\'s actions.', title:'Unlock the Balance Code ⚖️'},
+  {code:'UNIVERSALADULTFRANCHISE', badge:'🗳 Voting Badge', clue:'This democratic principle means that all adult citizens have the right to vote, regardless of their gender, religion, caste, wealth, or social background.', title:'Unlock the Voting Vault 🗳️'},
+  {code:'MONARCHY', badge:'🏰 History Badge', clue:'In this system of government, power is usually passed through a royal family. A king or queen may become the ruler because of inheritance rather than being elected by citizens.', title:'Unlock the Royal Palace 🏰'},
+  {code:'DICTATORSHIP', badge:'🚨 Power Awareness Badge', clue:'In this form of government, power is concentrated in the hands of one leader or a small group. Citizens may have limited freedom, and decisions are often made without public participation.', title:'Unlock the Power Trap 🚨'},
+  {code:'DIRECTDEMOCRACY', badge:'🗳 Participation Badge', clue:'In some democracies, citizens do not only choose representatives but also directly vote on important issues and decisions. Switzerland is an example where people participate through this system.', title:'Unlock the Direct Voice Room 🗳️'},
+  {code:'THEOCRACY', badge:'⛪ Faith & Rule Badge', clue:'In this form of government, political authority is connected with religious leadership. Leaders may claim that their authority comes from religious beliefs or divine power.', title:'Unlock the Religious Rule Chamber ⛪'},
+  {code:'RAJADHARMA', badge:'📜 Wisdom Badge', clue:'Ancient Indian ideas suggested that rulers should not use power only for themselves. They had a responsibility to protect people, maintain justice, and work for the welfare of society.', title:'Unlock the Ancient Wisdom Scroll 📜'},
+  {code:'PARTICIPATION', badge:'⭐ Citizen Power Badge', clue:'A government becomes stronger when people participate by voting, questioning leaders, sharing opinions, and taking part in decisions that affect society.', title:'Unlock the Citizen Power Badge ⭐'},
+  {code:'ACCOUNTABILITY', badge:'⭐ Guardian Badge', clue:'A government must answer to the people for its decisions and actions. Leaders should explain their choices and accept responsibility for their work.', title:'Final Master Code 🏆'}
+];
+
+const letterMap = {
+  DEMOCRACY:['Y','C','R','A','M','O','D','E'],
+  LEGISLATURE:['L','A','T','U','R','E','G','I','S','L','E'],
+  EXECUTIVE:['E','V','T','U','C','I','E','X','E'],
+  JUDICIARY:['D','I','C','Y','U','R','I','A','J'],
+  LOKSABHA:['A','B','H','S','A','K','O','L'],
+  RAJYASABHA:['A','Y','B','A','S','H','J','A','R'],
+  SEPARATIONOFPOWERS:['R','E','S','W','O','P','O','F','N','O','T','I','A','R','A','P','E','S'],
+  UNIVERSALADULTFRANCHISE:['V','A','R','S','E','U','N','L','A','D','U','T','L','F','R','A','C','H','N','S','I','E'],
+  MONARCHY:['M','O','N','R','C','H','Y','A'],
+  DICTATORSHIP:['D','I','C','T','A','T','O','R','S','H','I','P'],
+  DIRECTDEMOCRACY:['R','E','C','T','I','D','C','M','R','A','C','O','Y'],
+  THEOCRACY:['T','H','E','O','C','R','A','C','Y'],
+  RAJADHARMA:['A','R','J','A','D','H','A','R','M','A'],
+  PARTICIPATION:['C','I','P','A','T','I','R','P','A','T','I','O','N'],
+  ACCOUNTABILITY:['A','C','C','O','U','N','T','A','B','I','L','I','T','Y']
+};
+
+const badgeOrder = [
+  '🏛 Citizen Badge','📜 Law Maker Badge','⚖ Justice Badge','🏢 Administration Badge',
+  '🗳 Voting Badge','🏰 History Badge','🚨 Power Awareness Badge','🗳 Participation Badge',
+  '⚖ Balance Badge','⭐ Guardian Badge'
+];
+
+const els = {
+  splashScreen: document.getElementById('splashScreen'),
+  startBtn: document.getElementById('startBtn'),
+  score: document.getElementById('score'),
+  levelNum: document.getElementById('levelNum'),
+  attemptsLeft: document.getElementById('attemptsLeft'),
+  levelBadge: document.getElementById('levelBadge'),
+  progressBar: document.getElementById('progressBar'),
+  clueText: document.getElementById('clueText'),
+  letterBank: document.getElementById('letterBank'),
+  answerRow: document.getElementById('answerRow'),
+  feedback: document.getElementById('feedback'),
+  checkBtn: document.getElementById('checkBtn'),
+  clearBtn: document.getElementById('clearBtn'),
+  nextBtn: document.getElementById('nextBtn'),
+  badgeList: document.getElementById('badgeList'),
+  collection: document.getElementById('collection'),
+  correctSound: document.getElementById('correctSound'),
+  wrongSound: document.getElementById('wrongSound'),
+  clapSound: document.getElementById('clapSound'),
+  finishScreen: document.getElementById('finishScreen'),
+  finalScore: document.getElementById('finalScore'),
+  finalMessage: document.getElementById('finalMessage'),
+  finalBadges: document.getElementById('finalBadges'),
+  playAgainBtn: document.getElementById('playAgainBtn'),
+  restartBtn: document.getElementById('restartBtn')
+};
+
+let current = 0;
+let score = 0;
+let attempts = 2;
+let wonLevels = [];
+let locked = false;
+
+function shuffle(arr){
+  return arr.map(v=>[Math.random(),v]).sort((a,b)=>a[0]-b[0]).map(x=>x[1]);
+}
+
+function cleanText(str){
+  return str.replace(/[^A-Z]/g,'');
+}
+
+function playSound(a){
+  try{ a.currentTime = 0; a.play().catch(()=>{}); }catch(e){}
+}
+
+function showConfetti(count=18){
+  const icons = ['🎉','✨','⭐','🏛️','🗳️','⚖️'];
+  for(let i=0;i<count;i++){
+    const d=document.createElement('div');
+    d.className='confetti';
+    d.textContent=icons[i % icons.length];
+    d.style.left = Math.random()*100 + 'vw';
+    d.style.top = (Math.random()*10) + 'px';
+    d.style.fontSize = (18 + Math.random()*16) + 'px';
+    d.style.animationDuration = (800 + Math.random()*700) + 'ms';
+    document.body.appendChild(d);
+    setTimeout(()=>d.remove(), 1600);
+  }
+}
+
+function renderBadges(){
+  els.badgeList.innerHTML = '';
+  badgeOrder.forEach(b=>{
+    const div=document.createElement('div');
+    div.className = 'badge' + (wonLevels.includes(b) ? ' earned' : '');
+    div.textContent = wonLevels.includes(b) ? '✅ ' + b : '🔒 ' + b;
+    els.badgeList.appendChild(div);
+  });
+}
+
+function renderCollection(){
+  els.collection.innerHTML = '';
+  wonLevels.forEach(b=>{
+    const s=document.createElement('span');
+    s.className='chip';
+    s.textContent=b;
+    els.collection.appendChild(s);
+  });
+}
+
+function makeTile(letter){
+  const t=document.createElement('div');
+  t.className='tile';
+  t.textContent=letter;
+  t.draggable = true;
+  t.dataset.letter = letter;
+  t.addEventListener('dragstart', e=>{
+    if(locked) return e.preventDefault();
+    e.dataTransfer.setData('text/plain', letter);
+    t.classList.add('dragging');
+  });
+  t.addEventListener('dragend', ()=>t.classList.remove('dragging'));
+  return t;
+}
+
+function makeSlot(i){
+  const s=document.createElement('div');
+  s.className='slot';
+  s.dataset.index = i;
+  s.addEventListener('dragover', e=>e.preventDefault());
+  s.addEventListener('drop', e=>{
+    e.preventDefault();
+    if(locked) return;
+    const letter = e.dataTransfer.getData('text/plain');
+    if(!letter) return;
+    if(s.dataset.filled === '1'){
+      const old = s.dataset.letter;
+      if(old) dropBackToBank(old);
+    }
+    s.textContent = letter;
+    s.classList.add('filled');
+    s.dataset.filled = '1';
+    s.dataset.letter = letter;
+    removeLetterFromBank(letter, e.dataTransfer.sourceNode || null);
+    updateAnswerFromSlots();
+  });
+  return s;
+}
+
+function removeLetterFromBank(letter){
+  [...els.letterBank.children].forEach(tile=>{
+    if(tile.dataset.letter === letter && !tile.classList.contains('used')){
+      tile.classList.add('used');
+      tile.style.display='none';
+    }
+  });
+}
+
+function dropBackToBank(letter){
+  [...els.letterBank.children].forEach(tile=>{
+    if(tile.dataset.letter === letter && tile.classList.contains('used')){
+      tile.classList.remove('used');
+      tile.style.display='';
+    }
+  });
+}
+
+function updateAnswerFromSlots(){
+  const currentAnswer = [...els.answerRow.children].map(s=>s.dataset.letter || '').join('');
+  const normalized = currentAnswer.replace(/\s/g,'');
+  if(normalized.length === cleanText(levels[current].code).length && !locked){
+    setTimeout(()=>checkAnswer(), 180);
+  }
+}
+
+function resetBoxes(){
+  els.answerRow.innerHTML='';
+  const answer = cleanText(levels[current].code);
+  for(let i=0;i<answer.length;i++){
+    els.answerRow.appendChild(makeSlot(i));
+  }
+}
+
+function renderLevel(){
+  locked = false;
+  attempts = 2;
+  els.attemptsLeft.textContent = attempts;
+  els.levelNum.textContent = current + 1;
+  els.levelBadge.textContent = `🏛 Government Code Chamber ${current + 1}/15`;
+  els.progressBar.style.width = `${(current / levels.length) * 100}%`;
+  els.clueText.textContent = levels[current].clue;
+  els.feedback.textContent = '';
+  els.feedback.className = 'feedback';
+  els.checkBtn.style.display = 'inline-block';
+  els.nextBtn.style.display = 'none';
+  els.letterBank.innerHTML = '';
+  resetBoxes();
+
+  const letters = shuffle(letterMap[levels[current].code].slice());
+  letters.forEach(l=>els.letterBank.appendChild(makeTile(l)));
+}
+
+function getUserAnswer(){
+  return [...els.answerRow.children].map(s => s.dataset.letter || '').join('');
+}
+
+function revealCorrect(){
+  const correct = cleanText(levels[current].code);
+  [...els.answerRow.children].forEach((s,i)=>{
+    s.textContent = correct[i] || '';
+    s.classList.add('filled','correct');
+  });
+}
+
+function checkAnswer(){
+  if(locked) return;
+  const correct = cleanText(levels[current].code);
+  const user = getUserAnswer().replace(/\s/g,'');
+  if(user.length !== correct.length){
+    els.feedback.textContent = 'Fill all the boxes first.';
+    els.feedback.className = 'feedback bad';
+    return;
+  }
+
+  if(user === correct){
+    locked = true;
+    const pts = attempts === 2 ? 10 : 5;
+    score += pts;
+    els.score.textContent = score;
+    els.feedback.textContent = `Code Cracked! +${pts} points`;
+    els.feedback.className = 'feedback good';
+    playSound(els.correctSound);
+    playSound(els.clapSound);
+    showConfetti(22);
+    els.progressBar.style.width = `${((current + 1) / levels.length) * 100}%`;
+    wonLevels.push(levels[current].badge);
+    renderBadges();
+    renderCollection();
+    document.querySelector('.scroll').classList.add('pop');
+    setTimeout(()=>document.querySelector('.scroll').classList.remove('pop'),300);
+    els.checkBtn.style.display = 'none';
+    els.nextBtn.style.display = 'inline-block';
+  } else {
+    attempts--;
+    els.attemptsLeft.textContent = attempts;
+    playSound(els.wrongSound);
+    document.getElementById('answerRow').classList.add('shake');
+    setTimeout(()=>document.getElementById('answerRow').classList.remove('shake'),350);
+    if(attempts > 0){
+      els.feedback.textContent = 'Not quite! Read the clue again and try rearranging the letters.';
+      els.feedback.className = 'feedback bad';
+    } else {
+      locked = true;
+      els.feedback.textContent = 'Correct Code: ' + levels[current].code;
+      els.feedback.className = 'feedback bad';
+      revealCorrect();
+      els.checkBtn.style.display = 'none';
+      els.nextBtn.style.display = 'inline-block';
+      score += 2;
+      els.score.textContent = score;
+      wonLevels.push(levels[current].badge);
+      renderBadges();
+      renderCollection();
+    }
+  }
+}
+
+function nextLevel(){
+  current++;
+  if(current >= levels.length){
+    finishGame();
+    return;
+  }
+  renderLevel();
+}
+
+function finishGame(){
+  els.finishScreen.classList.add('active');
+  els.finalScore.textContent = score;
+  els.finalBadges.innerHTML = '';
+  wonLevels.forEach(b=>{
+    const s=document.createElement('span');
+    s.className='badge earned';
+    s.style.display='inline-flex';
+    s.style.margin='6px';
+    s.textContent = b;
+    els.finalBadges.appendChild(s);
+  });
+  let msg = 'Great work! You understand how governments function.';
+  if(score >= 135) msg = 'Excellent! You are a Government Code Master.';
+  else if(score < 105) msg = 'Keep exploring the world of governance.';
+  els.finalMessage.textContent = msg;
+  playSound(els.clapSound);
+  showConfetti(30);
+}
+
+function clearAnswer(){
+  if(locked) return;
+  [...els.answerRow.children].forEach(s=>{
+    if(s.dataset.letter){
+      dropBackToBank(s.dataset.letter);
+    }
+    s.textContent='';
+    s.classList.remove('filled','correct','wrong');
+    delete s.dataset.letter;
+    delete s.dataset.filled;
+  });
+}
+
+els.startBtn.addEventListener('click', ()=>{
+  els.splashScreen.classList.add('hidden');
+  renderBadges();
+  renderCollection();
+  renderLevel();
+});
+els.checkBtn.addEventListener('click', checkAnswer);
+els.clearBtn.addEventListener('click', clearAnswer);
+els.nextBtn.addEventListener('click', nextLevel);
+els.restartBtn.addEventListener('click', ()=>{
+  score = 0; current = 0; attempts = 2; wonLevels = []; locked = false;
+  els.score.textContent = '0';
+  els.finishScreen.classList.remove('active');
+  renderBadges();
+  renderCollection();
+  renderLevel();
+});
+els.playAgainBtn.addEventListener('click', ()=>{
+  els.finishScreen.classList.remove('active');
+  score = 0; current = 0; attempts = 2; wonLevels = []; locked = false;
+  els.score.textContent = '0';
+  renderBadges();
+  renderCollection();
+  renderLevel();
+});
+document.addEventListener('keydown', e=>{
+  if(e.key === 'Enter' && !els.finishScreen.classList.contains('active') && !els.splashScreen.classList.contains('hidden')){
+    els.startBtn.click();
+  }
+  if(e.key === 'Enter' && !els.finishScreen.classList.contains('active') && els.splashScreen.classList.contains('hidden')){
+    checkAnswer();
+  }
+});
+</script>
+</body>
+</html>
