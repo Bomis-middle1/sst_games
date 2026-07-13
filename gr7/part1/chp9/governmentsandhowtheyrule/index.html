@@ -35,7 +35,7 @@
   }
   .title h1{margin:0;font-size:clamp(20px,3vw,34px);line-height:1.1;color:#332812}
   .title p{margin:6px 0 0;font-size:13px;opacity:.82}
-  .stats{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+  .stats{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;align-items:center}
   .pill{
     background:#fff;border-radius:999px;padding:10px 14px;min-width:90px;text-align:center;
     box-shadow:0 8px 18px rgba(0,0,0,.08);font-weight:800;border:1px solid rgba(0,0,0,.05)
@@ -47,8 +47,6 @@
   .btn.primary{background:linear-gradient(135deg,#1d6b77,#184b63);color:#fff}
   .btn.light{background:#fff;color:var(--ink)}
   .btn.gold{background:linear-gradient(135deg,#d9b45b,#b98a28);color:#fff}
-  .screen{display:none}
-  .screen.active{display:block}
 
   .overlay{
     position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;
@@ -94,29 +92,16 @@
   .progressBar{
     height:100%;width:0;background:linear-gradient(90deg,#2a9a60,#1e6f7a);transition:width .3s ease
   }
-
   .scroll{
     background:linear-gradient(180deg,#fffdf8,#fff5e3);
     border-radius:26px;padding:18px;border:2px solid #ecd4a2;
     box-shadow:0 12px 24px rgba(0,0,0,.08);position:relative;overflow:hidden
   }
-  .scroll:before,.scroll:after{
-    content:"";position:absolute;left:0;right:0;height:18px;background:linear-gradient(90deg,rgba(0,0,0,.05),rgba(0,0,0,0));
-    opacity:.3
-  }
-  .scroll:before{top:0}
-  .scroll:after{bottom:0;transform:scaleY(-1)}
-  .lockline{
-    display:flex;align-items:center;gap:10px;font-weight:900;color:#7a541b;margin-bottom:10px
-  }
-  .clue{
-    font-size:17px;line-height:1.65;margin:8px 0 14px
-  }
-  .wordTitle{
-    margin:0 0 10px;font-size:18px;font-weight:900;color:#1e6f7a
-  }
-  .scramble{
-    display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 16px;min-height:48px
+  .lockline{display:flex;align-items:center;gap:10px;font-weight:900;color:#7a541b;margin-bottom:10px}
+  .clue{font-size:17px;line-height:1.65;margin:8px 0 14px}
+  .wordTitle{margin:0 0 10px;font-size:18px;font-weight:900;color:#1e6f7a}
+  .scramble,.answerRow{
+    display:flex;flex-wrap:wrap;gap:8px;min-height:54px
   }
   .tile,.slot{
     width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;
@@ -129,46 +114,32 @@
   }
   .tile:active{cursor:grabbing}
   .tile.dragging{opacity:.45;transform:scale(.96)}
-  .answerRow{
-    display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;min-height:54px
-  }
   .slot{
     background:#fff;border:2px dashed #c8aa72;color:#99835d
   }
   .slot.filled{
     background:#f7f0e2;border-style:solid;color:#2f2a24
   }
-  .slot.correct{background:#e3f6ea;border-color:#4eb171}
-  .slot.wrong{background:#ffe5e5;border-color:#e06d6d}
-  .feedback{
-    margin-top:14px;font-weight:800;min-height:24px
-  }
+  .feedback{margin-top:14px;font-weight:800;min-height:24px}
   .feedback.good{color:var(--green)}
   .feedback.bad{color:var(--red)}
-  .actions{
-    display:flex;gap:10px;flex-wrap:wrap;margin-top:14px
-  }
+  .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
 
   .side{padding:16px;display:flex;flex-direction:column;gap:14px}
   .badgeBox,.infoBox,.collection{
     background:linear-gradient(180deg,#fffaf2,#fff4e2);
     border:1px solid #edd3a2;border-radius:22px;padding:14px
   }
-  .badgeBox h3,.infoBox h3,.collection h3{
-    margin:0 0 8px;font-size:18px;color:#5a4212
-  }
+  .badgeBox h3,.infoBox h3,.collection h3{margin:0 0 8px;font-size:18px;color:#5a4212}
   .badge{
     display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid rgba(0,0,0,.07);
     padding:8px 12px;border-radius:999px;font-weight:800;margin:6px 8px 0 0;box-shadow:0 6px 12px rgba(0,0,0,.05)
   }
   .badge.earned{background:#fff6d8;border-color:#e2c15c}
-  .badge small{font-weight:700;opacity:.8}
-  .collected{
-    display:flex;flex-wrap:wrap;gap:8px;margin-top:10px
-  }
   .chip{
     padding:7px 10px;border-radius:999px;background:#fff;border:1px solid rgba(0,0,0,.08);font-weight:800;font-size:12px
   }
+  .collected{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
   .infoBox p{margin:0;line-height:1.6;font-size:14px}
   .small{font-size:13px;opacity:.8;line-height:1.5}
   .shake{animation:shake .35s linear}
@@ -182,7 +153,6 @@
     from{transform:translateY(-20px) rotate(0deg);opacity:1}
     to{transform:translateY(420px) rotate(360deg);opacity:0}
   }
-
   .finish{
     display:none;position:fixed;inset:0;z-index:50;background:rgba(18,15,10,.45);backdrop-filter:blur(4px);
     align-items:center;justify-content:center;padding:18px
@@ -200,20 +170,27 @@
 <body>
 
 <div class="overlay" id="splashScreen">
-  <div class="panel">
+  <div class="panel" id="splashPanel">
     <img src="assets/logo.png" alt="Game Logo">
     <h2>Crack the Government Code</h2>
     <p class="sub">Decode the hidden words and unlock the secrets of how governments rule.</p>
+    <button class="btn primary" id="showInstructionsBtn">Continue</button>
+  </div>
+</div>
+
+<div class="overlay hidden" id="instructionsScreen">
+  <div class="panel">
+    <h2>Mission Briefing</h2>
     <div class="mission">
-      <h3>Mission</h3>
+      <h3>How to play</h3>
       <ul>
         <li>You have entered the Government Archive.</li>
         <li>Each chamber has a clue and a scrambled government term.</li>
-        <li>Drag the letters into the boxes in the correct order.</li>
+        <li>Drag the letters into the answer boxes in the correct order.</li>
         <li>You get 2 chances for each code.</li>
       </ul>
     </div>
-    <button class="btn primary" id="startBtn">START MISSION</button>
+    <button class="btn gold" id="startBtn">START MISSION</button>
   </div>
 </div>
 
@@ -276,11 +253,6 @@
         <h3>Scoring</h3>
         <p>First try: 10 points. Second try: 5 points. Reveal: 2 points.</p>
       </div>
-
-      <div class="infoBox">
-        <h3>Tip</h3>
-        <p class="small">Some answers ignore spaces when checked, so long phrases still work smoothly.</p>
-      </div>
     </div>
   </div>
 </div>
@@ -303,49 +275,52 @@
 
 <script>
 const levels = [
-  {code:'DEMOCRACY', badge:'🏛 Citizen Badge', clue:'In this form of government, citizens are not ruled by a king or a single powerful leader. Instead, people have the right to choose their representatives through elections. The government is expected to listen to citizens, protect their rights, and remain accountable to the people.', title:'Unlock the Democracy Chamber 🔐'},
-  {code:'LEGISLATURE', badge:'📜 Law Maker Badge', clue:'This organ of government is responsible for discussing important issues, debating proposals, and creating laws that guide society. In India, Parliament performs this role through two Houses that represent the people and the states.', title:'Unlock the Law-Making Room 📜'},
-  {code:'EXECUTIVE', badge:'🏢 Administration Badge', clue:'After laws are created, they need to be put into practice. This branch of government includes leaders and officials who make sure decisions are implemented and public services reach citizens.', title:'Unlock the Action Centre 🏢'},
-  {code:'JUDICIARY', badge:'⚖ Justice Badge', clue:'When people disagree about laws or when someone\'s rights are violated, this organ of government steps in. Courts under this branch interpret laws, settle disputes, and ensure justice is given fairly.', title:'Unlock the Justice Gate ⚖️'},
-  {code:'LOKSABHA', badge:'🏛 Citizen Voice Badge', clue:'This House of India\'s Parliament consists of members who are directly elected by citizens. It represents the voice of people and plays an important role in making laws and approving financial decisions.', title:'Unlock the People\'s House 🏛️'},
-  {code:'RAJYASABHA', badge:'🏛 State Voice Badge', clue:'This House of Parliament represents India\'s states and union territories. Its members discuss laws and review decisions made by the other House, ensuring that different regions have representation.', title:'Unlock the States\' Voice Chamber 🏛️'},
-  {code:'SEPARATIONOFPOWERS', badge:'⚖ Balance Badge', clue:'A good government does not allow all powers to remain with one person or one institution. Different organs are given separate responsibilities so that they can check and balance each other\'s actions.', title:'Unlock the Balance Code ⚖️'},
-  {code:'UNIVERSALADULTFRANCHISE', badge:'🗳 Voting Badge', clue:'This democratic principle means that all adult citizens have the right to vote, regardless of their gender, religion, caste, wealth, or social background.', title:'Unlock the Voting Vault 🗳️'},
-  {code:'MONARCHY', badge:'🏰 History Badge', clue:'In this system of government, power is usually passed through a royal family. A king or queen may become the ruler because of inheritance rather than being elected by citizens.', title:'Unlock the Royal Palace 🏰'},
-  {code:'DICTATORSHIP', badge:'🚨 Power Awareness Badge', clue:'In this form of government, power is concentrated in the hands of one leader or a small group. Citizens may have limited freedom, and decisions are often made without public participation.', title:'Unlock the Power Trap 🚨'},
-  {code:'DIRECTDEMOCRACY', badge:'🗳 Participation Badge', clue:'In some democracies, citizens do not only choose representatives but also directly vote on important issues and decisions. Switzerland is an example where people participate through this system.', title:'Unlock the Direct Voice Room 🗳️'},
-  {code:'THEOCRACY', badge:'⛪ Faith & Rule Badge', clue:'In this form of government, political authority is connected with religious leadership. Leaders may claim that their authority comes from religious beliefs or divine power.', title:'Unlock the Religious Rule Chamber ⛪'},
-  {code:'RAJADHARMA', badge:'📜 Wisdom Badge', clue:'Ancient Indian ideas suggested that rulers should not use power only for themselves. They had a responsibility to protect people, maintain justice, and work for the welfare of society.', title:'Unlock the Ancient Wisdom Scroll 📜'},
-  {code:'PARTICIPATION', badge:'⭐ Citizen Power Badge', clue:'A government becomes stronger when people participate by voting, questioning leaders, sharing opinions, and taking part in decisions that affect society.', title:'Unlock the Citizen Power Badge ⭐'},
-  {code:'ACCOUNTABILITY', badge:'⭐ Guardian Badge', clue:'A government must answer to the people for its decisions and actions. Leaders should explain their choices and accept responsibility for their work.', title:'Final Master Code 🏆'}
+  {code:'DEMOCRACY', badge:'🏛 Citizen Badge', clue:'In this form of government, citizens are not ruled by a king or a single powerful leader. Instead, people have the right to choose their representatives through elections. The government is expected to listen to citizens, protect their rights, and remain accountable to the people.'},
+  {code:'LEGISLATURE', badge:'📜 Law Maker Badge', clue:'This organ of government is responsible for discussing important issues, debating proposals, and creating laws that guide society. In India, Parliament performs this role through two Houses that represent the people and the states.'},
+  {code:'EXECUTIVE', badge:'🏢 Administration Badge', clue:'After laws are created, they need to be put into practice. This branch of government includes leaders and officials who make sure decisions are implemented and public services reach citizens.'},
+  {code:'JUDICIARY', badge:'⚖ Justice Badge', clue:'When people disagree about laws or when someone\'s rights are violated, this organ of government steps in. Courts under this branch interpret laws, settle disputes, and ensure justice is given fairly.'},
+  {code:'LOKSABHA', badge:'🏛 Citizen Voice Badge', clue:'This House of India\'s Parliament consists of members who are directly elected by citizens. It represents the voice of people and plays an important role in making laws and approving financial decisions.'},
+  {code:'RAJYASABHA', badge:'🏛 State Voice Badge', clue:'This House of Parliament represents India\'s states and union territories. Its members discuss laws and review decisions made by the other House, ensuring that different regions have representation.'},
+  {code:'SEPARATIONOFPOWERS', badge:'⚖ Balance Badge', clue:'A good government does not allow all powers to remain with one person or one institution. Different organs are given separate responsibilities so that they can check and balance each other\'s actions.'},
+  {code:'UNIVERSALADULTFRANCHISE', badge:'🗳 Voting Badge', clue:'This democratic principle means that all adult citizens have the right to vote, regardless of their gender, religion, caste, wealth, or social background.'},
+  {code:'MONARCHY', badge:'🏰 History Badge', clue:'In this system of government, power is usually passed through a royal family. A king or queen may become the ruler because of inheritance rather than being elected by citizens.'},
+  {code:'DICTATORSHIP', badge:'🚨 Power Awareness Badge', clue:'In this form of government, power is concentrated in the hands of one leader or a small group. Citizens may have limited freedom, and decisions are often made without public participation.'},
+  {code:'DIRECTDEMOCRACY', badge:'🗳 Participation Badge', clue:'In some democracies, citizens do not only choose representatives but also directly vote on important issues and decisions. Switzerland is an example where people participate through this system.'},
+  {code:'THEOCRACY', badge:'⛪ Faith & Rule Badge', clue:'In this form of government, political authority is connected with religious leadership. Leaders may claim that their authority comes from religious beliefs or divine power.'},
+  {code:'RAJADHARMA', badge:'📜 Wisdom Badge', clue:'Ancient Indian ideas suggested that rulers should not use power only for themselves. They had a responsibility to protect people, maintain justice, and work for the welfare of society.'},
+  {code:'PARTICIPATION', badge:'⭐ Citizen Power Badge', clue:'A government becomes stronger when people participate by voting, questioning leaders, sharing opinions, and taking part in decisions that affect society.'},
+  {code:'ACCOUNTABILITY', badge:'⭐ Guardian Badge', clue:'A government must answer to the people for its decisions and actions. Leaders should explain their choices and accept responsibility for their work.'}
 ];
 
 const letterMap = {
-  DEMOCRACY:['Y','C','R','A','M','O','D','E'],
-  LEGISLATURE:['L','A','T','U','R','E','G','I','S','L','E'],
-  EXECUTIVE:['E','V','T','U','C','I','E','X','E'],
-  JUDICIARY:['D','I','C','Y','U','R','I','A','J'],
-  LOKSABHA:['A','B','H','S','A','K','O','L'],
-  RAJYASABHA:['A','Y','B','A','S','H','J','A','R'],
-  SEPARATIONOFPOWERS:['R','E','S','W','O','P','O','F','N','O','T','I','A','R','A','P','E','S'],
-  UNIVERSALADULTFRANCHISE:['V','A','R','S','E','U','N','L','A','D','U','T','L','F','R','A','C','H','N','S','I','E'],
-  MONARCHY:['M','O','N','R','C','H','Y','A'],
+  DEMOCRACY:['D','E','M','O','C','R','A','C','Y'],
+  LEGISLATURE:['L','E','G','I','S','L','A','T','U','R','E'],
+  EXECUTIVE:['E','X','E','C','U','T','I','V','E'],
+  JUDICIARY:['J','U','D','I','C','I','A','R','Y'],
+  LOKSABHA:['L','O','K','S','A','B','H','A'],
+  RAJYASABHA:['R','A','J','Y','A','S','A','B','H','A'],
+  SEPARATIONOFPOWERS:['S','E','P','A','R','A','T','I','O','N','O','F','P','O','W','E','R','S'],
+  UNIVERSALADULTFRANCHISE:['U','N','I','V','E','R','S','A','L','A','D','U','L','T','F','R','A','N','C','H','I','S','E'],
+  MONARCHY:['M','O','N','A','R','C','H','Y'],
   DICTATORSHIP:['D','I','C','T','A','T','O','R','S','H','I','P'],
-  DIRECTDEMOCRACY:['R','E','C','T','I','D','C','M','R','A','C','O','Y'],
+  DIRECTDEMOCRACY:['D','I','R','E','C','T','D','E','M','O','C','R','A','C','Y'],
   THEOCRACY:['T','H','E','O','C','R','A','C','Y'],
-  RAJADHARMA:['A','R','J','A','D','H','A','R','M','A'],
-  PARTICIPATION:['C','I','P','A','T','I','R','P','A','T','I','O','N'],
+  RAJADHARMA:['R','A','J','A','D','H','A','R','M','A'],
+  PARTICIPATION:['P','A','R','T','I','C','I','P','A','T','I','O','N'],
   ACCOUNTABILITY:['A','C','C','O','U','N','T','A','B','I','L','I','T','Y']
 };
 
 const badgeOrder = [
-  '🏛 Citizen Badge','📜 Law Maker Badge','⚖ Justice Badge','🏢 Administration Badge',
-  '🗳 Voting Badge','🏰 History Badge','🚨 Power Awareness Badge','🗳 Participation Badge',
-  '⚖ Balance Badge','⭐ Guardian Badge'
+  '🏛 Citizen Badge','📜 Law Maker Badge','🏢 Administration Badge','⚖ Justice Badge',
+  '🏛 Citizen Voice Badge','🏛 State Voice Badge','⚖ Balance Badge','🗳 Voting Badge',
+  '🏰 History Badge','🚨 Power Awareness Badge','🗳 Participation Badge','⛪ Faith & Rule Badge',
+  '📜 Wisdom Badge','⭐ Citizen Power Badge','⭐ Guardian Badge'
 ];
 
 const els = {
   splashScreen: document.getElementById('splashScreen'),
+  instructionsScreen: document.getElementById('instructionsScreen'),
+  showInstructionsBtn: document.getElementById('showInstructionsBtn'),
   startBtn: document.getElementById('startBtn'),
   score: document.getElementById('score'),
   levelNum: document.getElementById('levelNum'),
@@ -378,18 +353,9 @@ let attempts = 2;
 let wonLevels = [];
 let locked = false;
 
-function shuffle(arr){
-  return arr.map(v=>[Math.random(),v]).sort((a,b)=>a[0]-b[0]).map(x=>x[1]);
-}
-
-function cleanText(str){
-  return str.replace(/[^A-Z]/g,'');
-}
-
-function playSound(a){
-  try{ a.currentTime = 0; a.play().catch(()=>{}); }catch(e){}
-}
-
+function shuffle(arr){ return arr.map(v=>[Math.random(),v]).sort((a,b)=>a[0]-b[0]).map(x=>x[1]); }
+function cleanText(str){ return str.replace(/[^A-Z]/g,''); }
+function playSound(a){ try{ a.currentTime=0; a.play().catch(()=>{}); }catch(e){} }
 function showConfetti(count=18){
   const icons = ['🎉','✨','⭐','🏛️','🗳️','⚖️'];
   for(let i=0;i<count;i++){
@@ -440,26 +406,22 @@ function makeTile(letter){
   return t;
 }
 
-function makeSlot(i){
+function makeSlot(){
   const s=document.createElement('div');
   s.className='slot';
-  s.dataset.index = i;
   s.addEventListener('dragover', e=>e.preventDefault());
   s.addEventListener('drop', e=>{
     e.preventDefault();
     if(locked) return;
     const letter = e.dataTransfer.getData('text/plain');
     if(!letter) return;
-    if(s.dataset.filled === '1'){
-      const old = s.dataset.letter;
-      if(old) dropBackToBank(old);
+    if(s.dataset.letter){
+      dropBackToBank(s.dataset.letter);
     }
     s.textContent = letter;
     s.classList.add('filled');
-    s.dataset.filled = '1';
     s.dataset.letter = letter;
-    removeLetterFromBank(letter, e.dataTransfer.sourceNode || null);
-    updateAnswerFromSlots();
+    removeLetterFromBank(letter);
   });
   return s;
 }
@@ -482,20 +444,10 @@ function dropBackToBank(letter){
   });
 }
 
-function updateAnswerFromSlots(){
-  const currentAnswer = [...els.answerRow.children].map(s=>s.dataset.letter || '').join('');
-  const normalized = currentAnswer.replace(/\s/g,'');
-  if(normalized.length === cleanText(levels[current].code).length && !locked){
-    setTimeout(()=>checkAnswer(), 180);
-  }
-}
-
 function resetBoxes(){
   els.answerRow.innerHTML='';
   const answer = cleanText(levels[current].code);
-  for(let i=0;i<answer.length;i++){
-    els.answerRow.appendChild(makeSlot(i));
-  }
+  for(let i=0;i<answer.length;i++) els.answerRow.appendChild(makeSlot());
 }
 
 function renderLevel(){
@@ -512,7 +464,6 @@ function renderLevel(){
   els.nextBtn.style.display = 'none';
   els.letterBank.innerHTML = '';
   resetBoxes();
-
   const letters = shuffle(letterMap[levels[current].code].slice());
   letters.forEach(l=>els.letterBank.appendChild(makeTile(l)));
 }
@@ -525,20 +476,19 @@ function revealCorrect(){
   const correct = cleanText(levels[current].code);
   [...els.answerRow.children].forEach((s,i)=>{
     s.textContent = correct[i] || '';
-    s.classList.add('filled','correct');
+    s.classList.add('filled');
   });
 }
 
 function checkAnswer(){
   if(locked) return;
   const correct = cleanText(levels[current].code);
-  const user = getUserAnswer().replace(/\s/g,'');
+  const user = getUserAnswer();
   if(user.length !== correct.length){
     els.feedback.textContent = 'Fill all the boxes first.';
     els.feedback.className = 'feedback bad';
     return;
   }
-
   if(user === correct){
     locked = true;
     const pts = attempts === 2 ? 10 : 5;
@@ -553,16 +503,14 @@ function checkAnswer(){
     wonLevels.push(levels[current].badge);
     renderBadges();
     renderCollection();
-    document.querySelector('.scroll').classList.add('pop');
-    setTimeout(()=>document.querySelector('.scroll').classList.remove('pop'),300);
     els.checkBtn.style.display = 'none';
     els.nextBtn.style.display = 'inline-block';
   } else {
     attempts--;
     els.attemptsLeft.textContent = attempts;
     playSound(els.wrongSound);
-    document.getElementById('answerRow').classList.add('shake');
-    setTimeout(()=>document.getElementById('answerRow').classList.remove('shake'),350);
+    els.answerRow.classList.add('shake');
+    setTimeout(()=>els.answerRow.classList.remove('shake'),350);
     if(attempts > 0){
       els.feedback.textContent = 'Not quite! Read the clue again and try rearranging the letters.';
       els.feedback.className = 'feedback bad';
@@ -584,10 +532,7 @@ function checkAnswer(){
 
 function nextLevel(){
   current++;
-  if(current >= levels.length){
-    finishGame();
-    return;
-  }
+  if(current >= levels.length){ finishGame(); return; }
   renderLevel();
 }
 
@@ -614,18 +559,19 @@ function finishGame(){
 function clearAnswer(){
   if(locked) return;
   [...els.answerRow.children].forEach(s=>{
-    if(s.dataset.letter){
-      dropBackToBank(s.dataset.letter);
-    }
+    if(s.dataset.letter) dropBackToBank(s.dataset.letter);
     s.textContent='';
-    s.classList.remove('filled','correct','wrong');
+    s.classList.remove('filled');
     delete s.dataset.letter;
-    delete s.dataset.filled;
   });
 }
 
-els.startBtn.addEventListener('click', ()=>{
+els.showInstructionsBtn.addEventListener('click', ()=>{
   els.splashScreen.classList.add('hidden');
+  els.instructionsScreen.classList.remove('hidden');
+});
+els.startBtn.addEventListener('click', ()=>{
+  els.instructionsScreen.classList.add('hidden');
   renderBadges();
   renderCollection();
   renderLevel();
@@ -648,14 +594,6 @@ els.playAgainBtn.addEventListener('click', ()=>{
   renderBadges();
   renderCollection();
   renderLevel();
-});
-document.addEventListener('keydown', e=>{
-  if(e.key === 'Enter' && !els.finishScreen.classList.contains('active') && !els.splashScreen.classList.contains('hidden')){
-    els.startBtn.click();
-  }
-  if(e.key === 'Enter' && !els.finishScreen.classList.contains('active') && els.splashScreen.classList.contains('hidden')){
-    checkAnswer();
-  }
 });
 </script>
 </body>
