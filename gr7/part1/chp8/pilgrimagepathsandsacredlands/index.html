@@ -6,46 +6,75 @@
 <title>Sacred or Not? Classification Challenge</title>
 <style>
   :root{
-    --bg1:#fff3d6; --bg2:#f7e7c4; --card:#ffffff; --ink:#2e2a22;
-    --green:#2e9e56; --red:#d84a4a; --teal:#147f86; --orange:#d57a2a; --shadow:0 10px 24px rgba(0,0,0,.14);
-    --natural:#1c8f5a; --built:#c86a2b; --global:#126b7a;
+    --bg1:#fff3d6;
+    --bg2:#f7e7c4;
+    --ink:#2e2a22;
+    --shadow:0 10px 24px rgba(0,0,0,.14);
+    --green:#2e9e56;
+    --red:#d84a4a;
   }
   *{box-sizing:border-box}
-  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:var(--ink);min-height:100vh;overflow-x:hidden}
+  body{
+    margin:0;
+    font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    background:linear-gradient(180deg,var(--bg1),var(--bg2));
+    color:var(--ink);
+    min-height:100vh;
+    overflow-x:hidden;
+  }
   .wrap{max-width:1200px;margin:0 auto;padding:12px}
-  .top{display:flex;align-items:center;gap:14px;justify-content:space-between;flex-wrap:wrap;background:rgba(255,255,255,.55);backdrop-filter:blur(6px);border:2px solid rgba(0,0,0,.05);border-radius:20px;padding:12px 14px;box-shadow:var(--shadow)}
+  .top{
+    display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
+    background:rgba(255,255,255,.55);backdrop-filter:blur(6px);
+    border:2px solid rgba(0,0,0,.05);border-radius:20px;padding:12px 14px;box-shadow:var(--shadow)
+  }
   .brand{display:flex;align-items:center;gap:12px;min-width:220px}
-  .brand img{width:62px;height:62px;object-fit:contain;border-radius:14px;background:#fff;padding:6px;box-shadow:0 6px 14px rgba(0,0,0,.1)}
   .brand h1{font-size:clamp(18px,2.6vw,28px);margin:0;line-height:1.1}
   .brand p{margin:4px 0 0;font-size:13px;opacity:.8}
   .hud{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:flex-end}
-  .pill{background:#fff;border-radius:999px;padding:9px 14px;box-shadow:0 6px 16px rgba(0,0,0,.08);border:1px solid rgba(0,0,0,.06);font-weight:700}
-  .btn{border:0;border-radius:16px;padding:12px 16px;font-weight:800;font-size:15px;cursor:pointer;box-shadow:var(--shadow)}
+  .pill{
+    background:#fff;border-radius:999px;padding:9px 14px;box-shadow:0 6px 16px rgba(0,0,0,.08);
+    border:1px solid rgba(0,0,0,.06);font-weight:700
+  }
+  .btn{
+    border:0;border-radius:16px;padding:12px 16px;font-weight:800;font-size:15px;cursor:pointer;box-shadow:var(--shadow)
+  }
   .btn.primary{background:#164e63;color:#fff}
   .btn.light{background:#fff;color:var(--ink)}
-  .screen{display:none}
-  .screen.active{display:block}
-  .hero{margin-top:14px;background:rgba(255,255,255,.7);border-radius:24px;padding:18px;box-shadow:var(--shadow);border:2px solid rgba(0,0,0,.05)}
-  .hero h2{margin:0 0 8px;font-size:clamp(22px,3.2vw,40px)}
-  .hero p{margin:0 0 14px;max-width:900px;line-height:1.5;font-size:16px}
   .game{margin-top:14px;display:grid;grid-template-columns:1.2fr 1fr;gap:14px}
-  @media (max-width: 900px){.game{grid-template-columns:1fr}}
-  .cardArea,.bins,.board{background:rgba(255,255,255,.7);border-radius:24px;box-shadow:var(--shadow);border:2px solid rgba(0,0,0,.05)}
+  @media (max-width:900px){.game{grid-template-columns:1fr}}
+  .cardArea,.bins,.board{
+    background:rgba(255,255,255,.72);border-radius:24px;box-shadow:var(--shadow);border:2px solid rgba(0,0,0,.05)
+  }
   .cardArea{padding:14px}
-  .cardBox{min-height:280px;border:3px dashed rgba(0,0,0,.08);border-radius:22px;padding:14px;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(180deg,#fff,#fffaf1)}
-  .card{background:linear-gradient(180deg,#fff,#fffdf8);border-radius:22px;padding:18px;border:3px solid #f1dcc0;box-shadow:0 10px 20px rgba(0,0,0,.08);cursor:grab;user-select:none;touch-action:none}
+  .cardBox{
+    min-height:290px;border:3px dashed rgba(0,0,0,.08);border-radius:22px;padding:14px;
+    display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(180deg,#fff,#fffaf1)
+  }
+  .card{
+    background:linear-gradient(180deg,#fff,#fffdf8);border-radius:22px;padding:18px;border:3px solid #f1dcc0;
+    box-shadow:0 10px 20px rgba(0,0,0,.08);cursor:grab;user-select:none;touch-action:none
+  }
   .card:active{cursor:grabbing}
-  .card h3{margin:0 0 10px;font-size:clamp(22px,3vw,32px)}
-  .clue{font-size:16px;line-height:1.55;background:#fff8e8;border-left:6px solid #e0ad49;padding:12px 14px;border-radius:14px}
+  .card h3{margin:0 0 10px;font-size:clamp(20px,3vw,30px)}
+  .clue{
+    font-size:16px;line-height:1.55;background:#fff8e8;border-left:6px solid #e0ad49;
+    padding:12px 14px;border-radius:14px
+  }
   .nameReveal{margin-top:12px;font-weight:900;font-size:17px;color:#0f5e44;display:none}
   .status{margin-top:12px;font-weight:800;font-size:15px;min-height:24px}
   .bins{padding:14px}
   .binsGrid{display:grid;grid-template-columns:1fr;gap:12px}
-  .bin{min-height:150px;border-radius:22px;padding:14px;border:3px solid transparent;position:relative;overflow:hidden}
+  .bin{
+    min-height:150px;border-radius:22px;padding:14px;border:3px solid transparent;position:relative;overflow:hidden
+  }
   .bin h4{margin:0 0 8px;font-size:20px;color:#fff;display:flex;align-items:center;gap:8px}
   .bin p{margin:0;color:rgba(255,255,255,.95);font-size:13px;line-height:1.45}
   .bin .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-  .chip{background:rgba(255,255,255,.95);border-radius:999px;padding:7px 11px;font-size:12px;font-weight:800;box-shadow:0 4px 10px rgba(0,0,0,.12)}
+  .chip{
+    background:rgba(255,255,255,.95);border-radius:999px;padding:7px 11px;font-size:12px;font-weight:800;
+    box-shadow:0 4px 10px rgba(0,0,0,.12)
+  }
   .natural{background:linear-gradient(135deg,#2aa96a,#147f86)}
   .built{background:linear-gradient(135deg,#d8842f,#c85c3f)}
   .global{background:linear-gradient(135deg,#2e78a8,#2d4f8b)}
@@ -56,39 +85,70 @@
   .progressWrap{height:18px;background:#efe1c8;border-radius:999px;overflow:hidden}
   .progressBar{height:100%;width:0;background:linear-gradient(90deg,#2e9e56,#1f8f8f)}
   .small{font-size:13px;opacity:.8}
-  .finish{display:none;position:fixed;inset:0;background:rgba(15,15,15,.4);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:16px}
+
+  .overlay{
+    position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(180deg,rgba(255,245,220,.97),rgba(248,231,200,.96));
+    z-index:20;padding:20px
+  }
+  .overlay.hidden{display:none}
+  .overlayBox{
+    max-width:760px;width:100%;text-align:center;background:#fff;border-radius:30px;padding:26px;
+    box-shadow:0 24px 60px rgba(0,0,0,.18)
+  }
+  .overlayBox img{
+    width:120px;height:120px;object-fit:contain;margin-bottom:10px
+  }
+  .overlayBox h2{margin:8px 0 10px;font-size:34px}
+  .overlayBox p{margin:0 auto 14px;line-height:1.6;max-width:620px}
+  .instructions{
+    text-align:left;max-width:620px;margin:0 auto 18px;background:#fff8e8;border:2px solid #f0d7a7;
+    border-radius:18px;padding:14px 16px;line-height:1.6
+  }
+  .instructions ul{margin:8px 0 0;padding-left:20px}
+  .finish{
+    display:none;position:fixed;inset:0;background:rgba(15,15,15,.42);backdrop-filter:blur(4px);
+    align-items:center;justify-content:center;padding:16px;z-index:25
+  }
   .finish.active{display:flex}
-  .finishCard{max-width:560px;width:100%;background:#fff;border-radius:28px;padding:24px;box-shadow:0 24px 60px rgba(0,0,0,.25);text-align:center}
+  .finishCard{
+    max-width:560px;width:100%;background:#fff;border-radius:28px;padding:24px;box-shadow:0 24px 60px rgba(0,0,0,.25);text-align:center
+  }
   .finishCard h2{margin:0 0 8px;font-size:34px}
   .finishCard p{margin:0 0 18px;font-size:17px;line-height:1.5}
-  .overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(255,245,220,.95),rgba(248,231,200,.94));z-index:20;padding:20px}
-  .overlay.hidden{display:none}
-  .overlayBox{max-width:700px;text-align:center;background:#fff;border-radius:30px;padding:26px;box-shadow:0 24px 60px rgba(0,0,0,.18)}
-  .overlayBox img{width:96px;height:96px;object-fit:contain}
-  .overlayBox h2{margin:12px 0 8px;font-size:34px}
-  .overlayBox p{margin:0 0 18px;line-height:1.5}
   .shake{animation:shake .35s linear}
   @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-4px)}40%{transform:translateX(4px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
   .pop{animation:pop .3s ease}
   @keyframes pop{0%{transform:scale(.9)}100%{transform:scale(1)}}
-  .floating{position:fixed;pointer-events:none;z-index:30;font-size:34px;animation:floatUp 900ms ease-out forwards}
+  .floating{
+    position:fixed;pointer-events:none;z-index:30;font-size:34px;animation:floatUp 900ms ease-out forwards
+  }
   @keyframes floatUp{from{transform:translateY(0) scale(1);opacity:1}to{transform:translateY(-120px) scale(1.4);opacity:0}}
 </style>
 </head>
 <body>
-<div class="overlay" id="startOverlay">
+
+<div class="overlay" id="splash">
   <div class="overlayBox">
-    <img src="gr7/part1/chp8/pilgrimagepathsandsacredlands/assets/logo.png" alt="logo" />
+    <img src="gr7/part1/chp8/pilgrimagepathsandsacredlands/assets/logo.png" alt="Logo">
     <h2>Sacred or Not?</h2>
-    <p>Read each clue, drag the card into the correct sacred category, and reveal the answer after you drop it.</p>
-    <button class="btn primary" id="startBtn">Start Game</button>
+    <p>Welcome to the classification game.</p>
+    <div class="instructions">
+      <strong>How to play:</strong>
+      <ul>
+        <li>Read the clue carefully.</li>
+        <li>Drag the card into the correct sacred category.</li>
+        <li>The place name will appear after you drop it.</li>
+        <li>When all cards are done, your score will appear.</li>
+      </ul>
+    </div>
+    <button class="btn primary" id="startGameBtn">Start Game</button>
   </div>
 </div>
 
 <div class="wrap">
   <div class="top">
     <div class="brand">
-      <img src="gr7/part1/chp8/pilgrimagepathsandsacredlands/assets/logo.png" alt="logo" />
       <div>
         <h1>Sacred or Not? Classification Challenge</h1>
         <p>Drag the clue card into the correct bin.</p>
@@ -102,11 +162,11 @@
     </div>
   </div>
 
-  <div class="game screen active">
+  <div class="game">
     <div class="cardArea">
       <div class="cardBox">
         <div id="card" class="card" draggable="true" aria-grabbed="false">
-          <h3 id="cardTitle">Clue Card</h3>
+          <h3>Clue Card</h3>
           <div class="clue" id="cardClue"></div>
           <div class="nameReveal" id="nameReveal"></div>
           <div class="status" id="status"></div>
@@ -172,104 +232,173 @@ const cards = [
 ];
 
 const els = {
-  score: document.getElementById('score'), wrongCount: document.getElementById('wrongCount'), index: document.getElementById('index'), total: document.getElementById('total'),
-  progressBar: document.getElementById('progressBar'), card: document.getElementById('card'), cardTitle: document.getElementById('cardTitle'), cardClue: document.getElementById('cardClue'),
-  nameReveal: document.getElementById('nameReveal'), status: document.getElementById('status'), finish: document.getElementById('finish'), finalScore: document.getElementById('finalScore'),
-  startOverlay: document.getElementById('startOverlay'), startBtn: document.getElementById('startBtn'), restartBtn: document.getElementById('restartBtn'), playAgain: document.getElementById('playAgain'),
-  correctSound: document.getElementById('correctSound'), wrongSound: document.getElementById('wrongSound'), clapSound: document.getElementById('clapSound')
+  score: document.getElementById('score'),
+  wrongCount: document.getElementById('wrongCount'),
+  index: document.getElementById('index'),
+  total: document.getElementById('total'),
+  progressBar: document.getElementById('progressBar'),
+  card: document.getElementById('card'),
+  cardClue: document.getElementById('cardClue'),
+  nameReveal: document.getElementById('nameReveal'),
+  status: document.getElementById('status'),
+  finish: document.getElementById('finish'),
+  finalScore: document.getElementById('finalScore'),
+  splash: document.getElementById('splash'),
+  startGameBtn: document.getElementById('startGameBtn'),
+  restartBtn: document.getElementById('restartBtn'),
+  playAgain: document.getElementById('playAgain'),
+  correctSound: document.getElementById('correctSound'),
+  wrongSound: document.getElementById('wrongSound'),
+  clapSound: document.getElementById('clapSound')
 };
 
-let order=[], current=0, score=0, wrong=0, locked=false;
-const bins = [...document.querySelectorAll('.bin')];
-const chipMap = {natural: document.getElementById('chips-natural'), built: document.getElementById('chips-built'), global: document.getElementById('chips-global')};
+let order = [];
+let current = 0;
+let score = 0;
+let wrong = 0;
+let locked = false;
 
-function shuffle(a){ return a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(v=>v[1]); }
-function resetGame(){
-  order = shuffle(cards.slice()); current=0; score=0; wrong=0; locked=false;
-  els.score.textContent = score; els.wrongCount.textContent = wrong; els.total.textContent = order.length; els.index.textContent = 0; els.progressBar.style.width='0%';
-  els.finish.classList.remove('active');
-  Object.values(chipMap).forEach(el=>el.innerHTML='');
-  loadCard();
+const bins = [...document.querySelectorAll('.bin')];
+const chipMap = {
+  natural: document.getElementById('chips-natural'),
+  built: document.getElementById('chips-built'),
+  global: document.getElementById('chips-global')
+};
+
+function shuffle(a){
+  return a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(v=>v[1]);
 }
+
+function playSound(a){
+  try{
+    a.currentTime = 0;
+    a.play().catch(()=>{});
+  }catch(e){}
+}
+
+function floatEmoji(text,x,y){
+  const d = document.createElement('div');
+  d.className = 'floating';
+  d.textContent = text;
+  d.style.left = x + 'px';
+  d.style.top = y + 'px';
+  document.body.appendChild(d);
+  setTimeout(()=>d.remove(),900);
+}
+
+function addChip(cat,name){
+  const s = document.createElement('span');
+  s.className = 'chip';
+  s.textContent = name;
+  chipMap[cat].appendChild(s);
+}
+
+function reveal(){
+  els.nameReveal.style.display = 'block';
+  els.nameReveal.textContent = 'Answer: ' + order[current].name;
+}
+
 function loadCard(){
-  locked=false;
+  locked = false;
   const c = order[current];
   if(!c){ finishGame(); return; }
   els.card.classList.remove('shake','pop');
   els.card.dataset.answer = c.category;
-  els.card.dataset.name = c.name;
   els.card.setAttribute('draggable','true');
-  els.card.style.opacity='1';
-  els.cardTitle.textContent = 'Clue Card';
+  els.card.style.opacity = '1';
+  els.card.style.transform = '';
   els.cardClue.textContent = c.clue;
   els.nameReveal.style.display = 'none';
   els.nameReveal.textContent = '';
   els.status.textContent = 'Drag this card into the correct category.';
-  els.index.textContent = current+1;
-  els.progressBar.style.width = `${(current/order.length)*100}%`;
+  els.index.textContent = current + 1;
+  els.progressBar.style.width = `${(current / order.length) * 100}%`;
 }
-function playSound(a){ try{ a.currentTime=0; a.play().catch(()=>{}); }catch(e){} }
-function floatEmoji(text,x,y){ const d=document.createElement('div'); d.className='floating'; d.textContent=text; d.style.left=x+'px'; d.style.top=y+'px'; document.body.appendChild(d); setTimeout(()=>d.remove(),900); }
-function reveal(){ els.nameReveal.style.display='block'; els.nameReveal.textContent='Answer: ' + order[current].name; }
+
 function handleDrop(cat, bin){
   if(locked) return;
-  locked=true;
+  locked = true;
   const c = order[current];
   reveal();
-  if(cat===c.category){
+
+  if(cat === c.category){
     score++;
-    els.score.textContent=score;
-    els.status.textContent='Correct! ' + c.name + ' belongs here.';
+    els.score.textContent = score;
+    els.status.textContent = 'Correct! ' + c.name + ' belongs here.';
     playSound(els.correctSound);
     playSound(els.clapSound);
     bin.classList.add('correctGlow','pop');
-    floatEmoji('🎉', window.innerWidth*0.5, window.innerHeight*0.45);
+    floatEmoji('🎉', window.innerWidth * 0.5, window.innerHeight * 0.45);
     addChip(cat, c.name);
   } else {
     wrong++;
-    els.wrongCount.textContent=wrong;
-    els.status.textContent='Not quite. ' + c.name + ' belongs in the correct category highlighted in green.';
+    els.wrongCount.textContent = wrong;
+    els.status.textContent = 'Not quite. ' + c.name + ' belongs in the correct category highlighted in green.';
     playSound(els.wrongSound);
     bin.classList.add('wrongGlow','shake');
-    const correctBin = document.querySelector('.bin[data-category="'+c.category+'"]');
+    const correctBin = document.querySelector('.bin[data-category="' + c.category + '"]');
     correctBin.classList.add('correctGlow');
     addChip(c.category, c.name);
   }
+
   els.card.setAttribute('draggable','false');
+
   setTimeout(()=>{
     bins.forEach(b=>b.classList.remove('correctGlow','wrongGlow','drop','shake','pop'));
     current++;
-    if(current>=order.length) finishGame();
+    if(current >= order.length) finishGame();
     else loadCard();
   }, 1800);
 }
-function addChip(cat,name){
-  const s=document.createElement('span');
-  s.className='chip';
-  s.textContent=name;
-  chipMap[cat].appendChild(s);
-}
+
 function finishGame(){
-  els.progressBar.style.width='100%';
+  els.progressBar.style.width = '100%';
   els.finalScore.textContent = score;
   els.finish.classList.add('active');
   playSound(els.clapSound);
 }
 
-els.startBtn.addEventListener('click', ()=>{ els.startOverlay.classList.add('hidden'); resetGame(); });
+function resetGame(){
+  order = shuffle(cards.slice());
+  current = 0;
+  score = 0;
+  wrong = 0;
+  locked = false;
+  els.score.textContent = 0;
+  els.wrongCount.textContent = 0;
+  els.total.textContent = order.length;
+  els.index.textContent = 0;
+  els.progressBar.style.width = '0%';
+  els.finish.classList.remove('active');
+  Object.values(chipMap).forEach(el=>el.innerHTML = '');
+  loadCard();
+}
+
+els.startGameBtn.addEventListener('click', ()=>{
+  els.splash.classList.add('hidden');
+  resetGame();
+});
 els.restartBtn.addEventListener('click', resetGame);
-els.playAgain.addEventListener('click', ()=>{ els.finish.classList.remove('active'); resetGame(); });
+els.playAgain.addEventListener('click', ()=>{
+  els.finish.classList.remove('active');
+  resetGame();
+});
 
 els.card.addEventListener('dragstart', e=>{
-  if(locked) {e.preventDefault(); return;}
+  if(locked){ e.preventDefault(); return; }
   e.dataTransfer.setData('text/plain', els.card.dataset.answer);
-  e.dataTransfer.effectAllowed='move';
-  setTimeout(()=>els.card.style.opacity='.55', 0);
+  e.dataTransfer.effectAllowed = 'move';
+  setTimeout(()=>els.card.style.opacity = '.55', 0);
 });
-els.card.addEventListener('dragend', ()=>{ els.card.style.opacity='1'; });
+els.card.addEventListener('dragend', ()=>{
+  els.card.style.opacity = '1';
+});
 
 bins.forEach(bin=>{
-  bin.addEventListener('dragover', e=>{ e.preventDefault(); if(!locked) bin.classList.add('drop'); });
+  bin.addEventListener('dragover', e=>{
+    e.preventDefault();
+    if(!locked) bin.classList.add('drop');
+  });
   bin.addEventListener('dragleave', ()=>bin.classList.remove('drop'));
   bin.addEventListener('drop', e=>{
     e.preventDefault();
@@ -278,33 +407,36 @@ bins.forEach(bin=>{
   });
 });
 
-// Touch-friendly fallback for mobile/tablet browsers.
-let pointerDown=false, startX=0, startY=0, dragging=false;
+// Touch-friendly fallback
+let pointerDown = false, startX = 0, startY = 0, dragging = false;
 els.card.addEventListener('pointerdown', e=>{
   if(locked) return;
-  pointerDown=true;
-  startX=e.clientX; startY=e.clientY;
+  pointerDown = true;
+  startX = e.clientX;
+  startY = e.clientY;
   els.card.setPointerCapture(e.pointerId);
 });
 els.card.addEventListener('pointermove', e=>{
   if(!pointerDown || locked) return;
-  const dx=e.clientX-startX, dy=e.clientY-startY;
-  if(Math.hypot(dx,dy)>8) dragging=true;
+  const dx = e.clientX - startX;
+  const dy = e.clientY - startY;
+  if(Math.hypot(dx,dy) > 8) dragging = true;
   if(dragging){
-    els.card.style.transform=`translate(${dx}px, ${dy}px) rotate(${dx/25}deg)`;
+    els.card.style.transform = `translate(${dx}px, ${dy}px) rotate(${dx/25}deg)`;
   }
 });
 els.card.addEventListener('pointerup', e=>{
   if(locked) return;
-  const x=e.clientX, y=e.clientY;
-  els.card.style.transform='';
-  pointerDown=false;
+  const x = e.clientX;
+  const y = e.clientY;
+  els.card.style.transform = '';
+  pointerDown = false;
   if(dragging){
     const hit = document.elementFromPoint(x,y);
     const bin = hit && hit.closest && hit.closest('.bin');
     if(bin) handleDrop(els.card.dataset.answer, bin);
   }
-  dragging=false;
+  dragging = false;
 });
 </script>
 </body>
