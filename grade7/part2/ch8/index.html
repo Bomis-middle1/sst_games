@@ -129,13 +129,13 @@ button:hover{background:var(--mint-green)}
    <div class="panel-inner">
     <div class="top">
      <div>🥚 Eggs Recovered: <span id="scoreDisplay">0</span>/10</div>
-     <div>⏳ Expiry: <span id="time">45</span>s</div>
-     <div>Task <span id="qnum">1</span>/10</div>
+     <div>⏳ Expiry: <span id="timeDisplay">45</span>s</div>
+     <div>Task <span id="qnumDisplay">1</span>/10</div>
     </div>
-    <div class="progress"><div id="bar" class="bar"></div></div>
-    <h2 id="question"></h2>
-    <div id="options"></div>
-    <div id="feedback"></div>
+    <div class="progress"><div id="barDisplay" class="bar"></div></div>
+    <h2 id="questionDisplay"></h2>
+    <div id="optionsDisplay"></div>
+    <div id="feedbackDisplay"></div>
     <div class="divider"></div>
     <button id="nextBtn" class="hidden" onclick="nextQ()">Next Economic Task →</button>
    </div>
@@ -169,7 +169,7 @@ button:hover{background:var(--mint-green)}
 <div class="skystrip"></div>
 <div class="panel-inner center" style="padding:40px 30px">
 <div style="font-size:65px" id="resultIcon"></div>
-<h1 id="title"></h1>
+<h1 id="resultTitle"></h1>
 <h2 id="finalScore"></h2>
 <div class="stamp" id="resultStamp"></div><br><br>
 <button onclick="location.reload()">Launch New Quest</button>
@@ -205,7 +205,7 @@ const qs=[
 {q:"Which rule is vital to follow when keeping your savings secure while interacting with digital payment channels?",o:["Sharing your One-Time Passwords (OTPs) with helpful phone support agents","Clicking on exciting or urgent links sent from unknown text numbers","Never sharing passwords/OTPs, checking links, and calling the 1930 cyber hotline if fraud happens","Downloading untrusted remote layout software suggested by strangers"],a:2,e:"Protecting transaction keys, ignoring suspicious hyperlinks, and leveraging the 1930 National Cybercrime helpline ensures strong defense against fraud."}
 ];
 
-let c=0,score=0,retry=0,t=45,timer;
+let currentIndex = 0, currentScore = 0, retryChance = 0, timeLeft = 45, gameTimer;
 
 function startGame(){
   document.getElementById('intro').classList.add('hidden');
@@ -214,80 +214,137 @@ function startGame(){
 }
 
 function loadQ(){
-retry=0;t=45;time.textContent=t;qnum.textContent=c+1;bar.style.width=(c/qs.length*100)+'%';
-question.textContent=qs[c].q;options.innerHTML='';feedback.innerHTML='';nextBtn.classList.add('hidden');
-const labels=['A','B','C','D'];
-qs[c].o.forEach((op,i)=>{
-  let d=document.createElement('div');d.className='action-card';
-  d.innerHTML='<span class="badge">'+labels[i]+'</span><span>'+op+'</span>';
-  d.onclick=()=>choose(i,d);options.appendChild(d);
-});
-clearInterval(timer);timer=setInterval(()=>{t--;time.textContent=t;if(t<=0){clearInterval(timer);showAnswer();}},1000);
+  retryChance = 0; 
+  timeLeft = 45;
+  document.getElementById('timeDisplay').textContent = timeLeft;
+  document.getElementById('qnumDisplay').textContent = currentIndex + 1;
+  document.getElementById('barDisplay').style.width = (currentIndex / qs.length * 100) + '%';
+  document.getElementById('questionDisplay').textContent = qs[currentIndex].q;
+  
+  const optionsBox = document.getElementById('optionsDisplay');
+  optionsBox.innerHTML = '';
+  document.getElementById('feedbackDisplay').innerHTML = '';
+  document.getElementById('nextBtn').classList.add('hidden');
+  
+  const labels = ['A', 'B', 'C', 'D'];
+  qs[currentIndex].o.forEach((op, i) => {
+    let d = document.createElement('div');
+    d.className = 'action-card';
+    d.innerHTML = '<span class="badge">' + labels[i] + '</span><span>' + op + '</span>';
+    d.onclick = () => choose(i, d);
+    optionsBox.appendChild(d);
+  });
+  
+  clearInterval(gameTimer);
+  gameTimer = setInterval(() => {
+    timeLeft--;
+    document.getElementById('timeDisplay').textContent = timeLeft;
+    if(timeLeft <= 0){
+      clearInterval(gameTimer);
+      showAnswer();
+    }
+  }, 1000);
 }
 
-function choose(i,el){
-if(i===qs[c].a){
-  score++;scoreEl();
-  correctSound.play().catch(()=>{});
-  el.classList.add('correct');
-  feedback.innerHTML='<div class="feedback good">✨ Success! Egg recovered! '+qs[c].e+'</div>';
-  addEggToNest();
-  confetti();disable();nextBtn.classList.remove('hidden');clearInterval(timer);
-}
-else if(retry===0){
-  retry=1;el.classList.add('wrong');
-  wrongSound.play().catch(()=>{});
-  feedback.innerHTML='<div class="feedback bad">Incorrect approach. The mother bird hesitates. Adjust your strategy and try one more time!</div>';
-}
-else{
-  el.classList.add('wrong');
-  showAnswer();
-}
+function choose(i, el){
+  if(i === qs[currentIndex].a){
+    currentScore++;
+    document.getElementById('scoreDisplay').textContent = currentScore;
+    document.getElementById('correctSound').play().catch(()=>{});
+    el.classList.add('correct');
+    document.getElementById('feedbackDisplay').innerHTML = '<div class="feedback good">✨ Success! Egg recovered! ' + qs[currentIndex].e + '</div>';
+    addEggToNest();
+    triggerConfetti();
+    disableChoices();
+    document.getElementById('nextBtn').classList.remove('hidden');
+    clearInterval(gameTimer);
+  }
+  else if(retryChance === 0){
+    retryChance = 1;
+    el.classList.add('wrong');
+    document.getElementById('wrongSound').play().catch(()=>{});
+    document.getElementById('feedbackDisplay').innerHTML = '<div class="feedback bad">Incorrect approach. The mother bird hesitates. Adjust your strategy and try one more time!</div>';
+  }
+  else{
+    el.classList.add('wrong');
+    showAnswer();
+  }
 }
 
 function showAnswer(){
-disable();clearInterval(timer);
-const labels=['A','B','C','D'];
-feedback.innerHTML='<div class="feedback bad">Task Failed. The safe move was: <b>'+labels[qs[c].a]+'. '+qs[c].o[qs[c].a]+'</b><br>'+qs[c].e+'</div>';
-nextBtn.classList.remove('hidden');
+  disableChoices();
+  clearInterval(gameTimer);
+  const labels = ['A', 'B', 'C', 'D'];
+  document.getElementById('feedbackDisplay').innerHTML = '<div class="feedback bad">Task Failed. The safe move was: <b>' + labels[qs[currentIndex].a] + '. ' + qs[currentIndex].o[qs[currentIndex].a] + '</b><br>' + qs[currentIndex].e + '</div>';
+  document.getElementById('nextBtn').classList.remove('hidden');
 }
 
-function disable(){document.querySelectorAll('.action-card').forEach(x=>x.onclick=null)}
-function nextQ(){c++;if(c<qs.length)loadQ();else{document.getElementById('game').classList.add('hidden');showResult();}}
+function disableChoices(){
+  document.querySelectorAll('.action-card').forEach(x => x.onclick = null);
+}
+
+function nextQ(){
+  currentIndex++;
+  if(currentIndex < qs.length) {
+    loadQ();
+  } else {
+    document.getElementById('game').classList.add('hidden');
+    showResult();
+  }
+}
 
 function addEggToNest(){
-  const nest=document.getElementById('eggsNest');
-  let egg=document.createElement('span');
-  egg.className='egg';egg.innerHTML='🥚';
+  const nest = document.getElementById('eggsNest');
+  let egg = document.createElement('span');
+  egg.className = 'egg';
+  egg.innerHTML = '🥚';
   nest.appendChild(egg);
   
-  // Dynamic nest label updater
-  const status=document.getElementById('nestStatus');
-  if(score===10){status.innerHTML='👑 Incredible! The nest is completely full of golden wealth eggs!';}
-  else{status.innerHTML='🐦 Mother bird tweets happily! '+score+' egg(s) secured safely.';}
+  const status = document.getElementById('nestStatus');
+  if(currentScore === 10){
+    status.innerHTML = '👑 Incredible! The nest is completely full of golden wealth eggs!';
+  } else {
+    status.innerHTML = '🐦 Mother bird tweets happily! ' + currentScore + ' egg(s) secured safely.';
+  }
 }
 
 function showResult(){
-document.getElementById('result').classList.remove('hidden');
-if(score >= 9){
-  title.textContent='👑 Master of Financial Systems';resultIcon.textContent='🪺';
-  resultStamp.textContent='GOLDEN NEST SECURED — METROPOLITAN RANK';clapSound.play().catch(()=>{});
-}
-else if(score >= 6){
-  title.textContent='📈 Competent Asset Guardian';resultIcon.textContent='🪹';
-  resultStamp.textContent='SAFE HARBOR NEST — ACCOUNTANT RANK';
-}
-else{
-  title.textContent='🌱 Trainee Depositor';resultIcon.textContent='🐦';
-  resultStamp.textContent='BASIC RESERVES — ASSISTANT RANK';
-}
-finalScore.textContent='You successfully returned '+score+' golden eggs to the mother bird\'s nest.';
+  document.getElementById('result').classList.remove('hidden');
+  const rTitle = document.getElementById('resultTitle');
+  const rIcon = document.getElementById('resultIcon');
+  const rStamp = document.getElementById('resultStamp');
+  
+  if(currentScore >= 9){
+    rTitle.textContent = '👑 Master of Financial Systems';
+    rIcon.textContent = '🪺';
+    rStamp.textContent = 'GOLDEN NEST SECURED — METROPOLITAN RANK';
+    document.getElementById('clapSound').play().catch(()=>{});
+  }
+  else if(currentScore >= 6){
+    rTitle.textContent = '📈 Competent Asset Guardian';
+    rIcon.textContent = '🪹';
+    rStamp.textContent = 'SAFE HARBOR NEST — ACCOUNTANT RANK';
+  }
+  else{
+    rTitle.textContent = '🌱 Trainee Depositor';
+    rIcon.textContent = '🐦';
+    rStamp.textContent = 'BASIC RESERVES — ASSISTANT RANK';
+  }
+  document.getElementById('finalScore').textContent = 'You successfully returned ' + currentScore + ' golden eggs to the mother bird\'s nest.';
 }
 
-function scoreEl(){document.getElementById('scoreDisplay').textContent=score}
-function confetti(){const sym=['🪙','✨','🥚'];for(let i=0;i<10;i++){let s=document.createElement('div');s.className='confetti';s.innerHTML=sym[i%sym.length];s.style.left=Math.random()*innerWidth+'px';s.style.top=(innerHeight-80)+'px';document.body.appendChild(s);setTimeout(()=>s.remove(),1300);}}
+function triggerConfetti(){
+  const sym = ['🪙', '✨', '🥚'];
+  for(let i = 0; i < 10; i++){
+    let s = document.createElement('div');
+    s.className = 'confetti';
+    s.innerHTML = sym[i % sym.length];
+    s.style.left = Math.random() * window.innerWidth + 'px';
+    s.style.top = (window.innerHeight - 80) + 'px';
+    document.body.appendChild(s);
+    setTimeout(() => s.remove(), 1300);
+  }
+}
 </script>
 </body>
 </html>
-
-
