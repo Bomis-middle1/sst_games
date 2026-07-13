@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Voices of Democracy: Parliamentary Maze Balance</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    min-height:100vh;
+    background:
+      radial-gradient(circle at top, rgba(255,255,255,.7), transparent 30%),
+      linear-gradient(180deg,#f7f3ea,#e6dcc8);
+    color:#2d271f;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:10px;
+    overflow-x:hidden;
+  }
+  .splash-screen,.instructions-screen,.finish-screen{
+    position:fixed;inset:0;display:flex;justify-content:center;align-items:center;z-index:9999;
+    background:linear-gradient(180deg,rgba(247,243,234,.98),rgba(230,220,200,.97));
+    transition:opacity .5s ease, transform .5s ease;
+  }
+  .hidden{opacity:0;pointer-events:none;transform:scale(.98)}
+  .panel{
+    width:min(900px,100%);
+    background:rgba(255,252,247,.98);
+    border-radius:30px;
+    box-shadow:0 24px 70px rgba(0,0,0,.2);
+    padding:28px;
+    border:1px solid rgba(0,0,0,.06);
+    text-align:center;
+  }
+  .panel img{
+    width:150px;height:150px;object-fit:contain;display:block;margin:0 auto 12px;
+    filter:drop-shadow(0 10px 20px rgba(0,0,0,.12))
+  }
+  .panel h1,.panel h2{color:#0f2042;margin-bottom:10px;font-family:'Georgia',serif}
+  .panel p{line-height:1.6;margin-bottom:14px}
+  .mission{
+    text-align:left;max-width:760px;margin:0 auto 20px;padding:18px;border-radius:22px;
+    background:linear-gradient(180deg,#fff9ec,#fff2d8);border:2px solid #e6cc8c
+  }
+  .mission h3{margin-bottom:10px;color:#5a4212}
+  .mission ul{padding-left:20px;line-height:1.7}
+  .btn{
+    border:0;border-radius:16px;padding:12px 18px;font-weight:900;cursor:pointer;
+    box-shadow:0 16px 34px rgba(44,32,18,.18);font-size:15px
+  }
+  .primary{background:linear-gradient(135deg,#0f2042,#1e3a8a);color:#fff}
+  .gold{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff}
+  .light{background:#fff;color:#2d271f}
+  .wrap{
+    width:min(1280px,100%);
+    opacity:0;
+    transition:opacity .5s ease;
+  }
+  .wrap.visible{opacity:1}
+  .topbar{
+    display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;
+    background:rgba(255,255,255,.62);backdrop-filter:blur(8px);
+    border:1px solid rgba(0,0,0,.06);border-radius:24px;padding:14px 16px;box-shadow:0 18px 36px rgba(43,30,16,.18)
+  }
+  .title h1{margin:0;font-size:clamp(20px,3vw,34px);line-height:1.1;color:#0f2042;font-family:'Georgia',serif}
+  .title p{margin-top:6px;font-size:13px;opacity:.8}
+  .stats{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:flex-end}
+  .pill{
+    background:#fff;border-radius:999px;padding:10px 14px;min-width:92px;text-align:center;
+    font-weight:900;box-shadow:0 8px 18px rgba(0,0,0,.08);border:1px solid rgba(0,0,0,.05)
+  }
+  .game{
+    margin-top:14px;display:grid;grid-template-columns:1.15fr .85fr;gap:14px
+  }
+  @media (max-width:980px){.game{grid-template-columns:1fr}}
+  .stage,.side{
+    background:rgba(255,255,255,.72);border:1px solid rgba(0,0,0,.06);border-radius:28px;box-shadow:0 18px 36px rgba(43,30,16,.18)
+  }
+  .stage{padding:16px}
+  .stageTop{
+    display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px
+  }
+  .levelBadge{
+    background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;
+    padding:10px 14px;border-radius:999px;font-weight:900
+  }
+  .progressWrap{width:100%;height:14px;background:#f0e0c4;border-radius:999px;overflow:hidden}
+  .progressBar{height:100%;width:0;background:linear-gradient(90deg,#16a34a,#0f2042);transition:width .3s ease}
+  .scroll{
+    background:linear-gradient(180deg,#fffdf8,#fff5e3);
+    border-radius:26px;padding:18px;border:2px solid #ecd4a2;
+    box-shadow:0 12px 24px rgba(0,0,0,.08);position:relative;overflow:hidden
+  }
+  .lockline{font-weight:900;color:#7a541b;margin-bottom:10px;display:flex;align-items:center;gap:10px}
+  .clue{font-size:17px;line-height:1.65;margin:8px 0 14px}
+  .scramble,.answerRow{display:flex;flex-wrap:wrap;gap:8px;min-height:54px}
+  .feedback{margin-top:14px;font-weight:800;min-height:24px}
+  .badge{
+    display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid rgba(0,0,0,.07);
+    padding:8px 12px;border-radius:999px;font-weight:800;margin:6px 8px 0 0;box-shadow:0 6px 12px rgba(0,0,0,.05);
+    font-size:12px;
+  }
+  .badge.earned{background:#fff6d8;border-color:#e2c15c}
+  .chipRow{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+  .chip{padding:7px 10px;border-radius:999px;background:#fff;border:1px solid rgba(0,0,0,.08);font-weight:800;font-size:12px}
+  .small{font-size:13px;opacity:.82;line-height:1.5}
+  .side{padding:16px;display:flex;flex-direction:column;gap:14px}
+  .card{
+    background:linear-gradient(180deg,#fffaf2,#fff4e2);
+    border:1px solid #edd3a2;border-radius:22px;padding:14px
+  }
+  .card h3{margin:0 0 8px;font-size:18px;color:#5a4212}
+  .confetti{
+    position:fixed;pointer-events:none;z-index:40;font-size:24px;animation:fall 1000ms ease-in forwards
+  }
+  @keyframes fall{
+    from{transform:translateY(-20px) rotate(0deg);opacity:1}
+    to{transform:translateY(420px) rotate(360deg);opacity:0}
+  }
+  .celebration{
+    position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-size:90px;pointer-events:none;z-index:60;
+    animation:celebrate 1s ease-out
+  }
+  @keyframes celebrate{
+    0%{transform:translate(-50%,-50%) scale(0) rotate(0deg);opacity:1}
+    100%{transform:translate(-50%,-50%) scale(2) rotate(360deg);opacity:0}
+  }
+  #gameCanvas{
+    width:100%;max-width:600px;height:400px;border:3px solid #0f2042;border-radius:14px;
+    display:block;margin:0 auto;background:#f8fafc;touch-action:none
+  }
+  .controls{display:flex;justify-content:center;margin-top:20px}
+  .control-grid{display:grid;grid-template-columns:repeat(3,60px);gap:10px}
+  .control-btn{
+    width:60px;height:60px;border:none;border-radius:10px;background:linear-gradient(135deg,#0f2042,#1e3a8a);
+    color:white;font-size:24px;font-weight:bold;cursor:pointer;box-shadow:0 4px 10px rgba(0,0,0,0.2)
+  }
+  .control-btn:active{transform:scale(.95)}
+  .control-grid .control-btn:nth-child(1){grid-column:2}
+  .control-grid .control-btn:nth-child(2){grid-column:1;grid-row:2}
+  .control-grid .control-btn:nth-child(3){grid-column:3;grid-row:2}
+  .control-grid .control-btn:nth-child(4){grid-column:2;grid-row:2}
+  .question-modal{
+    display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:1000;justify-content:center;align-items:center;padding:20px
+  }
+  .question-box{
+    background:white;border-radius:20px;padding:28px;max-width:620px;width:100%;max-height:90vh;overflow-y:auto;
+    animation:slideIn .25s ease-out
+  }
+  @keyframes slideIn{from{transform:translateY(-30px);opacity:0}to{transform:translateY(0);opacity:1}}
+  .question-box h2{color:#0f2042;margin-bottom:16px;font-family:'Georgia',serif}
+  .question-text{font-size:18px;margin-bottom:18px;line-height:1.6}
+  .options{display:flex;flex-direction:column;gap:12px}
+  .option-btn{
+    padding:14px 16px;border:2px solid #0f2042;border-radius:12px;background:white;color:#2d271f;font-size:16px;
+    cursor:pointer;transition:all .2s;text-align:left;font-weight:700
+  }
+  .option-btn:hover{background:#f0f4ff;transform:translateX(4px)}
+  .option-btn.correct{background:#16a34a;color:white;border-color:#16a34a}
+  .option-btn.wrong{background:#dc2626;color:white;border-color:#dc2626}
+  .feedbackBox{margin-top:16px;padding:14px;border-radius:10px;font-weight:bold;display:none}
+  .feedbackBox.correct{background:#dcfce7;color:#166534}
+  .feedbackBox.wrong{background:#fee2e2;color:#991b1b}
+  .finishCard{
+    width:min(720px,100%);background:#fffdf8;border-radius:30px;box-shadow:0 28px 70px rgba(0,0,0,.25);
+    border:1px solid rgba(0,0,0,.06);padding:26px;text-align:center
+  }
+  .finishCard h2{margin:0 0 8px;font-size:clamp(28px,4vw,44px);color:#0f2042;font-family:'Georgia',serif}
+  .finishCard p{margin:0 auto 14px;max-width:620px;line-height:1.65;font-size:16px}
+  .resultLine{font-size:22px;font-weight:900;color:#0f2042;margin:10px 0 14px}
+  @media (max-width:600px){
+    #gameCanvas{height:300px}
+    .panel img{width:120px;height:120px}
+  }
+</style>
+</head>
+<body>
+
+<div class="splash-screen" id="splashScreen">
+  <div class="panel">
+    <img src="assets/innovine-logo.png" alt="Logo">
+    <h1>Voices of Democracy</h1>
+    <p>Inside India’s Parliament & Separation of Powers</p>
+    <button class="btn primary" id="showInstructionsBtn">Continue</button>
+  </div>
+</div>
+
+<div class="instructions-screen hidden" id="instructionsScreen">
+  <div class="panel">
+    <h2>Mission Briefing: Balance of Power</h2>
+    <div class="mission">
+      <h3>How to play</h3>
+      <ul>
+        <li>Use arrow keys or screen layout buttons to navigate the Parliament chambers.</li>
+        <li>Collect 3 stars to unlock an active Check & Balance Question card.</li>
+        <li>Answer precisely to process your structural points and earn state booster badges.</li>
+        <li>Successfully resolve all 9 constitutional modules to sync system integrity.</li>
+      </ul>
+    </div>
+    <button class="btn gold" id="startBtn">START MISSION</button>
+  </div>
+</div>
+
+<div class="wrap" id="mainContainer">
+  <div class="topbar">
+    <div class="title">
+      <h1>Voices of Democracy</h1>
+      <p>Grade 8 Civics · Chapter 6</p>
+    </div>
+    <div class="stats">
+      <div class="pill">Stars: <span id="stars">0</span></div>
+      <div class="pill">Q: <span id="questionsAnswered">0/9</span></div>
+      <div class="pill">Correct: <span id="correctCount">0</span></div>
+      <button class="btn light" id="restartBtn">Restart</button>
+    </div>
+  </div>
+
+  <div class="game">
+    <div class="stage">
+      <div class="stageTop">
+        <div class="levelBadge" id="levelBadge">🏛 Parliament Chamber 1/9</div>
+        <div style="min-width:220px;flex:1">
+          <div class="progressWrap"><div class="progressBar" id="progressBar"></div></div>
+        </div>
+      </div>
+
+      <div class="scroll">
+        <div class="lockline">📘 Democratic Systems Engine</div>
+        <div class="clue">Navigate through the maze chambers, gather democratic stars, and lock your checks & balances answers.</div>
+        <canvas id="gameCanvas"></canvas>
+
+        <div class="controls">
+          <div class="control-grid">
+            <button class="control-btn" id="upBtn">↑</button>
+            <button class="control-btn" id="leftBtn">←</button>
+            <button class="control-btn" id="rightBtn">→</button>
+            <button class="control-btn" id="downBtn">↓</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="side">
+      <div class="card">
+        <h3>Badges Collected</h3>
+        <div id="badgeList"></div>
+      </div>
+      <div class="card">
+        <h3>Modules Completed</h3>
+        <div class="chipRow" id="collection"></div>
+      </div>
+      <div class="card">
+        <h3>Chapter Focus</h3>
+        <p class="small">The relationship between the Legislature, Executive, and Judiciary prevents individual bodies from asserting unchecked absolute power.</p>
+      </div>
+      <div class="card">
+        <h3>Theme</h3>
+        <p class="small">Parliamentary high-contrast workspace decorated with deep navy and gold trims.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="question-modal" id="questionModal">
+  <div class="question-box">
+    <h2>Module Question <span id="questionNumber">1</span> of 9</h2>
+    <div class="question-text" id="questionText"></div>
+    <div class="options" id="optionsContainer"></div>
+    <div class="feedbackBox" id="feedback"></div>
+  </div>
+</div>
+
+<div class="finish-screen hidden" id="finishScreen">
+  <div class="finishCard">
+    <h2>Mission Complete 🏆</h2>
+    <div class="resultLine">System Balanced: <span id="finalScore">0</span>/90</div>
+    <p id="finalMessage">System Integrity Synced!</p>
+    <div id="finalBadges"></div>
+    <button class="btn primary" id="playAgainBtn">🔄 Verify Integrity Again</button>
+  </div>
+</div>
+
+<audio id="correctSound" src="assets/correct.mp3" preload="auto"></audio>
+<audio id="wrongSound" src="assets/wrong.mp3" preload="auto"></audio>
+<audio id="celebrationSound" src="assets/freesound_community-claps-44774.mp3" preload="auto"></audio>
+
+<script>
+const questions = [
+  {
+    question: "Which organ of the Indian state is primarily responsible for drafting laws and approving budgets?",
+    options: ["The Legislature", "The Executive", "The Judiciary", "The Bureaucracy"],
+    correct: 0
+  },
+  {
+    question: "The power of 'Judicial Review' allows the courts to perform which action?",
+    options: ["Enforce day-to-day administrative laws", "Declare laws invalid if they violate the Constitution", "Pass annual budgets during state shortfalls", "Appoint new members to Parliament directly"],
+    correct: 1
+  },
+  {
+    question: "Who leads the Executive organ of government to manage ministries and implement central policies?",
+    options: ["The Chief Justice of India", "The Speaker of Lok Sabha", "The Prime Minister and Council of Ministers", "The Election Commissioner"],
+    correct: 2
+  },
+  {
+    question: "What mechanism is used during Parliamentary sessions to hold the executive accountable via questions?",
+    options: ["Adjournment motion only", "The Question Hour", "Judicial Review petitions", "Ordinance promulgation"],
+    correct: 1
+  },
+  {
+    question: "Under which specific tool can high courts or the Supreme Court protect fundamental freedoms using direct orders?",
+    options: ["Constitutional Writs (e.g. Habeas Corpus)", "Legislative Bills", "Fiscal Budget amendments", "Cabinet manifestos"],
+    correct: 0
+  },
+  {
+    question: "Why does the Indian Constitution structurally maintain a strict Separation of Powers?",
+    options: ["To isolate states from central funding", "To prevent any single organ from holding absolute power", "To avoid holding national general elections", "To limit the power of local municipal bodies"],
+    correct: 1
+  },
+  {
+    question: "Which body functions as the ultimate interpreter and legal guardian of the Indian Constitution?",
+    options: ["The Prime Minister's Office", "The Judiciary", "The Lok Sabha Secretariat", "The civil services bureaucracy"],
+    correct: 1
+  },
+  {
+    question: "What must happen to a draft proposal or Bill before it successfully becomes an active law?",
+    options: ["It must be approved by the Supreme Court first", "It must undergo comprehensive readings and debates in Parliament", "It must be enacted via state civil servants directly", "It must be published by individual media houses"],
+    correct: 1
+  },
+  {
+    question: "Who is responsible for the practical execution and day-to-day enforcement of public laws passed by Parliament?",
+    options: ["The Executive and administrative departments", "The legal defense counsels", "The opposition debate teams", "The state judicial magistrates"],
+    correct: 0
+  }
+];
+
+const badgeNames = [
+  "🏛️ Legislative Scholar",
+  "💼 Policy Administrator",
+  "⚖️ Constitutional Guardian",
+  "🗳️ Democratic Auditor",
+  "🌟 Sovereign Balance Star"
+];
+
+const els = {
+  splashScreen: document.getElementById('splashScreen'),
+  instructionsScreen: document.getElementById('instructionsScreen'),
+  showInstructionsBtn: document.getElementById('showInstructionsBtn'),
+  startBtn: document.getElementById('startBtn'),
+  mainContainer: document.getElementById('mainContainer'),
+  stars: document.getElementById('stars'),
+  questionsAnswered: document.getElementById('questionsAnswered'),
+  correctCount: document.getElementById('correctCount'),
+  levelBadge: document.getElementById('levelBadge'),
+  progressBar: document.getElementById('progressBar'),
+  badgeList: document.getElementById('badgeList'),
+  collection: document.getElementById('collection'),
+  questionModal: document.getElementById('questionModal'),
+  questionNumber: document.getElementById('questionNumber'),
+  questionText: document.getElementById('questionText'),
+  optionsContainer: document.getElementById('optionsContainer'),
+  feedback: document.getElementById('feedback'),
+  restartBtn: document.getElementById('restartBtn'),
+  playAgainBtn: document.getElementById('playAgainBtn'),
+  finishScreen: document.getElementById('finishScreen'),
+  finalScore: document.getElementById('finalScore'),
+  finalMessage: document.getElementById('finalMessage'),
+  finalBadges: document.getElementById('finalBadges'),
+  correctSound: document.getElementById('correctSound'),
+  wrongSound: document.getElementById('wrongSound'),
+  celebrationSound: document.getElementById('celebrationSound')
+};
+
+let shuffledQuestions = [];
+let currentQuestionIndex = 0;
+let correctAnswers = 0;
+let starsCollected = 0;
+let totalStarsCollected = 0;
+let walls = [];
+let stars = [];
+let occupied = new Set();
+let player = { x:1, y:1 };
+let gameRunning = false;
+let waitForNext = false;
+const gridSize = 40;
+const MAX_STARS = 3;
+
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+function resizeCanvas(){
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width;
+  canvas.height = rect.height;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+function playSound(a){ try{ a.currentTime=0; a.play().catch(()=>{}); } catch(e){} }
+
+function showCelebration(){
+  const c = document.createElement('div');
+  c.className = 'celebration';
+  c.textContent = '⭐';
+  document.body.appendChild(c);
+  setTimeout(()=>c.remove(),1000);
+}
+
+function showConfetti(count=18){
+  const icons = ['🎉','✨','⭐','🏛️','💼','⚖️'];
+  for(let i=0;i<count;i++){
+    const d=document.createElement('div');
+    d.className='confetti';
+    d.textContent=icons[i%icons.length];
+    d.style.left=Math.random()*100+'vw';
+    d.style.top=(Math.random()*10)+'px';
+    d.style.fontSize=(18+Math.random()*16)+'px';
+    d.style.animationDuration=(800+Math.random()*700)+'ms';
+    document.body.appendChild(d);
+    setTimeout(()=>d.remove(),1600);
+  }
+}
+
+function updateScoreboard(){
+  els.stars.textContent = totalStarsCollected;
+  els.questionsAnswered.textContent = currentQuestionIndex + '/9';
+  els.correctCount.textContent = correctAnswers;
+  els.progressBar.style.width = `${(currentQuestionIndex / questions.length) * 100}%`;
+  els.levelBadge.textContent = `🏛️ Parliament Chamber ${Math.min(currentQuestionIndex + 1, 9)}/9`;
+}
+
+function renderBadges(){
+  els.badgeList.innerHTML = '';
+  badgeNames.forEach((b,i)=>{
+    const div=document.createElement('div');
+    div.className='badge' + (i < correctAnswers ? ' earned' : '');
+    div.textContent = (i < correctAnswers ? '✅ ' : '🔒 ') + b;
+    els.badgeList.appendChild(div);
+  });
+}
+
+function renderCollection(){
+  els.collection.innerHTML = '';
+  for(let i=0;i<currentQuestionIndex;i++){
+    const s=document.createElement('span');
+    s.className='chip';
+    s.textContent='M' + (i+1);
+    els.collection.appendChild(s);
+  }
+}
+
+function generateMaze(){
+  walls = [];
+  occupied = new Set();
+  const cols = Math.floor(canvas.width / gridSize);
+  const rows = Math.floor(canvas.height / gridSize);
+  for(let x=0;x<cols;x++){
+    walls.push({x,y:0}); walls.push({x,y:rows-1});
+    occupied.add(`${x},0`); occupied.add(`${x},${rows-1}`);
+  }
+  for(let y=0;y<rows;y++){
+    walls.push({x:0,y}); walls.push({x:cols-1,y});
+    occupied.add(`0,${y}`); occupied.add(`${cols-1},${y}`);
+  }
+  occupied.add('1,1');
+  for(let i=0;i<18;i++){
+    const wx = Math.floor(Math.random()*(cols-2))+1;
+    const wy = Math.floor(Math.random()*(rows-2))+1;
+    const k = `${wx},${wy}`;
+    if(!occupied.has(k)){ walls.push({x:wx,y:wy}); occupied.add(k); }
+  }
+}
+
+function validCell(x,y){
+  const k = `${x},${y}`;
+  if(occupied.has(k)) return false;
+  for(const s of stars) if(s.x===x && s.y===y) return false;
+  return true;
+}
+
+function generateSingleStar(){
+  const cols = Math.floor(canvas.width / gridSize);
+  const rows = Math.floor(canvas.height / gridSize);
+  for(let t=0;t<120;t++){
+    const x = Math.floor(Math.random()*(cols-2))+1;
+    const y = Math.floor(Math.random()*(rows-2))+1;
+    if(validCell(x,y)) return {x,y};
+  }
+  return null;
+}
+
+function maintainStarCount(){
+  while(stars.length < MAX_STARS){
+    const s = generateSingleStar();
+    if(!s) break;
+    stars.push(s);
+  }
+}
+
+function generateStars(){
+  stars = [];
+  maintainStarCount();
+}
+
+function initGame(){
+  currentQuestionIndex = 0;
+  correctAnswers = 0;
+  starsCollected = 0;
+  totalStarsCollected = 0;
+  player = { x:1, y:1 };
+  shuffledQuestions = [...questions].sort(()=>Math.random() - 0.5);
+  generateMaze();
+  generateStars();
+  updateScoreboard();
+  renderBadges();
+  renderCollection();
+  waitForNext = false;
+  gameRunning = true;
+}
+
+function checkCollision(x,y){
+  return walls.some(w=>w.x===x && w.y===y);
+}
+
+function movePlayer(dx,dy){
+  if(!gameRunning || waitForNext) return;
+  const nx = player.x + dx;
+  const ny = player.y + dy;
+  if(!checkCollision(nx,ny)){
+    player.x = nx; player.y = ny;
+    const idx = stars.findIndex(s=>s.x===player.x && s.y===player.y);
+    if(idx !== -1){
+      stars.splice(idx,1);
+      starsCollected++;
+      totalStarsCollected++;
+      playSound(els.correctSound);
+      showCelebration();
+      updateScoreboard();
+      setTimeout(()=>maintainStarCount(), 500);
+      if(starsCollected >= 3){
+        showQuestion();
+      }
+    }
+  }
+}
+
+function draw(){
+  if(!gameRunning){ requestAnimationFrame(draw); return; }
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  ctx.fillStyle = '#0f2042';
+  for(const w of walls){
+    ctx.fillRect(w.x*gridSize,w.y*gridSize,gridSize-2,gridSize-2);
+  }
+
+  for(const s of stars){
+    ctx.fillStyle = '#f59e0b';
+    ctx.beginPath();
+    const cx = s.x*gridSize + gridSize/2;
+    const cy = s.y*gridSize + gridSize/2;
+    const r = gridSize/3;
+    for(let i=0;i<5;i++){
+      const a = (i*4*Math.PI/5) - Math.PI/2;
+      const x = cx + r*Math.cos(a);
+      const y = cy + r*Math.sin(a);
+      if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    }
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  ctx.fillStyle = '#d97706';
+  ctx.beginPath();
+  ctx.arc(player.x*gridSize + gridSize/2, player.y*gridSize + gridSize/2, gridSize/2.5, 0, Math.PI*2);
+  ctx.fill();
+
+  ctx.fillStyle = 'white';
+  ctx.beginPath();
+  ctx.arc(player.x*gridSize + gridSize/2 - 5, player.y*gridSize + gridSize/2 - 3, 3, 0, Math.PI*2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(player.x*gridSize + gridSize/2 + 5, player.y*gridSize + gridSize/2 - 3, 3, 0, Math.PI*2);
+  ctx.fill();
+
+  requestAnimationFrame(draw);
+}
+
+function showQuestion(){
+  waitForNext = true;
+  const q = shuffledQuestions[currentQuestionIndex];
+  els.questionNumber.textContent = currentQuestionIndex + 1;
+  els.questionText.textContent = q.question;
+  els.optionsContainer.innerHTML = '';
+  els.feedback.style.display = 'none';
+  els.feedback.className = 'feedbackBox';
+
+  q.options.forEach((opt, idx)=>{
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.textContent = opt;
+    btn.onclick = ()=>checkAnswer(idx, btn);
+    els.optionsContainer.appendChild(btn);
+  });
+
+  els.questionModal.style.display = 'flex';
+}
+
+function checkAnswer(selectedIndex, btn){
+  const q = shuffledQuestions[currentQuestionIndex];
+  const buttons = [...document.querySelectorAll('.option-btn')];
+  buttons.forEach(b=>b.disabled = true);
+
+  if(selectedIndex === q.correct){
+    btn.classList.add('correct');
+    correctAnswers++;
+    els.feedback.textContent = '🎉 Excellent! Balanced explanation recorded!';
+    els.feedback.className = 'feedbackBox correct';
+    playSound(els.correctSound);
+    playSound(els.celebrationSound);
+    showConfetti(20);
+  } else {
+    btn.classList.add('wrong');
+    buttons[q.correct].classList.add('correct');
+    els.feedback.textContent = '❌ Mismatch detected. The constitutional answer is highlighted in green.';
+    els.feedback.className = 'feedbackBox wrong';
+    playSound(els.wrongSound);
+  }
+
+  els.feedback.style.display = 'block';
+  updateScoreboard();
+  renderBadges();
+
+  setTimeout(()=>{
+    els.questionModal.style.display = 'none';
+    currentQuestionIndex++;
+    starsCollected = 0;
+    waitForNext = false;
+
+    if(currentQuestionIndex >= shuffledQuestions.length){
+      finishGame();
+    } else {
+      renderCollection();
+      updateScoreboard();
+    }
+  }, 2500);
+}
+
+function finishGame(){
+  gameRunning = false;
+  els.finishScreen.classList.remove('hidden');
+  els.finishScreen.style.display = 'flex';
+  const percentage = Math.round((correctAnswers / shuffledQuestions.length) * 100);
+  let message = 'Great work! You balanced the state mechanics flawlessly.';
+  if(percentage >= 80) message = 'Outstanding! You are a Checks & Balances Master.';
+  else if(percentage < 60) message = 'Review the separation of power functions and try again.';
+  els.finalScore.textContent = correctAnswers * 10;
+  els.finalMessage.textContent = message;
+  els.finalBadges.innerHTML = '';
+  for(let i=0;i<correctAnswers;i++){
+    const b=document.createElement('span');
+    b.className='badge earned';
+    b.style.display='inline-flex';
+    b.style.margin='6px';
+    b.textContent = badgeNames[Math.min(i, badgeNames.length-1)];
+    els.finalBadges.appendChild(b);
+  }
+  playSound(els.celebrationSound);
+  showConfetti(30);
+}
+
+function resetGame(){
+  els.questionModal.style.display = 'none';
+  els.finishScreen.style.display = 'none';
+  initGame();
+}
+
+els.showInstructionsBtn.addEventListener('click', ()=>{
+  els.splashScreen.classList.add('hidden');
+  setTimeout(()=>els.instructionsScreen.classList.remove('hidden'), 450);
+});
+els.startBtn.addEventListener('click', ()=>{
+  els.instructionsScreen.classList.add('hidden');
+  els.mainContainer.classList.add('visible');
+  initGame();
+  draw();
+});
+els.restartBtn.addEventListener('click', resetGame);
+els.playAgainBtn.addEventListener('click', resetGame);
+document.getElementById('upBtn').addEventListener('click', ()=>movePlayer(0,-1));
+document.getElementById('downBtn').addEventListener('click', ()=>movePlayer(0,1));
+document.getElementById('leftBtn').addEventListener('click', ()=>movePlayer(-1,0));
+document.getElementById('rightBtn').addEventListener('click', ()=>movePlayer(1,0));
+
+document.addEventListener('keydown', e=>{
+  if(els.questionModal.style.display === 'flex') return;
+  if(els.instructionsScreen && !els.instructionsScreen.classList.contains('hidden')) return;
+  switch(e.key){
+    case 'ArrowUp': e.preventDefault(); movePlayer(0,-1); break;
+    case 'ArrowDown': e.preventDefault(); movePlayer(0,1); break;
+    case 'ArrowLeft': e.preventDefault(); movePlayer(-1,0); break;
+    case 'ArrowRight': e.preventDefault(); movePlayer(1,0); break;
+  }
+});
+</script>
+</body>
+</html>
