@@ -1,1 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Market Master - Build the Perfect Marketplace</title>
+<style>
+    :root{
+        --bg:#08111d;
+        --panel:#111b2e;
+        --panel2:#0c1524;
+        --gold:#f5b942;
+        --gold2:#ffcf66;
+        --mint:#15c98a;
+        --blue:#4aa3ff;
+        --red:#ef5350;
+        --text:#eef4ff;
+        --muted:#9eb0cb;
+        --line:#26364f;
+        --shadow:0 16px 40px rgba(0,0,0,.45);
+    }
+    *{box-sizing:border-box;margin:0;padding:0;font-family:Segoe UI,system-ui,sans-serif}
+    body{
+        min-height:100vh;
+        background:
+            radial-gradient(circle at top, rgba(255,255,255,.06), transparent 28%),
+            linear-gradient(180deg, #09101b, #08111d 45%, #070d15);
+        color:var(--text);
+        overflow-x:hidden;
+        user-select:none;
+        padding:14px;
+    }
+    #splash-screen{
+        position:fixed;inset:0;background:linear-gradient(180deg,#fff,#f7f1e3);
+        display:flex;flex-direction:column;justify-content:center;align-items:center;
+        z-index:9999;transition:opacity .5s ease-out;
+    }
+    #splash-screen img{width:min(280px,80vw);height:auto;margin-bottom:24px}
+    .loader{
+        width:46px;height:46px;border-radius:50%;
+        border:4px solid #e2e8f0;border-top:4px solid var(--gold);
+        animation:spin 1s linear infinite;
+    }
+    @keyframes spin{to{transform:rotate(360deg)}}
 
+    .game-shell{
+        max-width:1300px;margin:0 auto;background:linear-gradient(180deg,var(--panel),var(--panel2));
+        border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--shadow);
+        display:none;
+    }
+    header{
+        padding:22px 18px;text-align:center;
+        background:linear-gradient(135deg,#14263d,#1b3554);
+        border-bottom:2px solid var(--gold);
+    }
+    header h1{color:var(--gold2);font-size:clamp(22px,3vw,32px);letter-spacing:.4px}
+    header p{color:var(--muted);margin-top:4px;font-size:14px}
+    .topbar{
+        display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;
+        padding:12px 18px;background:#09101b;border-bottom:1px solid var(--line);font-size:14px;
+    }
+    .coin-pill{
+        display:inline-block;padding:4px 12px;border-radius:999px;font-weight:800;
+        color:var(--mint);background:rgba(21,201,138,.12);border:1px solid rgba(21,201,138,.22);
+        min-width:56px;text-align:center;
+    }
+    .main{padding:18px}
+    .mission{
+        background:rgba(245,185,66,.08);border-left:4px solid var(--gold);
+        padding:14px;border-radius:6px;margin-bottom:18px;color:#ffd56b;line-height:1.5;font-size:14px;
+    }
+    .stage{
+        display:none;
+        background:#0b121d;border:1px solid var(--line);border-radius:12px;padding:16px;
+        min-height:520px;
+    }
+    .stage.active{display:block}
+    .stage h2{
+        font-size:18px;color:var(--gold2);margin-bottom:12px;letter-spacing:.3px
+    }
+    .subnote{color:var(--muted);font-size:13px;margin-bottom:14px}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    @media (max-width:900px){.row{grid-template-columns:1fr}}
+    .card-list, .drop-list, .option-list, .bucket-list{
+        display:flex;flex-wrap:wrap;gap:10px
+    }
+    .draggable, .option, .bucket-item{
+        background:#15243a;border:1px solid #34506f;border-radius:10px;padding:12px 14px;
+        color:var(--text);cursor:grab;transition:.15s ease;box-shadow:0 6px 16px rgba(0,0,0,.18)
+    }
+    .draggable:hover, .option:hover, .bucket-item:hover{transform:translateY(-1px);border-color:#5a7aa1}
+    .draggable:active{cursor:grabbing}
+    .dropzone{
+        min-height:120px;background:#09101b;border:1px dashed #39506e;border-radius:12px;padding:12px;
+        display:flex;flex-direction:column;gap:10px
+    }
+    .dropzone.highlight{border-color:var(--gold);background:rgba(245,185,66,.08)}
+    .dropzone.correct{border-style:solid;border-color:rgba(21,201,138,.35);background:rgba(21,201,138,.08)}
+    .dropzone.wrong{border-style:solid;border-color:rgba(239,83,80,.35);background:rgba(239,83,80,.08)}
+    .tag{
+        display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:4px 10px;
+        background:rgba(255,255,255,.05);font-size:12px;color:var(--muted)
+    }
+    .mcq-grid{
+        display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px
+    }
+    @media (max-width:700px){.mcq-grid{grid-template-columns:1fr}}
+    .mcq{
+        background:#15243a;border:1px solid #304868;border-radius:12px;padding:14px;cursor:pointer;transition:.15s ease;
+    }
+    .mcq:hover{border-color:#4f7194}
+    .mcq.correct{border-color:rgba(21,201,138,.5);background:rgba(21,201,138,.12)}
+    .mcq.wrong{border-color:rgba(239,83,80,.5);background:rgba(239,83,80,.12)}
+    .qtext{font-size:16px;margin-bottom:10px;color:#f4f7fb;line-height:1.45}
+    .feedback{
+        margin-top:14px;display:none;padding:12px;border-radius:10px;font-weight:700;text-align:center
+    }
+    .feedback.ok{display:block;background:rgba(21,201,138,.12);border:1px solid rgba(21,201,138,.25);color:#60f0b6}
+    .feedback.bad{display:block;background:rgba(239,83,80,.12);border:1px solid rgba(239,83,80,.25);color:#ff9c9a}
+    .controls{
+        display:flex;justify-content:center;flex-wrap:wrap;gap:12px;margin-top:18px
+    }
+    .btn{
+        border:none;border-radius:10px;padding:12px 18px;font-weight:800;letter-spacing:.5px;
+        cursor:pointer;transition:.15s ease;background:#24364f;color:var(--text)
+    }
+    .btn:hover{transform:translateY(-1px)}
+    .btn.primary{background:var(--gold);color:#08111d}
+    .btn.good{background:var(--mint);color:#05120d}
+    .btn.bad{background:var(--red);color:#fff}
+    .hidden{display:none !important}
+    .footer-score{
+        margin-top:18px;text-align:center;color:var(--muted);font-size:13px
+    }
+    .progress{
+        width:100%;height:10px;background:#0f1727;border-radius:999px;overflow:hidden;border:1px solid var(--line)
+    }
+    .progress > div{
+        height:100%;width:0;background:linear-gradient(90deg,var(--gold),var(--mint));transition:width .3s ease
+    }
+</style>
+</head>
+<body>
+<div id="splash-screen">
+    <img src="assets/logo.png" alt="Market Master Logo">
+    <div class="loader"></div>
+</div>
+
+<div class="game-shell" id="game-shell">
+    <header>
+        <h1>Market Master: Build the Perfect Marketplace</h1>
+        <p>Chapter 12 — Understanding Markets</p>
+    </header>
+
+    <div class="topbar">
+        <div>STATUS: <span id="statusText">READY</span></div>
+        <div>COINS: <span id="coinCount" class="coin-pill">0</span></div>
+    </div>
+
+    <div class="main">
+        <div class="mission">
+            Become the Market Manager. Complete 5 market challenges, earn coins, and unlock your final market mastery score.
+        </div>
+
+        <div class="progress"><div id="progressFill"></div></div>
+
+        <div id="stage1" class="stage active">
+            <h2>Level 1: Who Belongs in the Market?</h2>
+            <div class="subnote">Drag each card into the correct box: Buyer or Seller.</div>
+            <div class="row">
+                <div>
+                    <div class="tag">Cards</div>
+                    <div id="personCards" class="card-list" style="margin-top:10px;"></div>
+                </div>
+                <div class="row" style="grid-template-columns:1fr 1fr;">
+                    <div>
+                        <div class="tag">Buyer</div>
+                        <div class="dropzone" id="buyerZone" data-type="buyer"></div>
+                    </div>
+                    <div>
+                        <div class="tag">Seller</div>
+                        <div class="dropzone" id="sellerZone" data-type="seller"></div>
+                    </div>
+                </div>
+            </div>
+            <div id="feedback1" class="feedback"></div>
+            <div class="controls">
+                <button class="btn primary" onclick="checkStage1()">Check Level 1</button>
+            </div>
+        </div>
+
+        <div id="stage2" class="stage">
+            <h2>Level 2: Price Puzzle</h2>
+            <div class="subnote">Choose whether the price is too high, too low, or fair.</div>
+            <div id="mcqArea2"></div>
+            <div id="feedback2" class="feedback"></div>
+            <div class="controls">
+                <button class="btn primary" onclick="checkStage2()">Check Level 2</button>
+            </div>
+        </div>
+
+        <div id="stage3" class="stage">
+            <h2>Level 3: Market Route Challenge</h2>
+            <div class="subnote">Arrange the supply chain in the correct order.</div>
+            <div class="row">
+                <div>
+                    <div class="tag">Drag Steps</div>
+                    <div id="routePool" class="card-list" style="margin-top:10px;"></div>
+                </div>
+                <div>
+                    <div class="tag">Build Route</div>
+                    <div id="routeZone" class="dropzone"></div>
+                </div>
+            </div>
+            <div id="feedback3" class="feedback"></div>
+            <div class="controls">
+                <button class="btn primary" onclick="checkStage3()">Check Level 3</button>
+            </div>
+        </div>
+
+        <div id="stage4" class="stage">
+            <h2>Level 4: Market Explorer</h2>
+            <div class="subnote">Match each market with its identity.</div>
+            <div class="row">
+                <div>
+                    <div class="tag">Market Names</div>
+                    <div id="marketNames" class="card-list" style="margin-top:10px;"></div>
+                </div>
+                <div>
+                    <div class="tag">Identities</div>
+                    <div id="marketIds" class="bucket-list" style="margin-top:10px;flex-direction:column;"></div>
+                </div>
+            </div>
+            <div id="feedback4" class="feedback"></div>
+            <div class="controls">
+                <button class="btn primary" onclick="checkStage4()">Check Level 4</button>
+            </div>
+        </div>
+
+        <div id="stage5" class="stage">
+            <h2>Level 5: Government Guardian Challenge</h2>
+            <div class="subnote">Sort actions into Government Helps Markets or Not Government Role.</div>
+            <div class="row">
+                <div>
+                    <div class="tag">Actions</div>
+                    <div id="govActions" class="card-list" style="margin-top:10px;"></div>
+                </div>
+                <div class="row" style="grid-template-columns:1fr 1fr;">
+                    <div>
+                        <div class="tag">Helps Markets</div>
+                        <div class="dropzone" id="helpsZone" data-type="helps"></div>
+                    </div>
+                    <div>
+                        <div class="tag">Not Role</div>
+                        <div class="dropzone" id="notZone" data-type="not"></div>
+                    </div>
+                </div>
+            </div>
+            <div id="feedback5" class="feedback"></div>
+            <div class="controls">
+                <button class="btn primary" onclick="checkStage5()">Check Level 5</button>
+            </div>
+        </div>
+
+        <div id="stage6" class="stage">
+            <h2>Final Round: Smart Shopping Decision</h2>
+            <div class="subnote">Pick the best decision as a smart shopper.</div>
+            <div id="mcqArea6"></div>
+            <div id="feedback6" class="feedback"></div>
+            <div class="controls">
+                <button class="btn primary" onclick="checkStage6()">Finish Game</button>
+                <button class="btn good" onclick="restartGame()">Restart</button>
+            </div>
+            <div class="footer-score">
+                Final Result: <span id="finalBand">—</span>
+            </div>
+        </div>
+
+        <div class="controls" style="margin-top:22px;">
+            <button class="btn" onclick="skipToNext()">Next Challenge</button>
+            <button class="btn bad" onclick="restartGame()">Reset All</button>
+        </div>
+    </div>
+</div>
+
+<audio id="correctSound" src="assets/correct.mp3" preload="auto"></audio>
+<audio id="wrongSound" src="assets/wrong.mp3" preload="auto"></audio>
+<audio id="clapsSound" src="assets/freesound_community-claps-44774.mp3" preload="auto"></audio>
+
+<script>
+const correctSound = document.getElementById('correctSound');
+const wrongSound = document.getElementById('wrongSound');
+const clapsSound = document.getElementById('clapsSound');
+
+const state = {
+    stage: 1,
+    coins: 0,
+    answered: {1:false,2:false,3:false,4:false,5:false,6:false},
+    selected2: null,
+    selected6: null
+};
+
+const data = {
+    stage1: [
+        {text:'👨‍🌾 Farmer selling tomatoes', role:'seller'},
+        {text:'👩 Customer buying tomatoes', role:'buyer'},
+        {text:'🧺 Shopkeeper selling clothes', role:'seller'},
+        {text:'📱 Buyer ordering online', role:'buyer'}
+    ],
+    stage2: [
+        {q:'Seller sells mangoes at ₹500/kg. Buyers walk away.', a:'too high'},
+        {q:'A shirt is priced so low that the seller loses money.', a:'too low'},
+        {q:'A notebook price feels reasonable to both buyer and seller.', a:'fair'}
+    ],
+    stage3: ['Cotton', 'Textile Factory', 'Wholesaler', 'Retailer', 'Consumer'],
+    stage4: [
+        {name:'Hampi Bazaar', id:'Historical market famous for jewels, spices and textiles'},
+        {name:'Surat', id:'Textile and diamond hub'},
+        {name:'Ima Keithel', id:'Women-run market in Manipur'}
+    ],
+    stage5: [
+        {text:'FSSAI mark for food safety', role:'helps'},
+        {text:'ISI mark for electrical products', role:'helps'},
+        {text:'MSP for farmers', role:'helps'},
+        {text:'Setting the price of every product', role:'not'},
+        {text:'Selling goods directly', role:'not'}
+    ],
+    stage6: [
+        {q:'You want to buy biscuits. What should you check first?', options:[
+            'Colour of packet','Expiry date and ingredients','Size of logo','Advertisement'
+        ], a:'Expiry date and ingredients'}
+    ]
+};
+
+function play(sound){ try{ sound.currentTime = 0; sound.play().catch(()=>{}); }catch(e){} }
+function addCoins(n){ state.coins += n; document.getElementById('coinCount').textContent = state.coins; }
+function updateProgress(){
+    const fill = document.getElementById('progressFill');
+    fill.style.width = `${((state.stage-1)/5)*100}%`;
+    document.getElementById('statusText').textContent = `LEVEL ${state.stage}`;
+}
+function showStage(n){
+    state.stage = n;
+    document.querySelectorAll('.stage').forEach(s=>s.classList.remove('active'));
+    const el = document.getElementById(`stage${n}`);
+    if(el) el.classList.add('active');
+    updateProgress();
+    window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function makeDraggable(el){
+    el.setAttribute('draggable','true');
+    el.addEventListener('dragstart', e => {
+        e.dataTransfer.setData('text/plain', el.dataset.id);
+        setTimeout(() => el.style.opacity = '0.5', 0);
+    });
+    el.addEventListener('dragend', () => { el.style.opacity = '1'; });
+}
+
+function setupDropzone(zone){
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('highlight'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('highlight'));
+    zone.addEventListener('drop', e => {
+        e.preventDefault();
+        zone.classList.remove('highlight');
+        const id = e.dataTransfer.getData('text/plain');
+        const card = document.querySelector(`[data-id="${id}"]`);
+        if(card) zone.appendChild(card);
+    });
+}
+
+function renderStage1(){
+    const box = document.getElementById('personCards');
+    box.innerHTML = '';
+    data.stage1.forEach((it,i)=>{
+        const d = document.createElement('div');
+        d.className = 'draggable';
+        d.textContent = it.text;
+        d.dataset.id = `s1-${i}`;
+        d.dataset.role = it.role;
+        makeDraggable(d);
+        box.appendChild(d);
+    });
+    setupDropzone(document.getElementById('buyerZone'));
+    setupDropzone(document.getElementById('sellerZone'));
+}
+function checkStage1(){
+    const buyerOk = [...document.querySelectorAll('#buyerZone .draggable')].every(x => x.dataset.role === 'buyer');
+    const sellerOk = [...document.querySelectorAll('#sellerZone .draggable')].every(x => x.dataset.role === 'seller');
+    const totalPlaced = document.querySelectorAll('#buyerZone .draggable, #sellerZone .draggable').length;
+    const ok = buyerOk && sellerOk && totalPlaced === data.stage1.length;
+    const f = document.getElementById('feedback1');
+    if(ok){
+        play(correctSound); addCoins(10); state.answered[1]=true;
+        f.className='feedback ok'; f.textContent='Correct! Buyers and sellers matched perfectly.';
+    }else{
+        play(wrongSound);
+        f.className='feedback bad'; f.textContent='Not quite. Make sure each buyer goes into Buyer and each seller into Seller.';
+    }
+}
+
+function renderStage2(){
+    const area = document.getElementById('mcqArea2');
+    area.innerHTML = '';
+    data.stage2.forEach((item,idx)=>{
+        const wrap = document.createElement('div');
+        wrap.className = 'mcq';
+        wrap.dataset.answer = item.a;
+        wrap.dataset.idx = idx;
+        wrap.innerHTML = `<div class="qtext">${idx+1}. ${item.q}</div>
+            <div class="option-list">
+                <div class="option">Too high</div>
+                <div class="option">Too low</div>
+                <div class="option">Fair price</div>
+            </div>`;
+        wrap.querySelectorAll('.option').forEach(opt=>{
+            opt.addEventListener('click', ()=>{
+                wrap.querySelectorAll('.option').forEach(o=>o.style.border='1px solid #304868');
+                opt.style.border='2px solid var(--gold)';
+                wrap.dataset.chosen = opt.textContent.toLowerCase();
+            });
+        });
+        area.appendChild(wrap);
+    });
+}
+function checkStage2(){
+    const cards = [...document.querySelectorAll('#mcqArea2 .mcq')];
+    const ok = cards.every(c => (c.dataset.chosen || '') === c.dataset.answer);
+    const f = document.getElementById('feedback2');
+    if(ok){
+        play(correctSound); addCoins(20); state.answered[2]=true;
+        f.className='feedback ok'; f.textContent='Great! You read the price situations correctly.';
+    }else{
+        play(wrongSound);
+        f.className='feedback bad'; f.textContent='Check each situation again and choose the right price type.';
+    }
+}
+
+function renderStage3(){
+    const pool = document.getElementById('routePool');
+    const zone = document.getElementById('routeZone');
+    pool.innerHTML = '';
+    zone.innerHTML = '';
+    data.stage3.forEach((txt,i)=>{
+        const d = document.createElement('div');
+        d.className = 'draggable';
+        d.textContent = txt;
+        d.dataset.id = `s3-${i}`;
+        d.dataset.value = txt;
+        makeDraggable(d);
+        pool.appendChild(d);
+    });
+    zone.dataset.expected = data.stage3.join(' > ');
+    setupDropzone(zone);
+}
+function checkStage3(){
+    const ordered = [...document.querySelectorAll('#routeZone .draggable')].map(x => x.dataset.value);
+    const ok = ordered.join(' > ') === data.stage3.join(' > ');
+    const f = document.getElementById('feedback3');
+    if(ok){
+        play(correctSound); addCoins(10); state.answered[3]=true;
+        f.className='feedback ok'; f.textContent='Perfect supply chain order!';
+    }else{
+        play(wrongSound);
+        f.className='feedback bad'; f.textContent='The product route is not in the correct order yet.';
+    }
+}
+
+function renderStage4(){
+    const names = document.getElementById('marketNames');
+    const ids = document.getElementById('marketIds');
+    names.innerHTML = '';
+    ids.innerHTML = '';
+    data.stage4.forEach((m,i)=>{
+        const d = document.createElement('div');
+        d.className = 'draggable';
+        d.textContent = m.name;
+        d.dataset.id = `s4-${i}`;
+        d.dataset.name = m.name;
+        d.dataset.answer = m.id;
+        makeDraggable(d);
+        names.appendChild(d);
+    });
+    data.stage4.forEach((m,i)=>{
+        const dz = document.createElement('div');
+        dz.className = 'dropzone';
+        dz.dataset.market = m.name;
+        dz.dataset.answer = m.id;
+        dz.innerHTML = `<strong style="color:var(--gold2)">${m.id}</strong><div style="min-height:36px"></div>`;
+        setupDropzone(dz);
+        ids.appendChild(dz);
+    });
+}
+function checkStage4(){
+    let ok = true;
+    document.querySelectorAll('#marketIds .dropzone').forEach(zone=>{
+        const moved = zone.querySelector('.draggable');
+        if(!moved || moved.dataset.answer !== zone.dataset.answer) ok = false;
+    });
+    const f = document.getElementById('feedback4');
+    if(ok){
+        play(correctSound); addCoins(20); state.answered[4]=true;
+        f.className='feedback ok'; f.textContent='Excellent! You identified the markets correctly.';
+    }else{
+        play(wrongSound);
+        f.className='feedback bad'; f.textContent='Some market matches are still wrong.';
+    }
+}
+
+function renderStage5(){
+    const box = document.getElementById('govActions');
+    box.innerHTML = '';
+    data.stage5.forEach((it,i)=>{
+        const d = document.createElement('div');
+        d.className = 'draggable';
+        d.textContent = it.text;
+        d.dataset.id = `s5-${i}`;
+        d.dataset.role = it.role;
+        makeDraggable(d);
+        box.appendChild(d);
+    });
+    setupDropzone(document.getElementById('helpsZone'));
+    setupDropzone(document.getElementById('notZone'));
+}
+function checkStage5(){
+    const helpOk = [...document.querySelectorAll('#helpsZone .draggable')].every(x => x.dataset.role === 'helps');
+    const notOk = [...document.querySelectorAll('#notZone .draggable')].every(x => x.dataset.role === 'not');
+    const totalPlaced = document.querySelectorAll('#helpsZone .draggable, #notZone .draggable').length;
+    const ok = helpOk && notOk && totalPlaced === data.stage5.length;
+    const f = document.getElementById('feedback5');
+    if(ok){
+        play(correctSound); addCoins(20); state.answered[5]=true;
+        f.className='feedback ok'; f.textContent='Yes! You know how the government helps markets.';
+    }else{
+        play(wrongSound);
+        f.className='feedback bad'; f.textContent='Sort the government roles into the correct boxes.';
+    }
+}
+
+function renderStage6(){
+    const area = document.getElementById('mcqArea6');
+    area.innerHTML = '';
+    const item = data.stage6[0];
+    const wrap = document.createElement('div');
+    wrap.className = 'mcq';
+    wrap.dataset.answer = item.a;
+    wrap.innerHTML = `<div class="qtext">1. ${item.q}</div>
+        <div class="mcq-grid">
+            ${item.options.map(opt => `<div class="option">${opt}</div>`).join('')}
+        </div>`;
+    wrap.querySelectorAll('.option').forEach(opt=>{
+        opt.addEventListener('click', ()=>{
+            wrap.querySelectorAll('.option').forEach(o=>o.style.border='1px solid #304868');
+            opt.style.border='2px solid var(--gold)';
+            wrap.dataset.chosen = opt.textContent;
+        });
+    });
+    area.appendChild(wrap);
+}
+
+function checkStage6(){
+    const chosen = document.querySelector('#mcqArea6 .mcq')?.dataset.chosen || '';
+    const ok = chosen === data.stage6[0].a;
+    const f = document.getElementById('feedback6');
+    if(ok){
+        play(clapsSound); addCoins(10); state.answered[6]=true;
+        f.className='feedback ok'; f.textContent='Correct! You are a smart shopper.';
+        const total = state.coins;
+        let band = 'Keep Exploring 🛍️';
+        if(total >= 80) band = 'Market Expert 🏆';
+        else if(total >= 60) band = 'Smart Shopper ⭐';
+        document.getElementById('finalBand').textContent = `${band} — ${total} coins`;
+        document.getElementById('statusText').textContent = 'COMPLETED';
+    }else{
+        play(wrongSound);
+        f.className='feedback bad'; f.textContent='Think like a careful buyer: check the important details first.';
+    }
+}
+
+function skipToNext(){
+    const next = Math.min(state.stage + 1, 6);
+    showStage(next);
+}
+function restartGame(){
+    state.stage = 1; state.coins = 0;
+    state.answered = {1:false,2:false,3:false,4:false,5:false,6:false};
+    state.selected2 = null; state.selected6 = null;
+    document.getElementById('coinCount').textContent = '0';
+    document.getElementById('statusText').textContent = 'READY';
+    document.getElementById('finalBand').textContent = '—';
+    document.querySelectorAll('.feedback').forEach(f=>{ f.className='feedback'; f.textContent=''; });
+    renderAll();
+    showStage(1);
+}
+
+function renderAll(){
+    renderStage1();
+    renderStage2();
+    renderStage3();
+    renderStage4();
+    renderStage5();
+    renderStage6();
+    updateProgress();
+}
+
+window.addEventListener('DOMContentLoaded', ()=>{
+    setTimeout(()=>{
+        document.getElementById('splash-screen').style.opacity = '0';
+        setTimeout(()=>{
+            document.getElementById('splash-screen').style.display = 'none';
+            document.getElementById('game-shell').style.display = 'block';
+            renderAll();
+        }, 500);
+    }, 1800);
+});
+</script>
+</body>
+</html>
