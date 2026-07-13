@@ -2,24 +2,21 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>From Barter to Money - Crossword Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>From Barter to Money - Interactive Crossword Dashboard</title>
 <style>
     :root {
-        --bg: #0c1220;
-        --panel: #111b2d;
-        --panel-2: #0e1625;
-        --gold: #f5b642;
-        --gold-soft: rgba(245, 182, 66, 0.18);
-        --mint: #21c58d;
-        --blue: #4ea3ff;
-        --text: #eef4ff;
-        --muted: #9fb0cc;
-        --line: #263752;
-        --blackcell: #08111d;
-        --paper: #f8f1de;
-        --paper2: #ead9b4;
-        --red: #ef4444;
+        --slate-dark: #0b0f19;
+        --panel-bg: #161e2e;
+        --amber-gold: #f59e0b;
+        --amber-glow: rgba(245, 158, 11, 0.25);
+        --emerald-mint: #10b981;
+        --royal-blue: #3b82f6;
+        --text-light: #f3f4f6;
+        --text-muted: #9ca3af;
+        --border-line: #2d3748;
+        --error-red: #ef4444;
+        --cell-black: #090d16;
     }
 
     * {
@@ -30,177 +27,177 @@
     }
 
     body {
-        background:
-            radial-gradient(circle at top, rgba(255,255,255,0.07), transparent 28%),
-            linear-gradient(180deg, #09101b 0%, #0c1220 55%, #0a0f18 100%);
-        color: var(--text);
-        min-height: 100vh;
-        padding: 16px;
+        background-color: var(--slate-dark);
+        color: var(--text-light);
+        line-height: 1.6;
+        padding: 20px 10px;
+        user-select: none;
         overflow-x: hidden;
     }
 
     #splash-screen {
         position: fixed;
-        inset: 0;
-        background: linear-gradient(180deg, #ffffff, #f7f1e3);
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #ffffff;
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
         z-index: 9999;
-        transition: opacity 0.5s ease;
+        transition: opacity 0.5s ease-out;
     }
 
     #splash-screen img {
         max-width: 280px;
-        width: 80%;
-        margin-bottom: 22px;
+        height: auto;
+        margin-bottom: 30px;
     }
 
-    .loader {
+    #splash-screen .loader {
         border: 4px solid #e2e8f0;
-        border-top: 4px solid var(--gold);
+        border-top: 4px solid var(--amber-gold);
         border-radius: 50%;
-        width: 44px;
-        height: 44px;
-        animation: spin 1s linear infinite;
+        width: 45px;
+        height: 45px;
+        animation: rotateLoader 1s linear infinite;
     }
 
-    @keyframes spin {
-        to { transform: rotate(360deg); }
+    @keyframes rotateLoader {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
     }
 
     .game-wrapper {
-        max-width: 1350px;
+        max-width: 1150px;
         margin: 0 auto;
-        background: linear-gradient(180deg, var(--panel), var(--panel-2));
-        border: 1px solid var(--line);
-        border-radius: 18px;
-        box-shadow: 0 16px 50px rgba(0,0,0,0.45);
+        background: var(--panel-bg);
+        border-radius: 14px;
+        border: 1px solid var(--border-line);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
         overflow: hidden;
         display: none;
     }
 
     header {
-        background: linear-gradient(135deg, #14263d 0%, #1b3554 100%);
-        padding: 22px 18px;
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        padding: 25px;
         text-align: center;
-        border-bottom: 2px solid var(--gold);
+        border-bottom: 2px solid var(--amber-gold);
     }
 
     header h1 {
-        color: #ffd56b;
-        font-size: clamp(22px, 3vw, 30px);
+        font-size: 26px;
+        letter-spacing: 0.5px;
+        color: var(--amber-gold);
     }
 
     header p {
-        margin-top: 4px;
-        color: var(--muted);
+        color: var(--text-muted);
         font-size: 14px;
+        margin-top: 4px;
     }
 
     .dashboard-bar {
-        background: #0a111c;
-        border-bottom: 1px solid var(--line);
-        padding: 12px 18px;
         display: flex;
         justify-content: space-between;
         align-items: center;
+        background: #0d131f;
+        padding: 12px 25px;
+        font-size: 14px;
+        border-bottom: 1px solid var(--border-line);
         gap: 10px;
         flex-wrap: wrap;
-        font-size: 14px;
     }
 
     .score-box {
-        display: inline-block;
-        min-width: 54px;
-        text-align: center;
-        color: var(--mint);
-        font-weight: 800;
-        background: rgba(33, 197, 141, 0.12);
-        padding: 4px 12px;
-        border: 1px solid rgba(33, 197, 141, 0.22);
-        border-radius: 999px;
+        color: var(--emerald-mint);
+        font-weight: 700;
+        background: rgba(16, 185, 129, 0.1);
+        padding: 4px 14px;
+        border-radius: 30px;
+        border: 1px solid rgba(16, 185, 129, 0.2);
     }
 
     .main-content {
-        padding: 18px;
+        padding: 25px;
     }
 
     .mission-box {
-        background: rgba(245, 182, 66, 0.08);
-        border-left: 4px solid var(--gold);
+        background: rgba(245, 158, 11, 0.05);
+        border-left: 4px solid var(--amber-gold);
         padding: 14px;
-        border-radius: 6px;
-        margin-bottom: 18px;
-        color: #ffd56b;
-        line-height: 1.5;
+        margin-bottom: 25px;
+        border-radius: 4px;
         font-size: 14px;
+        color: #fbbf24;
     }
 
     .crossword-container {
         display: grid;
-        grid-template-columns: minmax(380px, 1.1fr) minmax(320px, 0.9fr);
-        gap: 18px;
+        grid-template-columns: 1.1fr 1fr;
+        gap: 25px;
         align-items: start;
     }
 
-    @media (max-width: 1050px) {
-        .crossword-container {
-            grid-template-columns: 1fr;
-        }
+    @media (max-width: 850px) {
+        .crossword-container { grid-template-columns: 1fr; }
     }
 
     .grid-wrapper {
-        background: #0a111c;
-        padding: 14px;
-        border-radius: 10px;
-        border: 1px solid var(--line);
-        overflow: auto;
+        background: #0d131f;
+        padding: 15px;
+        border-radius: 8px;
+        border: 1px solid var(--border-line);
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 
     .crossword-grid {
         display: grid;
-        grid-template-columns: repeat(15, minmax(26px, 1fr));
-        grid-template-rows: repeat(15, minmax(26px, 1fr));
+        grid-template-columns: repeat(15, 1fr);
+        grid-template-rows: repeat(15, 1fr);
         gap: 2px;
-        width: min(100%, 640px);
-        margin: 0 auto;
+        width: 100%;
+        max-width: 480px;
         aspect-ratio: 1 / 1;
     }
 
     .cell {
         position: relative;
-        background: var(--blackcell);
-        border-radius: 2px;
+        background: var(--cell-black);
         aspect-ratio: 1 / 1;
+        border-radius: 2px;
     }
 
     .cell.active-letter {
-        background: #14233a;
-        border: 1px solid #38506f;
+        background: #1e293b;
+        border: 1px solid #475569;
     }
 
     .cell input {
         width: 100%;
         height: 100%;
-        border: none;
-        outline: none;
         background: transparent;
-        color: var(--text);
+        border: none;
         text-align: center;
-        font-size: clamp(12px, 1.4vw, 17px);
-        font-weight: 800;
+        color: var(--text-light);
+        font-size: 16px;
+        font-weight: 700;
         text-transform: uppercase;
+        outline: none;
     }
 
     .cell input:focus {
-        background: rgba(78, 163, 255, 0.14);
+        background: rgba(59, 130, 246, 0.15);
     }
 
     .cell input.correct-flash {
-        background: rgba(33, 197, 141, 0.1);
-        color: var(--mint);
+        color: var(--emerald-mint);
+        background: rgba(16, 185, 129, 0.08);
     }
 
     .cell-number {
@@ -208,128 +205,113 @@
         top: 2px;
         left: 3px;
         font-size: 9px;
-        color: #ffd56b;
-        font-weight: 800;
-        pointer-events: none;
+        font-weight: 700;
+        color: var(--amber-gold);
         line-height: 1;
+        pointer-events: none;
     }
 
     .clues-wrapper {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 14px;
-        max-height: 760px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        max-height: 510px;
         overflow-y: auto;
-        padding-right: 4px;
+        padding-right: 5px;
     }
 
     .clues-section {
-        background: #0a111c;
-        border: 1px solid var(--line);
-        border-radius: 10px;
-        padding: 14px;
+        background: #090d16;
+        border: 1px solid var(--border-line);
+        border-radius: 8px;
+        padding: 15px;
     }
 
     .clues-section h3 {
-        color: #ffd56b;
         font-size: 15px;
+        color: var(--amber-gold);
         text-transform: uppercase;
-        letter-spacing: 0.6px;
-        border-bottom: 1px solid var(--line);
-        padding-bottom: 8px;
-        margin-bottom: 10px;
+        letter-spacing: 0.5px;
+        border-bottom: 1px solid var(--border-line);
+        padding-bottom: 6px;
+        margin-bottom: 12px;
     }
 
     .clue-item {
         font-size: 13.5px;
-        margin-bottom: 10px;
-        padding: 6px 4px;
-        color: var(--text);
+        margin-bottom: 8px;
+        color: var(--text-light);
+        padding: 4px;
+        border-radius: 4px;
         line-height: 1.45;
     }
 
     .clue-item strong {
-        color: var(--blue);
-        margin-right: 6px;
+        color: var(--royal-blue);
+        margin-right: 5px;
     }
 
     .feedback-alert {
-        margin-top: 18px;
+        margin-top: 25px;
         padding: 14px;
-        border-radius: 8px;
-        font-weight: 700;
+        border-radius: 6px;
         text-align: center;
+        font-weight: 600;
+        font-size: 14px;
         display: none;
     }
 
     .feedback-alert.success {
         display: block;
-        background: rgba(33, 197, 141, 0.12);
-        color: #5ee7b0;
-        border: 1px solid rgba(33, 197, 141, 0.22);
+        background: rgba(16, 185, 129, 0.1);
+        color: #34d399;
+        border: 1px solid rgba(16, 185, 129, 0.2);
     }
 
     .feedback-alert.error {
         display: block;
-        background: rgba(239, 68, 68, 0.12);
-        color: #fca5a5;
-        border: 1px solid rgba(239, 68, 68, 0.22);
+        background: rgba(239, 68, 68, 0.1);
+        color: #f87171;
+        border: 1px solid rgba(239, 68, 68, 0.2);
     }
 
     .control-footer {
+        text-align: center;
+        margin-top: 30px;
         display: flex;
         justify-content: center;
-        gap: 12px;
+        gap: 15px;
         flex-wrap: wrap;
-        margin-top: 20px;
     }
 
     .control-btn {
         background: transparent;
-        color: var(--text);
-        border: 1px solid var(--line);
-        padding: 12px 22px;
-        border-radius: 6px;
-        font-weight: 700;
+        color: var(--text-light);
+        border: 1px solid var(--border-line);
+        padding: 12px 28px;
+        font-size: 13px;
+        font-weight: 600;
         text-transform: uppercase;
-        letter-spacing: 0.8px;
+        letter-spacing: 1px;
+        border-radius: 4px;
         cursor: pointer;
-        transition: all 0.2s ease;
+        transition: all 0.2s;
     }
 
     .control-btn:hover {
-        background: rgba(255,255,255,0.04);
-        border-color: #4b6386;
+        border-color: var(--text-light);
+        background: rgba(255, 255, 255, 0.03);
     }
 
     .control-btn.primary {
-        background: var(--gold);
-        color: #0c1220;
-        border-color: var(--gold);
+        background: var(--amber-gold);
+        color: var(--slate-dark);
+        border-color: var(--amber-gold);
     }
 
     .control-btn.primary:hover {
-        background: #e09a1d;
-        border-color: #e09a1d;
-    }
-
-    @media (max-width: 640px) {
-        body {
-            padding: 10px;
-        }
-
-        .main-content {
-            padding: 12px;
-        }
-
-        .crossword-grid {
-            width: 100%;
-            max-width: 100%;
-        }
-
-        .clue-item {
-            font-size: 13px;
-        }
+        background: #d97706;
+        border-color: #d97706;
     }
 </style>
 </head>
@@ -347,13 +329,13 @@
     </header>
 
     <div class="dashboard-bar">
-        <span>STATUS: MONEY JOURNEY MATRIX LOADED</span>
+        <span>STATUS: SYNCHRONIZED MATRIX INDEX LOADED</span>
         <span>SCORE: <span id="score-val" class="score-box">0</span></span>
     </div>
 
     <div class="main-content">
         <div class="mission-box">
-            <strong>Crossword Mission Parameter:</strong> Solve the clues about barter, money, coins, currency, banking, and digital payments. The clues are fully visible now, and the grid is spaced for easier solving.
+            <strong>Crossword Mission Parameter:</strong> Review the Across and Down clues. Click on any valid grid cell to input characters. Press the verification button below to evaluate your solution coordinates.
         </div>
 
         <div class="crossword-container">
@@ -480,9 +462,6 @@ function buildCrosswordGridSkeleton() {
 
                 charInput.addEventListener('input', (e) => {
                     e.target.value = e.target.value.toUpperCase();
-                    if (e.target.value.length === 1) {
-                        focusNextAvailableCell(r, c);
-                    }
                 });
 
                 cellDiv.appendChild(charInput);
@@ -491,11 +470,6 @@ function buildCrosswordGridSkeleton() {
             structuralMesh.appendChild(cellDiv);
         }
     }
-}
-
-function focusNextAvailableCell(row, col) {
-    let nextInput = document.getElementById(`input-r${row}-c${col + 1}`) || document.getElementById(`input-r${row + 1}-c${col}`);
-    if (nextInput) nextInput.focus();
 }
 
 function renderCluesPanelText() {
@@ -508,11 +482,8 @@ function renderCluesPanelText() {
         const entry = document.createElement('div');
         entry.className = 'clue-item';
         entry.innerHTML = `<strong>${item.num}.</strong> ${item.clue}`;
-        if (item.dir === "across") {
-            acrossBox.appendChild(entry);
-        } else {
-            downBox.appendChild(entry);
-        }
+        if (item.dir === "across") acrossBox.appendChild(entry);
+        else downBox.appendChild(entry);
     });
 }
 
@@ -538,18 +509,18 @@ function verifyCrosswordMatrix() {
 
     if (unmappedCount > 0) {
         executeSound(wrongAudio);
-        displayAlert(`Incomplete Money Trail: ${unmappedCount} cell nodes remain unfilled. Complete the matrix grid.`, "error");
+        displayAlert(`Incomplete Matrix: ${unmappedCount} cells are still empty.`, "error");
         return;
     }
 
     if (accurateCount === interactiveInputs.length) {
         computedScore = 100;
         executeSound(clapsAudio);
-        displayAlert("🏆 Master Trader Victory! The complete barter-to-money archive is perfectly calibrated!", "success");
+        displayAlert("🏆 Master Trader Victory! All answers are correct!", "success");
     } else {
         computedScore = Math.max(0, Math.floor((accurateCount / interactiveInputs.length) * 80));
         executeSound(wrongAudio);
-        displayAlert("Currency Mismatch Detected! Some answers do not match the chapter clues. Check your entries.", "error");
+        displayAlert("Some answers are incorrect. Check the clues and try again.", "error");
     }
 
     document.getElementById('score-val').textContent = computedScore;
