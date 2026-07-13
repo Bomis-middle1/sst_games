@@ -1,1 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grade 7: The Gupta Era - Building Quest</title>
+    <style>
+        :root {
+            --royal-gold: #c17f45;
+            --empire-crimson: #2f6b5e;
+            --palace-cream: #f3ead9;
+            --text-dark: #1e2a3a;
+            --border-muted: #b7c4c1;
+            --success-glow: #d7ead0;
+            --success-border: #4d8a4a;
+            --fail-glow: #f3d6ce;
+            --fail-border: #b0503a;
+            --stone-color: #7c92b0;
+            --stone-shadow: #33456b;
+        }
 
+        body {
+            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #dbe6e3 0%, #1e2a5e 120%);
+            margin: 0;
+            padding: 15px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-dark);
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Pure White Minimalist Splash Screen */
+        #splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.6s ease-out, visibility 0.6s;
+        }
+
+        .splash-logo {
+            max-width: 260px;
+            width: 80%;
+            height: auto;
+            animation: pulseLogo 2s ease-in-out infinite alternate;
+        }
+
+        /* Game Board Frame Wrapper */
+        #game-container {
+            width: 100%;
+            max-width: 820px;
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.15);
+            border: 4px solid var(--royal-gold);
+            padding: 22px;
+            box-sizing: border-box;
+            display: none;
+            text-align: center;
+        }
+
+        .header-logo {
+            max-height: 38px;
+            margin-bottom: 12px;
+        }
+
+        /* Top HUD Dashboard */
+        .hud-dashboard {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--palace-cream);
+            padding: 10px 18px;
+            border-radius: 14px;
+            border: 2px dashed var(--royal-gold);
+            margin-bottom: 20px;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        /* Twin Column Structure */
+        .game-layout {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 22px;
+        }
+
+        @media (min-width: 680px) {
+            .game-layout {
+                grid-template-columns: 1.15fr 0.85fr;
+                align-items: center;
+            }
+        }
+
+        .quiz-engine {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            text-align: left;
+        }
+
+        .clue-display-card {
+            background: var(--palace-cream);
+            border: 2px solid #e7ded0;
+            border-radius: 16px;
+            padding: 18px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            line-height: 1.45;
+            min-height: 90px;
+            display: flex;
+            align-items: center;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .options-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-node {
+            background: #ffffff;
+            border: 2px solid var(--border-muted);
+            border-radius: 14px;
+            padding: 14px 18px;
+            font-size: 1.02rem;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: left;
+            box-shadow: 0 4px 0 var(--border-muted);
+            transition: all 0.1s cubic-bezier(0.25, 0.8, 0.25, 1);
+            outline: none;
+        }
+
+        .option-node:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 var(--border-muted);
+        }
+
+        .option-node.correct-glow {
+            background: var(--success-glow) !important;
+            border-color: var(--success-border) !important;
+            color: #1c4520 !important;
+            box-shadow: 0 4px 0 var(--success-border) !important;
+        }
+
+        .option-node.wrong-glow {
+            background: var(--fail-glow) !important;
+            border-color: var(--fail-border) !important;
+            color: #5c2416 !important;
+            box-shadow: 0 4px 0 var(--fail-border) !important;
+        }
+
+        /* Brick Building Arena */
+        .building-arena {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .monument-scaffold {
+            width: 260px;
+            height: 260px;
+            background: #eef1f6;
+            border: 4px dashed var(--royal-gold);
+            border-radius: 18px;
+            position: relative;
+            display: flex;
+            flex-direction: column-reverse; /* Stacks bricks from bottom up */
+            justify-content: flex-start;
+            align-items: center;
+            padding: 10px;
+            box-sizing: border-box;
+            gap: 6px;
+            box-shadow: inset 0 4px 12px rgba(0,0,0,0.06);
+        }
+
+        /* 3D Stone Block Layer Row Style */
+        .building-block {
+            width: 100%;
+            height: 18px;
+            background: linear-gradient(180deg, #a9bdd6 0%, var(--stone-color) 100%);
+            border: 2px solid var(--stone-shadow);
+            border-radius: 4px;
+            box-sizing: border-box;
+            opacity: 0;
+            transform: translateY(-20px) scale(0.7);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s;
+            box-shadow: 0 3px 0px var(--stone-shadow);
+        }
+
+        .building-block.placed {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        /* Varied dynamic sizing to create an architectural layout pyramid effect upwards */
+        #block-0 { width: 100%; height: 22px; background: linear-gradient(180deg, #7c92b0 0%, #263858 100%); } /* Strong foundation base */
+        #block-1 { width: 95%; }
+        #block-2 { width: 90%; }
+        #block-3 { width: 85%; }
+        #block-4 { width: 75%; height: 20px; background: linear-gradient(180deg, #d9a066 0%, #a06a33 100%); } /* Pillared mid-arch separator */
+        #block-5 { width: 70%; }
+        #block-6 { width: 60%; }
+        #block-7 { width: 50%; }
+        #block-8 { width: 40%; }
+        #block-9 { width: 25%; height: 24px; border-radius: 50% 50% 0 0; background: linear-gradient(180deg, #e8b978 0%, #c17f45 100%); } /* Copper Golden-Age Capstone */
+
+        /* Victory screen layout */
+        #victory-screen {
+            display: none;
+            padding: 30px 15px;
+        }
+
+        .score-badge {
+            font-size: 3.2rem;
+            font-weight: 900;
+            color: var(--royal-gold);
+            margin: 18px 0;
+            text-shadow: 1px 2px 0px rgba(0,0,0,0.1);
+        }
+
+        .action-retry {
+            background: var(--empire-crimson);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            padding: 15px 36px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 5px 0 #1c4a3f;
+            transition: transform 0.1s;
+        }
+
+        .action-retry:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 #1c4a3f;
+        }
+
+        @keyframes pulseLogo {
+            0% { transform: scale(0.96); opacity: 0.92; }
+            100% { transform: scale(1.04); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="splash-screen">
+        <img src="gr7/part1/chp7/theguptaera/assets/logo.png" alt="Innovine" class="splash-logo">
+    </div>
+
+    <div id="game-container">
+        <img src="gr7/part1/chp7/theguptaera/assets/logo.png" alt="Innovine" class="header-logo" onerror="this.style.display='none'">
+        
+        <div id="active-play-zone">
+            <div class="hud-dashboard">
+                <div id="hud-chronicle-index">Chronicle Layer: 1 / 10</div>
+                <div id="hud-dynasty-score">Constructed Blocks: 🏛️ 0/10</div>
+            </div>
+
+            <div class="game-layout">
+                <div class="quiz-engine">
+                    <div class="clue-display-card" id="clue-card-render">Retrieving historical chronicles...</div>
+                    <div class="options-stack" id="options-nodes-wrapper">
+                        </div>
+                </div>
+
+                <div class="building-arena">
+                    <h3 style="margin: 0 0 12px 0; font-size: 1.1rem; color: var(--empire-crimson);">Construct the Gupta Monument! 🏛️</h3>
+                    <div class="monument-scaffold" id="scaffold-matrix">
+                        <div class="building-block" id="block-9"></div>
+                        <div class="building-block" id="block-8"></div>
+                        <div class="building-block" id="block-7"></div>
+                        <div class="building-block" id="block-6"></div>
+                        <div class="building-block" id="block-5"></div>
+                        <div class="building-block" id="block-4"></div>
+                        <div class="building-block" id="block-3"></div>
+                        <div class="building-block" id="block-2"></div>
+                        <div class="building-block" id="block-1"></div>
+                        <div class="building-block" id="block-0"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="victory-screen">
+            <div style="font-size: 5rem; margin-bottom: 8px;">👑</div>
+            <h1 style="color: var(--empire-crimson); margin: 5px 0;">Gupta Golden Age Chronicle Completed!</h1>
+            <p style="font-size: 1.2rem; color: #4a5568;">Superb! You have successfully mastered the art, science, and governance of the Gupta Era.</p>
+            <div class="score-badge" id="final-tally-output">10 / 10</div>
+            <button class="action-retry" onclick="window.location.reload()">Re-enter History 🔄</button>
+        </div>
+    </div>
+
+    <audio id="sound-correct" src="gr7/part1/chp7/theguptaera/assets/correct.mp3" preload="auto"></audio>
+    <audio id="sound-wrong" src="gr7/part1/chp7/theguptaera/assets/wrong.mp3" preload="auto"></audio>
+    <audio id="sound-win" src="gr7/part1/chp7/theguptaera/assets/freesound_community-claps-44774.mp3" preload="auto"></audio>
+
+    <script>
+        const chronicleDataset = [
+            { text: "Chandragupta I's marriage alliance with Kumaradevi was significant because it helped the Gupta Empire to:", answers: ["Strengthen political influence and expand its power through alliances 🤝", "Introduce Buddhism as the official religion of the empire ☸️", "Establish universities across northern India 🏫", "Replace Sanskrit with a new official language 📜"], correct: "Strengthen political influence and expand its power through alliances 🤝" },
+            { text: "The Prayag Prashasti is an important historical source because it provides information about:", answers: ["The medical practices followed during the Gupta period 🌿", "Samudragupta's military achievements and his relationship with other rulers 🗡️", "The architectural designs of Gupta temples 🏛️", "The mathematical discoveries of Aryabhata 🧮"], correct: "Samudragupta's military achievements and his relationship with other rulers 🗡️" },
+            { text: "Samudragupta was called \"The Conqueror and Composer\" because he:", answers: ["Built many temples and promoted only religious activities 🕉️", "Introduced a new system of administration based on village councils 🏘️", "Combined military success with interests in music and poetry 🎼", "Created the first written script of ancient India ✍️"], correct: "Combined military success with interests in music and poetry 🎼" },
+            { text: "Chandragupta II's reign is considered an important phase of Gupta history because:", answers: ["He ended all forms of trade with foreign countries 🚫", "He shifted the capital from Pataliputra to Kannauj 🏙️", "He introduced the first coins in Indian history 🪙", "He expanded the empire westward and encouraged art and culture 🎨"], correct: "He expanded the empire westward and encouraged art and culture 🎨" },
+            { text: "Aryabhata's contributions are considered revolutionary because they showed that:", answers: ["Scientific observation and reasoning could explain natural phenomena 🔭", "Ancient people depended only on religious explanations 🙏", "Mathematics was used only for trade calculations 💰", "Astronomy had no connection with everyday life 🌌"], correct: "Scientific observation and reasoning could explain natural phenomena 🔭" },
+            { text: "The development of Ayurveda during the Gupta period reflects that scholars of the time:", answers: ["Focused only on military technology and warfare ⚔️", "Developed systematic knowledge about health, diseases, and treatment 🌱", "Rejected the use of plants and natural medicines 🚫", "Believed scientific studies were unnecessary ❌"], correct: "Developed systematic knowledge about health, diseases, and treatment 🌱" },
+            { text: "The Ajanta Caves and other artistic achievements of the Gupta period show that:", answers: ["Gupta rulers discouraged artistic expression 🚫", "Art during the Gupta period was limited only to royal palaces 🏰", "The period encouraged creativity in sculpture, painting, and architecture 🖼️", "Gupta artists copied all designs from foreign kingdoms 🌍"], correct: "The period encouraged creativity in sculpture, painting, and architecture 🖼️" },
+            { text: "The decline of the Gupta Empire was mainly caused by:", answers: ["The disappearance of Indian culture and traditions 🌫️", "The complete loss of agricultural knowledge 🌾", "The end of scientific discoveries in India 🔬", "Weak later rulers, invasions by the Hunas, and loss of political stability 🐎"], correct: "Weak later rulers, invasions by the Hunas, and loss of political stability 🐎" },
+            { text: "Prabhavati Gupta's life is important in history because it shows that:", answers: ["Women could also hold political authority and play important administrative roles 👑", "Women were not involved in governance during ancient India 🚫", "Gupta rulers avoided relationships with other kingdoms 🌍", "Only warriors could become successful leaders ⚔️"], correct: "Women could also hold political authority and play important administrative roles 👑" },
+            { text: "Why is the Gupta period often described as the \"Golden Age\" of ancient India?", answers: ["It was the period when India first became a single empire 🗺️", "It witnessed major achievements in science, literature, art, architecture, and culture ✨", "It was the only period when foreign trade existed 🚢", "It marked the beginning of all Indian religions 🛕"], correct: "It witnessed major achievements in science, literature, art, architecture, and culture ✨" }
+        ];
+
+        let playHead = 0;
+        let successfulMatches = 0;
+        let blockInteraction = false;
+
+        function playSoundTrack(id) {
+            const track = document.getElementById(id);
+            if (track) {
+                track.currentTime = 0;
+                track.play().catch(() => {});
+            }
+        }
+
+        // Strict 5-Second Hold Splash View Block Loop
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                document.getElementById('splash-screen').style.opacity = '0';
+                document.getElementById('splash-screen').style.visibility = 'hidden';
+                document.getElementById('game-container').style.display = 'block';
+                renderNextChronicle();
+            }, 5000);
+        });
+
+        function renderNextChronicle() {
+            blockInteraction = false;
+            const contextItem = chronicleDataset[playHead];
+
+            document.getElementById('hud-chronicle-index').innerText = `Chronicle Layer: ${playHead + 1} / ${chronicleDataset.length}`;
+            document.getElementById('hud-dynasty-score').innerText = `Constructed Blocks: 🏛️ ${successfulMatches}/10`;
+            document.getElementById('clue-card-render').innerText = contextItem.text;
+
+            const menuWrapper = document.getElementById('options-nodes-wrapper');
+            menuWrapper.innerHTML = '';
+
+            let mixedPool = [...contextItem.answers].sort(() => Math.random() - 0.5);
+
+            mixedPool.forEach(choiceString => {
+                const triggerNode = document.createElement('button');
+                triggerNode.className = 'option-node';
+                triggerNode.innerText = choiceString;
+                triggerNode.onclick = () => evaluationStep(triggerNode, choiceString, contextItem.correct);
+                menuWrapper.appendChild(triggerNode);
+            });
+        }
+
+        function evaluationStep(elementRef, inputString, solutionString) {
+            if (blockInteraction) return;
+            blockInteraction = true;
+
+            if (inputString === solutionString) {
+                elementRef.classList.add('correct-glow');
+                playSoundTrack('sound-correct');
+
+                // Animate and drop the next progressive stone layer directly from the base upwards
+                const blockToPlace = document.getElementById(`block-${successfulMatches}`);
+                if (blockToPlace) blockToPlace.classList.add('placed');
+
+                successfulMatches++;
+            } else {
+                elementRef.classList.add('wrong-glow');
+                playSoundTrack('sound-wrong');
+
+                const alternatives = document.querySelectorAll('.option-node');
+                alternatives.forEach(node => {
+                    if (node.innerText === solutionString) node.classList.add('correct-glow');
+                });
+            }
+
+            // Flawless advance layout timeline switch timeout
+            setTimeout(() => {
+                playHead++;
+                if (playHead < chronicleDataset.length) {
+                    renderNextChronicle();
+                } else {
+                    displayVictoryScreen();
+                }
+            }, 2400);
+        }
+
+        function displayVictoryScreen() {
+            document.getElementById('active-play-zone').style.display = 'none';
+            document.getElementById('victory-screen').style.display = 'block';
+            document.getElementById('final-tally-output').innerText = `${successfulMatches} / 10 Layers Built`;
+            playSoundTrack('sound-win');
+        }
+    </script>
+</body>
+</html>
