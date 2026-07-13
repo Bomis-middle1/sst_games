@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>SST Chapter 3: The Maratha Kingdom Puzzle</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --maratha-saffron:#ea580c;
+  --royal-gold:#d97706;
+  --fort-stone:#475569;
+  --parchment:#fffbeb;
+  --ink:#0f172a;
+  --border-sepia:#e2d8c5;
+  --success:#10b981;
+  --error:#ef4444;
+}
+body{font-family:'Segoe UI',Tahoma,Verdana,sans-serif;background:linear-gradient(180deg,#ffedd5 0%,#fef3c7 50%,#fafaf9 100%);min-height:100vh;color:var(--ink);overflow-x:hidden}
+h1,h2,.font-royal,button,.top-bar,.stamp{font-family:'Georgia',serif}
+
+/* ---- Loader ---- */
+#splash{position:fixed;inset:0;background:#ffffff;display:flex;justify-content:center;align-items:center;z-index:9999}
+.splash-content{text-align:center}
+.splash-logo{max-width:240px;height:auto;animation:pulseLogo 2.5s ease-in-out infinite}
+@keyframes pulseLogo{0%,100%{transform:scale(0.96);opacity:0.9}50%{transform:scale(1.02);opacity:1}}
+
+.hidden{display:none!important}
+.container{max-width:1200px;margin:auto;padding:20px}
+
+/* ---- Structural Framework ---- */
+.game-layout{display:grid;grid-template-columns:1.2fr 0.8fr;gap:24px;margin-top:15px}
+@media(max-width:950px){.game-layout{grid-template-columns:1fr}}
+
+.panel{background:var(--parchment);border-radius:14px;overflow:hidden;box-shadow:0 10px 30px rgba(234,88,12,0.12);border:2px solid var(--border-sepia);display:flex;flex-direction:column}
+.panel-inner{padding:24px;flex:1;display:flex;flex-direction:column}
+.center{text-align:center}
+.skystrip{height:16px;width:100%;background:linear-gradient(90deg,var(--maratha-saffron),var(--royal-gold),var(--fort-stone))}
+
+.eyebrow{text-transform:uppercase;letter-spacing:2px;font-size:11px;color:var(--maratha-saffron);font-weight:700;margin-bottom:6px}
+h1{font-size:26px;color:var(--maratha-saffron);margin-bottom:8px}
+h2{font-size:18px;font-weight:700;line-height:1.4;margin-bottom:12px}
+p{line-height:1.6;font-size:14.5px;color:#334155}
+
+/* ---- Puzzle Architecture Grid ---- */
+.puzzle-box{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;width:300px;height:300px;margin:20px auto;background:#cbd5e1;border:4px solid var(--fort-stone);border-radius:8px;position:relative}
+.puzzle-tile{background-color:var(--maratha-saffron);border:1px solid rgba(255,255,255,0.3);display:flex;justify-content:center;align-items:center;font-size:20px;font-weight:bold;color:#fff;cursor:pointer;user-select:none;transition:all 0.2s ease;border-radius:4px;box-shadow:inset 0 0 12px rgba(0,0,0,0.2)}
+.puzzle-tile:hover{transform:scale(0.97);filter:brightness(1.1)}
+.puzzle-tile.empty{background:#cbd5e1;box-shadow:none;cursor:default;border:none}
+
+/* ---- Multiple Choice Elements ---- */
+.top-bar{display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:700;border-bottom:1px dashed var(--border-sepia);padding-bottom:10px;margin-bottom:15px}
+.action-option{background:#fff;border:2px solid var(--border-sepia);padding:14px;border-radius:10px;margin:10px 0;cursor:pointer;font-size:14.5px;transition:all 0.2s ease;display:flex;align-items:center;gap:12px}
+.action-option:hover{border-color:var(--maratha-saffron);background:#fff7ed;transform:translateX(3px)}
+.action-option .badge{background:#f1f5f9;color:var(--ink);font-weight:700;font-size:12px;padding:4px 8px;border-radius:5px;min-width:26px;text-align:center}
+.action-option.correct{background:#ecfdf5;border-color:var(--success)}
+.action-option.wrong{background:var(--bad-bg);border-color:var(--error)}
+
+button{padding:12px 24px;border:none;border-radius:8px;background:var(--maratha-saffron);color:#fff;cursor:pointer;font-weight:700;transition:all 0.15s ease;box-shadow:0 4px 6px rgba(0,0,0,0.1)}
+button:hover{background:#c2410c}
+
+.feedback{margin-top:12px;padding:12px;border-radius:8px;font-size:14px;line-height:1.5;border:1px solid transparent}
+.good{background:#ecfdf5;color:#065f46;border-color:var(--success)}
+.bad{background:#fef2f2;color:#991b1b;border-color:var(--error)}
+
+/* ---- Map Tactics Tracker ---- */
+.map-visualizer{background:#f8fafc;border:2px solid var(--border-sepia);border-radius:10px;padding:15px;min-height:300px;display:flex;flex-direction:column;justify-content:space-between;position:relative}
+.fort-node{background:#fff;border:2px solid var(--fort-stone);border-radius:8px;padding:8px 12px;margin:8px 0;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:space-between;opacity:0.4;transform:scale(0.95);transition:all 0.4s ease}
+.fort-node.captured{opacity:1;transform:scale(1.02);border-color:var(--maratha-saffron);background:#fff7ed;box-shadow:0 4px 10px rgba(234,88,12,0.15)}
+.fort-node span.status-icon{font-size:16px}
+</style>
+</head>
+<body>
+
+<!-- Global Loader Screen -->
+<div id="splash">
+ <div class="splash-content">
+  <img src="assets/innovine-logo.png" alt="Innovine Logo" class="splash-logo">
+ </div>
+</div>
+
+<!-- Audio Assets -->
+<audio id="correctSound" src="assets/correct.mp3"></audio>
+<audio id="wrongSound" src="assets/wrong.mp3"></audio>
+<audio id="clapSound" src="assets/freesound_community-claps-44774.mp3"></audio>
+
+<!-- Welcoming Dashboard Screen -->
+<div id="intro" class="container hidden">
+<div class="panel">
+<div class="skystrip"></div>
+<div class="panel-inner center" style="padding:40px 30px">
+<div class="eyebrow">Grade 8 Social Science · Chapter 3</div>
+<h1>🚩 The Rise of the Marathas – A Reimagined Narrative</h1>
+<p style="margin-top:12px;max-width:750px;margin-inline:auto">Embark on a dynamic chronological strategy expedition! Resolve historical questions regarding Swarajya, revenue systems, and naval control to earn puzzle shifts. Slide the layout tiles into alignment to restore the historic symbol of **Chhatrapati Shivaji Maharaj**!</p>
+<br>
+<div style="font-size:45px">⛰️ ➔ 🚩 ➔ 🏰 ➔ 🛡️</div>
+<br>
+<button onclick="startGame()">Commence Strategy Expedition</button>
+</div></div></div>
+
+<!-- Core Interface Wrapper -->
+<div id="game" class="container hidden">
+<div class="game-layout">
+  
+  <!-- Left Side: Interactive Historical Chronology Framework -->
+  <div class="panel">
+   <div class="skystrip"></div>
+   <div class="panel-inner">
+    <div class="top-bar">
+     <div>🚩 Campaigns Secured: <span id="scoreDisplay">0</span>/10</div>
+     <div>⌛ Timer: <span id="timeDisplay">45</span>s</div>
+     <div>Stage <span id="qnumDisplay">1</span>/10</div>
+    </div>
+    <h2 id="questionDisplay"></h2>
+    <div id="optionsDisplay"></div>
+    <div id="feedbackDisplay"></div>
+    <div style="margin-top:15px;text-align:right">
+      <button id="nextBtn" class="hidden" onclick="nextQuestion()">Advance Campaign →</button>
+    </div>
+   </div>
+  </div>
+
+  <!-- Right Side: Interactive Picture Puzzle Screen Matrix -->
+  <div class="panel">
+   <div class="skystrip"></div>
+   <div class="panel-inner center" style="background:#fafafa">
+    <div class="eyebrow">Tactical Visual Matrix</div>
+    <p style="font-size:12.5px;margin-bottom:6px">Correct choices grant bonus slide movements! Click adjacent blocks to solve.</p>
+    
+    <!-- 15-Puzzle Framework Area -->
+    <div class="puzzle-box" id="puzzleContainer"></div>
+    
+    <!-- Real-time Territory Progress Visualizer -->
+    <div class="map-visualizer">
+      <div class="fort-node" id="fn-sahyadri"><span>⛰️ Sahyadri Highland Valleys</span><span class="status-icon" id="fs-sahyadri">🔒</span></div>
+      <div class="fort-node" id="fn-purandar"><span>🏰 Purandar Fort Complex</span><span class="status-icon" id="fs-purandar">🔒</span></div>
+      <div class="fort-node" id="fn-konkan"><span>⚓ Konkan Maritime Coastline</span><span class="status-icon" id="fs-konkan">🔒</span></div>
+      <div class="fort-node" id="fn-delhi"><span>🚩 Northern Plains / Expansion</span><span class="status-icon" id="fs-delhi">🔒</span></div>
+      <div id="puzzleStatus" class="font-royal" style="font-size:13px;font-weight:700;color:var(--maratha-saffron);margin-top:10px">Unlock regional fort assets by processing records.</div>
+    </div>
+    
+   </div>
+  </div>
+
+</div>
+</div>
+
+<!-- Evaluation Dashboard -->
+<div id="result" class="container hidden">
+<div class="panel">
+<div class="skystrip"></div>
+<div class="panel-inner center" style="padding:40px 30px">
+<div style="font-size:65px" id="resultIcon"></div>
+<h1 id="resultTitle"></h1>
+<h2 id="finalScore"></h2>
+<p style="margin:15px auto;max-width:600px" id="puzzleResolutionText"></p>
+<div class="stamp" id="resultStamp" style="background:var(--maratha-saffron);color:#fff;padding:8px 16px;border-radius:4px;font-weight:700"></div><br><br>
+<button onclick="location.reload()">Re-launch Maratha Expedition</button>
+</div></div></div>
+
+<script>
+// Global loader sequence (5s delay)
+window.addEventListener('load',()=>{
+  setTimeout(()=>{
+    document.getElementById('splash').style.display='none';
+    document.getElementById('intro').classList.remove('hidden');
+  },5000);
+});
+
+// Chronological Database derived from Maratha Learning Map Framework
+const database = [
+  {q:"Which geographic factor served as the greatest tactical military weapon for the early Marathas during unexpected defense campaigns?",o:["Open sandy desert stretches","The rugged Sahyadri mountain ranges and hidden valley trails","Dense delta swamps lacking clean water","Flat agricultural river basins with high visibility"],a:1,e:"The rugged Sahyadri hill ranges offered invaluable protection, high visibility fields, and natural fort bases perfectly matching local hit-and-run mobile strategies.",zone:"sahyadri"},
+  {q:"What specific spiritual movement helped unify the distinct social groups of the Deccan, creating a cultural foundation for later political mobilization?",o:["The early Silk Route monastic movement","The regional Bhakti movement led by saints like Tukaram and Namdev","The Western monastic scholastic movement","The classical courtly rituals of Devagiri"],a:1,e:"Deccan Bhakti saints spread spiritual equality ideas in local Marathi text structures, fostering deep communal and political bonds across populations.",zone:"sahyadri"},
+  {q:"What style of mobile military operations did Shivaji masterfully leverage to systematically counter significantly larger opposing imperial armies?",o:["Static trench layout formations","Guerrilla warfare using surprise attacks, high speed, and terrain knowledge","Heavy elephant corps arrays on open ground","Exclusive maritime blockades using foreign galleons"],a:1,e:"Guerrilla tactics allowed fast mobile squads to ambush slow-moving conventional columns and seamlessly dissolve back into regional mountain forests.",zone:"sahyadri"},
+  {q:"What crucial concession did Shivaji make under the terms of the strategic Treaty of Purandar signed in 1665 with Mirza Raja Jai Singh I?",o:["He dissolved the entire naval council permanently","He surrendered 23 of his 35 forts to the Mughal forces to buy operational time","He agreed to transfer his central court seat north to Agra","He completely abandoned the structural claim to Swarajya"],a:1,e:"Pragmatism guided the decision: surrendering 23 key strongholds preserved his active forces and granted valuable recovery time.",zone:"purandar"},
+  {q:"How did Shivaji dramatically escape home arrest in Agra in 1666, solidifying his status as a legendary folk hero?",o:["By securing a formal royal pardon decree from Aurangzeb","By concealing himself and his son Sambhaji within large religious sweet and fruit baskets","By launching an external midnight cavalry break-in","By employing a large scale disguise as European trade merchants"],a:1,e:"Feigning illness allowed him to arrange routine charitable deliveries, providing the ultimate cover to slip past unsuspecting guards.",zone:"purandar"},
+  {q:"What formal title meaning 'supreme ruler' did Shivaji claim during his grand coronation at Raigad Fort in the milestone year 1674?",o:["Peshwa","Mansabdar","Chhatrapati","Jagirdar"],a:2,e:"The title Chhatrapati officially proclaimed the structural independence and sovereign authority of the growing Maratha Empire.",zone:"purandar"},
+  {q:"In the administrative system established by Shivaji, what was the function of the iconic Ashta Pradhan?",o:["A group of elite naval commanders guarding coastal shipping routes","A council of eight ministers providing specialized governance assistance","A revenue matrix managing foreign silver inputs","A judicial bench operating out of village centers"],a:1,e:"The Ashta Pradhan distributed clear governance portfolios, balancing administrative tasks while maintaining high official accountability.",zone:"konkan"},
+  {q:"Which fiscal instrument represented a 25% tax collected from peripheral territories in exchange for military protection from external raids?",o:["Sardeshmukhi","Inam","Chauth","Iqta"],a:2,e:"Chauth allowed the empire to collect operational funds from outer territories while ensuring regional safety without requiring direct administrative annexation.",zone:"konkan"},
+  {q:"Who stood out as an exceptionally capable naval commander, successfully defending the Konkan coast against colonial merchant fleets?",o:["Balaji Vishwanath","Baji Rao I","Kanhoji Angre","Tanaji Malusare"],a:2,e:"Admiral Kanhoji Angre controlled coastal waterways, successfully protecting regional commerce hubs against British and European merchant fleets.",zone:"konkan"},
+  {q:"Which monumental clash in 1761 checked northern Maratha over-expansion and tested their institutional resilience?",o:["The Battle of Sinhagad","The Third Battle of Panipat","The First Anglo-Maratha War","The Siege of Purandar"],a:1,e:"The Third Battle of Panipat against Ahmad Shah Abdali resulted in extreme losses, testing the empire's ultimate military recovery capabilities.",zone:"delhi"}
+];
+
+let currentIndex = 0, score = 0, strikeState = 0, timeframe = 45, gameClock;
+let puzzleState = [1, 2, 3, 4, 5, 6, 7, 8, 0]; // 0 represents the blank space in the 3x3 layout
+const winningState = [1, 2, 3, 4, 5, 6, 7, 8, 0];
+
+function startGame(){
+  document.getElementById('intro').classList.add('hidden');
+  document.getElementById('game').classList.remove('hidden');
+  initializePuzzleGrid();
+  shufflePuzzleBlocks();
+  loadStage();
+}
+
+/* ---- 15-Puzzle Mechanics (Adapted to 3x3 for optimized responsive execution) ---- */
+function initializePuzzleGrid(){
+  const container = document.getElementById('puzzleContainer');
+  container.innerHTML = '';
+  puzzleState.forEach((val, idx) => {
+    let block = document.createElement('div');
+    block.className = 'puzzle-tile' + (val === 0 ? ' empty' : '');
+    // Render distinct emoji parts simulating visual artifacts of Shivaji's standard
+    if(val !== 0){
+      const structuralMarkers = {1:"🚩", 2:"⛰️", 3:"🏰", 4:"🛡️", 5:"⚔️", 6:"⚓", 7:"🦁", 8:"👑"};
+      block.innerText = structuralMarkers[val];
+    }
+    block.onclick = () => shiftTile(idx);
+    container.appendChild(block);
+  });
+}
+
+function shiftTile(index){
+  const blankIndex = puzzleState.indexOf(0);
+  const targetRow = Math.floor(index / 3), targetCol = index % 3;
+  const blankRow = Math.floor(blankIndex / 3), blankCol = blankIndex % 3;
+  
+  // Verify physical adjacency inside matrix row/column
+  if((Math.abs(targetRow - blankRow) === 1 && targetCol === blankCol) || 
+     (Math.abs(targetCol - blankCol) === 1 && targetRow === blankRow)){
+     puzzleState[blankIndex] = puzzleState[index];
+     puzzleState[index] = 0;
+     initializePuzzleGrid();
+     checkPuzzleCompletion();
+  }
+}
+
+function shufflePuzzleBlocks(){
+  // Perform valid random shifts to preserve matrix solvability
+  for(let i=0; i<30; i++){
+    const blankIndex = puzzleState.indexOf(0);
+    let validMoves = [];
+    let r = Math.floor(blankIndex/3), c = blankIndex%3;
+    if(r > 0) validMoves.push(blankIndex - 3);
+    if(r < 2) validMoves.push(blankIndex + 3);
+    if(c > 0) validMoves.push(blankIndex - 1);
+    if(c < 2) validMoves.push(blankIndex + 1);
+    let chosenMove = validMoves[Math.floor(Math.random() * validMoves.length)];
+    puzzleState[blankIndex] = puzzleState[chosenMove];
+    puzzleState[chosenMove] = 0;
+  }
+  initializePuzzleGrid();
+}
+
+function rewardPuzzleHint(){
+  // Automatic helpful tile swap towards victory conditions on correct input
+  const blankIndex = puzzleState.indexOf(0);
+  if(blankIndex !== 8){
+    let temporary = puzzleState[8];
+    puzzleState[8] = 0;
+    puzzleState[puzzleState.indexOf(0)] = temporary;
+    initializePuzzleGrid();
+  }
+  document.getElementById('puzzleStatus').innerText = "Strategic correct choice! Saffron standard aligned.";
+}
+
+function checkPuzzleCompletion(){
+  let match = true;
+  for(let i=0; i<puzzleState.length; i++){
+    if(puzzleState[i] !== winningState[i]) match = false;
+  }
+  if(match){
+     document.getElementById('puzzleStatus').innerHTML = "<b>🌟 Visual Alignment Restored! Svarajya Standard Unlocked!</b>";
+  }
+}
+
+/* ---- Core Game Flow Engine ---- */
+function loadStage(){
+  strikeState = 0;
+  timeframe = 45;
+  document.getElementById('timeDisplay').textContent = timeframe;
+  document.getElementById('qnumDisplay').textContent = currentIndex + 1;
+  document.getElementById('questionDisplay').textContent = database[currentIndex].q;
+  
+  const optionsBox = document.getElementById('optionsDisplay');
+  optionsBox.innerHTML = '';
+  document.getElementById('feedbackDisplay').innerHTML = '';
+  document.getElementById('nextBtn').classList.add('hidden');
+  
+  const letters = ['A', 'B', 'C', 'D'];
+  database[currentIndex].o.forEach((text, i) => {
+     let opt = document.createElement('div');
+     opt.className = 'action-option';
+     opt.innerHTML = '<span class="badge">'+letters[i]+'</span><span>'+text+'</span>';
+     opt.onclick = () => evaluateAction(i, opt);
+     optionsBox.appendChild(opt);
+  });
+  
+  clearInterval(gameClock);
+  gameClock = setInterval(() => {
+    timeframe--;
+    document.getElementById('timeDisplay').textContent = timeframe;
+    if(timeframe <= 0){
+       clearInterval(gameClock);
+       revealTruth();
+    }
+  }, 1000);
+}
+
+function evaluateAction(selected, element){
+  if(selected === database[currentIndex].a){
+     score++;
+     document.getElementById('scoreDisplay').textContent = score;
+     document.getElementById('correctSound').play().catch(()=>{});
+     element.classList.add('correct');
+     document.getElementById('feedbackDisplay').innerHTML = '<div class="feedback good">🚩 Campaign Complete! ' + database[currentIndex].e + '</div>';
+     
+     updateTerritoryTracker();
+     rewardPuzzleHint();
+     disableOptions();
+     clearInterval(gameClock);
+     document.getElementById('nextBtn').classList.remove('hidden');
+  } else if(strikeState === 0){
+     strikeState = 1;
+     element.classList.add('wrong');
+     document.getElementById('wrongSound').play().catch(()=>{});
+     document.getElementById('feedbackDisplay').innerHTML = '<div class="feedback bad">Strategic Misstep! Tactical line broken. Analyze terrain dynamics again!</div>';
+  } else {
+     element.classList.add('wrong');
+     revealTruth();
+  }
+}
+
+function revealTruth(){
+  disableOptions();
+  clearInterval(gameClock);
+  const letters = ['A', 'B', 'C', 'D'];
+  document.getElementById('feedbackDisplay').innerHTML = '<div class="feedback bad">Expedition Halted. The historical outcome was: <b>' + letters[database[currentIndex].a] + '. ' + database[currentIndex].o[database[currentIndex].a] + '</b><br>' + database[currentIndex].e + '</div>';
+  document.getElementById('nextBtn').classList.remove('hidden');
+}
+
+function disableOptions(){
+  document.querySelectorAll('.action-option').forEach(el => el.onclick = null);
+}
+
+function nextQuestion(){
+  currentIndex++;
+  if(currentIndex < database.length){
+     loadStage();
+  } else {
+     document.getElementById('game').classList.add('hidden');
+     showFinalScorecard();
+  }
+}
+
+function updateTerritoryTracker(){
+  const activeZone = database[currentIndex].zone;
+  const targetNode = document.getElementById('fn-' + activeZone);
+  const targetStatus = document.getElementById('fs-' + activeZone);
+  if(targetNode && targetStatus){
+     targetNode.classList.add('captured');
+     targetStatus.innerText = "🚩 SECURED";
+  }
+}
+
+function showFinalScorecard(){
+  document.getElementById('result').classList.remove('hidden');
+  const rTitle = document.getElementById('resultTitle');
+  const rIcon = document.getElementById('resultIcon');
+  const rStamp = document.getElementById('resultStamp');
+  const rPuzzle = document.getElementById('puzzleResolutionText');
+  
+  let isPuzzleSolved = true;
+  for(let i=0; i<puzzleState.length; i++){
+    if(puzzleState[i] !== winningState[i]) isPuzzleSolved = false;
+  }
+  
+  rPuzzle.innerText = isPuzzleSolved ? 
+    "Masterful execution! You completely aligned the visual mosaic of the Maratha standard!" :
+    "The tactical matrix remained partly scrambled. Re-launch the mission to train your strategic spatial alignment!";
+
+  if(score >= 9){
+     rTitle.textContent = '👑 Grand Sovereign Commander';
+     rIcon.textContent = '🚩';
+     rStamp.textContent = 'SWARAJYA ARCHITECT — MARATHA HISTORIAN';
+     document.getElementById('clapSound').play().catch(()=>{});
+  } else if(score >= 6){
+     rTitle.textContent = '🛡️ Sahyadri Fort Keeper';
+     rIcon.textContent = '🏰';
+     rStamp.textContent = 'CAMPAIGN SUCCESSFUL — STABLE RUN';
+  } else {
+     rTitle.textContent = '⚠️ Deccan Frontier Scout';
+     rIcon.textContent = '⛰️';
+     rStamp.textContent = 'TACTICAL RE-ASSESSMENT RECOMMENDED';
+  }
+  
+  document.getElementById('finalScore').textContent = 'You successfully verified ' + score + ' out of 10 historical narrative milestones.';
+}
+</script>
+</body>
+</html>
