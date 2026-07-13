@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Colonial Era: Chrono-Classification Engine</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --royal-navy:#1e293b;
+  --british-red:#b91c1c;
+  --maratha-saffron:#ea580c;
+  --indigo-blue:#1d4ed8;
+  --parchment:#fcfaf2;
+  --ink-dark:#0f172a;
+  --border-sepia:#e2d6bf;
+  --success-green:#15803d;
+  --gold-leaf:#d97706;
+}
+body{
+  font-family:'Segoe UI',system-ui,sans-serif;
+  background:linear-gradient(135deg,#f8fafc 0%,#f1f5f9 100%);
+  color:var(--ink-dark);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+h1,h2,h3,.font-serif,button{font-family:'Georgia',serif}
+
+/* ---- Brand Loader Screen ---- */
+#splash{
+  position:fixed;inset:0;
+  background:#ffffff;
+  display:flex;justify-content:center;align-items:center;
+  z-index:9999;
+}
+.splash-content{text-align:center}
+.splash-logo{max-width:240px;height:auto;animation:pulseLogo 2.5s ease-in-out infinite}
+@keyframes pulseLogo{0%,100%{transform:scale(0.96);opacity:0.9}50%{transform:scale(1.02);opacity:1}}
+
+.hidden{display:none!important}
+.container{max-width:1200px;margin:auto;padding:24px}
+
+/* ---- Component Cards & Layout ---- */
+.panel{
+  background:var(--parchment);
+  border-radius:16px;
+  overflow:hidden;
+  box-shadow:0 12px 40px rgba(15,23,42,0.08);
+  border:2px solid var(--border-sepia);
+}
+.skystrip{
+  height:12px;width:100%;
+  background:linear-gradient(90deg,var(--british-red),var(--maratha-saffron),var(--indigo-blue));
+}
+.panel-inner{padding:32px}
+.center{text-align:center}
+
+.eyebrow{
+  text-transform:uppercase;
+  letter-spacing:2px;
+  font-size:12px;
+  color:var(--gold-leaf);
+  font-weight:700;
+  margin-bottom:8px;
+}
+h1{font-size:32px;color:var(--british-red);margin-bottom:12px}
+p{line-height:1.6;font-size:15px;color:#475569}
+
+/* ---- Interactive Sorting Mechanics ---- */
+.sorting-deck{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:24px;
+  margin-top:24px;
+}
+@media(max-width:850px){.sorting-deck{grid-template-columns:1fr}}
+
+.historical-vault{
+  background:#fff;
+  border:2px dashed var(--border-sepia);
+  border-radius:12px;
+  padding:20px;
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+  min-height:400px;
+}
+.archive-bins{
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+}
+.bin{
+  background:#fff;
+  border:2px solid var(--border-sepia);
+  border-radius:12px;
+  padding:20px;
+  transition:all 0.3s ease;
+  position:relative;
+}
+.bin.drag-over{
+  border-color:var(--gold-leaf);
+  background:#fefbeb;
+  transform:scale(1.01);
+}
+.bin-title{
+  font-size:16px;
+  font-weight:700;
+  margin-bottom:12px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+/* ---- Interactive Artifact Cards ---- */
+.artifact-card{
+  background:var(--parchment);
+  border:1px solid var(--border-sepia);
+  border-left:5px solid var(--british-red);
+  border-radius:8px;
+  padding:16px;
+  cursor:grab;
+  user-select:none;
+  box-shadow:0 4px 10px rgba(0,0,0,0.03);
+  transition:transform 0.2s, box-shadow 0.2s;
+}
+.artifact-card:active{cursor:grabbing}
+.artifact-card:hover{
+  transform:translateY(-2px);
+  box-shadow:0 6px 15px rgba(0,0,0,0.06);
+}
+.artifact-year{
+  display:inline-block;
+  background:rgba(185,28,28,0.1);
+  color:var(--british-red);
+  font-size:12px;
+  font-weight:700;
+  padding:2px 8px;
+  border-radius:4px;
+  margin-bottom:8px;
+}
+.artifact-desc{font-size:14px;font-weight:600;color:var(--royal-navy)}
+
+/* ---- Live Progress Display ---- */
+.dashboard-bar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:var(--royal-navy);
+  color:#fff;
+  padding:14px 24px;
+  border-radius:10px;
+  margin-bottom:20px;
+  font-size:14px;
+}
+.progress-container{
+  flex:1;
+  max-width:300px;
+  background:rgba(255,255,255,0.2);
+  height:8px;
+  border-radius:4px;
+  margin:0 20px;
+  overflow:hidden;
+}
+.progress-fill{
+  height:100%;
+  width:0%;
+  background:var(--maratha-saffron);
+  transition:width 0.4s ease;
+}
+
+button{
+  padding:12px 28px;
+  border:none;
+  border-radius:8px;
+  background:var(--british-red);
+  color:#fff;
+  font-weight:700;
+  cursor:pointer;
+  transition:all 0.2s;
+  box-shadow:0 4px 12px rgba(185,28,28,0.2);
+}
+button:hover{
+  background:var(--royal-navy);
+  transform:translateY(-1px);
+}
+.badge-count{
+  background:var(--border-sepia);
+  padding:2px 8px;
+  border-radius:20px;
+  font-size:12px;
+}
+</style>
+</head>
+<body>
+
+<!-- Global Loader Screen -->
+<div id="splash">
+ <div class="splash-content">
+  <img src="assets/innovine-logo.png" alt="Innovine Logo" class="splash-logo">
+ </div>
+</div>
+
+<!-- Audio Anchors -->
+<audio id="correctSound" src="assets/correct.mp3"></audio>
+<audio id="wrongSound" src="assets/wrong.mp3"></audio>
+<audio id="clapSound" src="assets/freesound_community-claps-44774.mp3"></audio>
+
+<!-- Welcoming Presentation Screen -->
+<div id="intro" class="container hidden">
+  <div class="panel">
+    <div class="skystrip"></div>
+    <div class="panel-inner center" style="padding:48px">
+      <div class="eyebrow">Grade 8 History · Interactive Classification</div>
+      <h1>Chronicles of the Colonial Era</h1>
+      <p style="max-width:700px;margin:16px auto 24px">
+        The tides of history brought radical transformations to the Indian subcontinent. Step out of the matrix and become the Lead Historian. Sort critical milestones, economic policies, and historic resistance records into their accurate eras to secure the timeline.
+      </p>
+      <div style="font-size:32px;margin-bottom:24px">⚓ ➔ ⚔️ ➔ ✊ ➔ 🏛️</div>
+      <button onclick="startGame()">Begin Classification Challenge</button>
+    </div>
+  </div>
+</div>
+
+<!-- Game Engine Interface -->
+<div id="game" class="container hidden">
+  <div class="dashboard-bar">
+    <div>Historical Records Classified: <span id="counterDisplay">0/8</span></div>
+    <div class="progress-container"><div id="progressBar" class="progress-fill"></div></div>
+    <div>Score multiplier active</div>
+  </div>
+
+  <div class="sorting-deck">
+    <!-- Unsorted Manifest Deck -->
+    <div>
+      <h3 style="margin-bottom:8px;font-size:18px">Unresolved Historical Manifest</h3>
+      <p style="font-size:13px;margin-bottom:12px">Drag the artifact cards or use mobile tap controls to allocate them to their correct historical era.</p>
+      <div class="historical-vault" id="vault"></div>
+    </div>
+
+    <!-- Targeted Classification Bins -->
+    <div class="archive-bins">
+      <!-- Bin 1 -->
+      <div class="bin" data-era="trade" id="bin-trade">
+        <div class="bin-title" style="color:var(--indigo-blue)">
+          <span>⚓ Commercial Expansion (1498–1757)</span>
+          <span class="badge-count" id="count-trade">0 entries</span>
+        </div>
+        <p style="font-size:12px;color:#64748b;margin-bottom:10px">Focus: Early trading outposts, maritime arrivals, and initial royal farmans.</p>
+        <div class="bin-dropzone" style="min-height:80px;display:flex;flex-direction:column;gap:10px"></div>
+      </div>
+
+      <!-- Bin 2 -->
+      <div class="bin" data-era="annexation" id="bin-annexation">
+        <div class="bin-title" style="color:var(--maratha-saffron)">
+          <span>⚔️ Subjugation & Extraction (1758–1856)</span>
+          <span class="badge-count" id="count-annexation">0 entries</span>
+        </div>
+        <p style="font-size:12px;color:#64748b;margin-bottom:10px">Focus: Territory expansion formulas, economic drains, and forced farming.</p>
+        <div class="bin-dropzone" style="min-height:80px;display:flex;flex-direction:column;gap:10px"></div>
+      </div>
+
+      <!-- Bin 3 -->
+      <div class="bin" data-era="rebellion" id="bin-rebellion">
+        <div class="bin-title" style="color:var(--british-red)">
+          <span>✊ The Great Uprising Flare (1857)</span>
+          <span class="badge-count" id="count-rebellion">0 entries</span>
+        </div>
+        <p style="font-size:12px;color:#64748b;margin-bottom:10px">Focus: Armed defiance, cartridge incidents, and local cantonment flashpoints.</p>
+        <div class="bin-dropzone" style="min-height:80px;display:flex;flex-direction:column;gap:10px"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Evaluation Dashboard -->
+<div id="result" class="container hidden">
+  <div class="panel">
+    <div class="skystrip"></div>
+    <div class="panel-inner center" style="padding:48px">
+      <div style="font-size:64px;margin-bottom:12px">📜</div>
+      <h1 id="resultTitle">Chronology Assessment Complete</h1>
+      <h2 style="font-size:20px;color:#475569;margin-bottom:20px" id="resultScore"></h2>
+      <p id="resultText" style="max-width:600px;margin:0 auto 24px"></p>
+      <button onclick="location.reload()">Re-examine Historical Path</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Splash Screen Handler (5 Seconds)
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('splash').style.display = 'none';
+    document.getElementById('intro').classList.remove('hidden');
+  }, 5000);
+});
+
+// Structural Historical Mapping Dataset
+const records = [
+  {id: "m1", year: "1498", desc: "Vasco da Gama anchors on the shores of Calicut.", era: "trade"},
+  {id: "m2", year: "1615", desc: "Sir Thomas Roe secures a royal trade farman from Jahangir.", era: "trade"},
+  {id: "m3", year: "1757", desc: "Battle of Plassey alters political landscape after Mir Jafar's betrayal.", era: "trade"},
+  {id: "m4", year: "1793", desc: "Lord Cornwallis permanently fixes land revenue in Bengal.", era: "annexation"},
+  {id: "m5", year: "1854", desc: "Wood's Despatch sets foundation for Western education structures.", era: "annexation"},
+  {id: "m6", year: "1859", desc: "Peasants in Bengal launch the organized Indigo Rebellion against forced cultivation.", era: "annexation"},
+  {id: "m7", year: "1857", desc: "Mangal Pandey defies execution at Barrackpore cantonment.", era: "rebellion"},
+  {id: "m8", year: "1857", desc: "Mutating sepoys march to Delhi to declare Bahadur Shah Zafar as leader.", era: "rebellion"}
+];
+
+let correctlySorted = 0;
+let activeTapCard = null;
+
+function startGame() {
+  document.getElementById('intro').classList.add('hidden');
+  document.getElementById('game').classList.remove('hidden');
+  renderHistoricalCards();
+  initializeDragAndDrop();
+}
+
+function renderHistoricalCards() {
+  const vault = document.getElementById('vault');
+  vault.innerHTML = '';
+  
+  // Shuffle array using Fisher-Yates logic
+  let randomized = [...records].sort(() => Math.random() - 0.5);
+  
+  randomized.forEach(rec => {
+    const card = document.createElement('div');
+    card.className = 'artifact-card';
+    card.id = rec.id;
+    card.draggable = true;
+    card.innerHTML = `
+      <div class="artifact-year">${rec.year}</div>
+      <div class="artifact-desc">${rec.desc}</div>
+    `;
+    
+    // Tap-to-select support for responsive layouts
+    card.addEventListener('click', () => handleMobileTap(card));
+    vault.appendChild(card);
+  });
+}
+
+function initializeDragAndDrop() {
+  const vault = document.getElementById('vault');
+  const bins = document.querySelectorAll('.bin');
+  
+  vault.addEventListener('dragstart', (e) => {
+    if(e.target.classList.contains('artifact-card')) {
+      e.dataTransfer.setData('text/plain', e.target.id);
+    }
+  });
+
+  bins.forEach(bin => {
+    bin.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      bin.classList.add('drag-over');
+    });
+
+    bin.addEventListener('dragleave', () => {
+      bin.classList.remove('drag-over');
+    });
+
+    bin.addEventListener('drop', (e) => {
+      e.preventDefault();
+      bin.classList.remove('drag-over');
+      const id = e.dataTransfer.getData('text/plain');
+      const card = document.getElementById(id);
+      if(card) evaluateClassification(card, bin);
+    });
+  });
+}
+
+function handleMobileTap(card) {
+  if (activeTapCard) {
+    activeTapCard.style.borderColor = 'var(--border-sepia)';
+  }
+  activeTapCard = card;
+  card.style.borderColor = 'var(--gold-leaf)';
+  
+  // Flash bins to hint choice direction
+  document.querySelectorAll('.bin').forEach(bin => {
+    bin.style.boxShadow = '0 0 8px rgba(217,119,6,0.2)';
+    bin.onclick = () => {
+      evaluateClassification(card, bin);
+      clearMobileTapState();
+    };
+  });
+}
+
+function clearMobileTapState() {
+  if (activeTapCard) activeTapCard.style.borderColor = 'var(--border-sepia)';
+  activeTapCard = null;
+  document.querySelectorAll('.bin').forEach(bin => {
+    bin.style.boxShadow = 'none';
+    bin.onclick = null;
+  });
+}
+
+function evaluateClassification(card, bin) {
+  const targetEra = bin.getAttribute('data-era');
+  const artifactData = records.find(r => r.id === card.id);
+  
+  if(artifactData.era === targetEra) {
+    // True target sorting path
+    document.getElementById('correctSound').play().catch(()=>{});
+    bin.querySelector('.bin-dropzone').appendChild(card);
+    card.draggable = false;
+    card.style.cursor = 'default';
+    card.style.borderLeftColor = 'var(--success-green)';
+    card.onclick = null;
+    
+    correctlySorted++;
+    updateCounters();
+    checkEndCondition();
+  } else {
+    // False placement execution
+    document.getElementById('wrongSound').play().catch(()=>{});
+    card.style.transform = 'shake 0.3s ease';
+    // Visual error indication bump
+    bin.style.borderColor = 'var(--british-red)';
+    setTimeout(() => { bin.style.borderColor = 'var(--border-sepia)'; }, 600);
+  }
+}
+
+function updateCounters() {
+  document.getElementById('counterDisplay').textContent = `${correctlySorted}/8`;
+  const percentage = (correctlySorted / 8) * 100;
+  document.getElementById('progressBar').style.width = `${percentage}%`;
+  
+  // Adjust inner counts
+  document.querySelectorAll('.bin').forEach(bin => {
+    const era = bin.getAttribute('data-era');
+    const itemsInBin = bin.querySelector('.bin-dropzone').children.length;
+    document.getElementById(`count-${era}`).textContent = `${itemsInBin} verified`;
+  });
+}
+
+function checkEndCondition() {
+  if (correctlySorted === 8) {
+    clearInterval();
+    setTimeout(() => {
+      document.getElementById('game').classList.add('hidden');
+      document.getElementById('result').classList.remove('hidden');
+      document.getElementById('clapSound').play().catch(()=>{});
+      
+      document.getElementById('resultScore').textContent = "Chronological Sorting Accuracy: 100%";
+      document.getElementById('resultText').textContent = "Excellent processing efficiency. You have isolated structural trade frameworks, resource extraction markers, and military uprisings, bringing absolute analytical clarity to the history of British Imperial expansion in India.";
+    }, 800);
+  }
+}
+</script>
+</body>
+</html>
