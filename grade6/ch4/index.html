@@ -1,1 +1,900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#5b3f2a" />
+  <title>Time Trail – Timeline and Sources of History</title>
+  <style>
+    :root{
+      --ink:#2f251d;
+      --paper:#fffaf0;
+      --paper-2:#f8edd8;
+      --brown:#6f4e37;
+      --brown-dark:#493223;
+      --gold:#d5a848;
+      --gold-soft:#f4dfaa;
+      --green:#2f855a;
+      --green-soft:#e6f6ed;
+      --red:#c43d3d;
+      --red-soft:#fdeaea;
+      --blue:#2f6f8f;
+      --shadow:0 18px 45px rgba(63,42,25,.18);
+    }
 
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      color:var(--ink);
+      font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 10% 10%, rgba(213,168,72,.13), transparent 28%),
+        radial-gradient(circle at 92% 88%, rgba(47,111,143,.10), transparent 30%),
+        linear-gradient(135deg,#f8f0df,#efe2c7);
+      overflow-x:hidden;
+    }
+
+    button{font:inherit}
+    button:focus-visible{outline:4px solid rgba(47,111,143,.32);outline-offset:3px}
+
+    .screen{
+      min-height:100vh;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:22px;
+    }
+    .screen.active{display:flex}
+
+    /* Logo-only splash */
+    #splash{
+      background:#fff;
+    }
+    #splash img{
+      width:min(360px,72vw);
+      max-height:230px;
+      object-fit:contain;
+      animation:logoIn .7s ease both;
+    }
+    @keyframes logoIn{
+      from{opacity:0;transform:scale(.94)}
+      to{opacity:1;transform:scale(1)}
+    }
+
+    .panel{
+      width:min(1040px,100%);
+      background:rgba(255,250,240,.96);
+      border:1px solid rgba(111,78,55,.18);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+
+    .welcome-grid{
+      display:grid;
+      grid-template-columns:1.05fr .95fr;
+      min-height:620px;
+    }
+
+    .welcome-copy{
+      padding:54px 52px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+    }
+    .eyebrow{
+      margin:0 0 12px;
+      color:var(--blue);
+      font-weight:800;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      font-size:.82rem;
+    }
+    h1{
+      margin:0;
+      color:var(--brown-dark);
+      font-family:Georgia, "Times New Roman", serif;
+      font-size:clamp(2.4rem,5vw,4.5rem);
+      line-height:.98;
+    }
+    .subtitle{
+      margin:20px 0 28px;
+      max-width:590px;
+      font-size:1.13rem;
+      line-height:1.65;
+      color:#5d5045;
+    }
+    .instructions{
+      display:grid;
+      gap:12px;
+      margin:0 0 32px;
+    }
+    .instruction{
+      display:flex;
+      gap:12px;
+      align-items:flex-start;
+      line-height:1.45;
+    }
+    .instruction span:first-child{
+      flex:0 0 30px;
+      width:30px;
+      height:30px;
+      display:grid;
+      place-items:center;
+      border-radius:50%;
+      background:var(--gold-soft);
+    }
+
+    .primary{
+      align-self:flex-start;
+      border:0;
+      border-radius:14px;
+      padding:14px 24px;
+      background:var(--brown);
+      color:#fff;
+      font-weight:800;
+      cursor:pointer;
+      box-shadow:0 9px 0 var(--brown-dark);
+      transition:transform .15s ease,box-shadow .15s ease;
+    }
+    .primary:hover{transform:translateY(-2px);box-shadow:0 11px 0 var(--brown-dark)}
+    .primary:active{transform:translateY(5px);box-shadow:0 4px 0 var(--brown-dark)}
+
+    .welcome-art{
+      position:relative;
+      min-height:430px;
+      padding:42px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:
+        linear-gradient(rgba(255,255,255,.08),rgba(255,255,255,.08)),
+        repeating-linear-gradient(0deg,transparent 0 46px,rgba(73,50,35,.06) 47px 48px),
+        linear-gradient(150deg,#d9b979,#b17d48);
+      overflow:hidden;
+    }
+    .welcome-art::before,
+    .welcome-art::after{
+      content:"";
+      position:absolute;
+      border-radius:50%;
+      background:rgba(255,250,240,.14);
+    }
+    .welcome-art::before{width:310px;height:310px;right:-130px;top:-110px}
+    .welcome-art::after{width:220px;height:220px;left:-100px;bottom:-70px}
+
+    .history-table{
+      position:relative;
+      width:min(390px,92%);
+      min-height:430px;
+      border-radius:180px 180px 28px 28px;
+      background:#6c4a32;
+      box-shadow:inset 0 0 0 10px rgba(73,50,35,.38),0 25px 40px rgba(58,38,23,.30);
+      overflow:hidden;
+    }
+    .history-table::before{
+      content:"";
+      position:absolute;
+      left:50%;
+      top:24px;
+      transform:translateX(-50%);
+      width:80%;
+      height:72%;
+      border-radius:160px 160px 24px 24px;
+      background:linear-gradient(180deg,#1f6679,#0d4659);
+      box-shadow:inset 0 0 0 8px rgba(255,255,255,.10);
+    }
+    .artifact{
+      position:absolute;
+      z-index:2;
+      filter:drop-shadow(0 10px 7px rgba(0,0,0,.18));
+      user-select:none;
+    }
+    .pillar{font-size:92px;left:50%;top:72px;transform:translateX(-50%)}
+    .coin{font-size:60px;left:48px;bottom:88px}
+    .pot{font-size:70px;right:40px;bottom:74px}
+    .scroll{font-size:66px;right:42px;top:122px}
+    .tool{font-size:54px;left:48px;top:135px}
+    .museum-label{
+      position:absolute;
+      z-index:3;
+      left:50%;
+      bottom:24px;
+      transform:translateX(-50%);
+      padding:8px 18px;
+      border-radius:9px;
+      background:#f4dfaa;
+      color:#493223;
+      font-family:Georgia,serif;
+      font-weight:800;
+      letter-spacing:.05em;
+      white-space:nowrap;
+    }
+
+    /* Game */
+    #game{align-items:flex-start;padding-top:28px;padding-bottom:28px}
+    .game-shell{width:min(1180px,100%)}
+    .topbar{
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:18px;
+      align-items:center;
+      margin-bottom:18px;
+    }
+    .progress-wrap{
+      background:rgba(255,250,240,.76);
+      border:1px solid rgba(111,78,55,.18);
+      border-radius:18px;
+      padding:12px 14px;
+      box-shadow:0 7px 20px rgba(63,42,25,.10);
+    }
+    .progress-label{
+      display:flex;
+      justify-content:space-between;
+      margin-bottom:8px;
+      font-size:.82rem;
+      font-weight:800;
+      color:#665548;
+    }
+    .progress-track{
+      height:12px;
+      border-radius:999px;
+      background:#e6d8bd;
+      overflow:hidden;
+    }
+    .progress-fill{
+      width:0;
+      height:100%;
+      background:linear-gradient(90deg,var(--gold),#c98535);
+      border-radius:inherit;
+      transition:width .4s ease;
+    }
+    .score-chip{
+      min-width:132px;
+      text-align:center;
+      padding:14px 18px;
+      border-radius:18px;
+      background:var(--brown-dark);
+      color:#fff;
+      box-shadow:0 7px 20px rgba(63,42,25,.18);
+      font-weight:900;
+    }
+
+    .game-grid{
+      display:grid;
+      grid-template-columns:300px 1fr;
+      gap:20px;
+      align-items:stretch;
+    }
+
+    .journey{
+      min-height:620px;
+      position:relative;
+      border-radius:25px;
+      padding:28px 22px;
+      background:
+        linear-gradient(rgba(255,255,255,.1),rgba(255,255,255,.1)),
+        repeating-linear-gradient(0deg,transparent 0 45px,rgba(73,50,35,.055) 46px 47px),
+        #d7b47a;
+      border:1px solid rgba(111,78,55,.18);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .journey h2{
+      margin:0 0 8px;
+      font-family:Georgia,serif;
+      color:var(--brown-dark);
+      text-align:center;
+      font-size:1.35rem;
+    }
+    .journey p{
+      margin:0;
+      text-align:center;
+      color:#6b5748;
+      font-size:.9rem;
+    }
+    .route{
+      position:absolute;
+      top:104px;
+      bottom:36px;
+      left:50%;
+      width:9px;
+      transform:translateX(-50%);
+      border-radius:99px;
+      background:rgba(73,50,35,.22);
+    }
+    .route-fill{
+      position:absolute;
+      left:0;
+      bottom:0;
+      width:100%;
+      height:0;
+      border-radius:99px;
+      background:var(--brown);
+      transition:height .45s ease;
+    }
+    .route-nodes{
+      position:absolute;
+      inset:112px 0 40px;
+      display:flex;
+      flex-direction:column-reverse;
+      align-items:center;
+      justify-content:space-between;
+      pointer-events:none;
+    }
+    .node{
+      width:35px;
+      height:35px;
+      display:grid;
+      place-items:center;
+      border-radius:50%;
+      background:#f8edd8;
+      border:4px solid rgba(73,50,35,.28);
+      font-size:17px;
+      transition:transform .35s ease,background .35s ease,border-color .35s ease;
+    }
+    .node.done{
+      background:var(--gold-soft);
+      border-color:var(--brown);
+      transform:scale(1.1);
+    }
+    .explorer{
+      position:absolute;
+      left:calc(50% + 26px);
+      bottom:37px;
+      font-size:44px;
+      z-index:4;
+      transition:bottom .45s ease;
+      filter:drop-shadow(0 7px 4px rgba(0,0,0,.18));
+    }
+
+    .question-panel{
+      min-height:620px;
+      background:rgba(255,250,240,.97);
+      border:1px solid rgba(111,78,55,.18);
+      border-radius:25px;
+      padding:34px;
+      box-shadow:var(--shadow);
+      display:flex;
+      flex-direction:column;
+    }
+    .chapter-tag{
+      align-self:flex-start;
+      margin:0 0 18px;
+      padding:7px 12px;
+      border-radius:999px;
+      color:var(--blue);
+      background:#e6f2f6;
+      font-size:.78rem;
+      font-weight:900;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+    }
+    .question-text{
+      margin:0 0 22px;
+      color:var(--brown-dark);
+      font-family:Georgia, "Times New Roman", serif;
+      font-size:clamp(1.35rem,2.2vw,1.88rem);
+      line-height:1.42;
+      white-space:pre-line;
+    }
+    .options{
+      display:grid;
+      gap:13px;
+      margin-top:auto;
+    }
+    .option{
+      width:100%;
+      border:2px solid #dfcfb5;
+      border-radius:16px;
+      padding:15px 17px;
+      background:#fffdf7;
+      color:var(--ink);
+      text-align:left;
+      cursor:pointer;
+      font-weight:700;
+      line-height:1.42;
+      transition:transform .15s ease,border-color .15s ease,box-shadow .15s ease,background .15s ease;
+    }
+    .option:hover:not(:disabled){
+      transform:translateY(-2px);
+      border-color:#b89254;
+      box-shadow:0 7px 14px rgba(73,50,35,.10);
+    }
+    .option:disabled{cursor:default}
+    .option.correct{
+      background:var(--green-soft);
+      border-color:var(--green);
+      color:#1e5f3f;
+    }
+    .option.wrong{
+      background:var(--red-soft);
+      border-color:var(--red);
+      color:#8f2828;
+    }
+    .option.used{opacity:.72}
+
+    .feedback{
+      min-height:61px;
+      margin-top:18px;
+      padding:13px 15px;
+      border-radius:15px;
+      display:flex;
+      align-items:center;
+      line-height:1.42;
+      font-weight:700;
+      visibility:hidden;
+    }
+    .feedback.show{visibility:visible}
+    .feedback.good{background:var(--green-soft);color:#1e5f3f}
+    .feedback.try{background:#fff3d1;color:#795314}
+    .feedback.reveal{background:#edf3f7;color:#294f62}
+
+    .next{
+      align-self:flex-end;
+      margin-top:14px;
+      display:none;
+    }
+    .next.show{display:inline-block}
+
+    /* Final */
+    .final-card{
+      width:min(790px,100%);
+      text-align:center;
+      padding:48px 34px;
+      background:rgba(255,250,240,.97);
+      border:1px solid rgba(111,78,55,.18);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+    }
+    .final-icon{font-size:76px}
+    .final-card h2{
+      margin:12px 0 8px;
+      color:var(--brown-dark);
+      font-family:Georgia,serif;
+      font-size:clamp(2.2rem,5vw,3.7rem);
+    }
+    .final-card .result{
+      margin:10px auto 24px;
+      max-width:600px;
+      color:#625348;
+      font-size:1.1rem;
+      line-height:1.6;
+    }
+    .seal-row{
+      display:flex;
+      justify-content:center;
+      gap:12px;
+      flex-wrap:wrap;
+      margin:24px 0 32px;
+    }
+    .seal{
+      padding:11px 14px;
+      border-radius:13px;
+      background:var(--gold-soft);
+      color:#65451f;
+      font-weight:900;
+    }
+
+    @media(max-width:850px){
+      .welcome-grid,.game-grid{grid-template-columns:1fr}
+      .welcome-art{min-height:390px}
+      .journey{min-height:190px;padding:22px}
+      .route{
+        top:auto;
+        left:42px;
+        right:42px;
+        bottom:54px;
+        width:auto;
+        height:9px;
+        transform:none;
+      }
+      .route-fill{left:0;bottom:0;width:0;height:100%}
+      .route-nodes{
+        inset:auto 42px 41px;
+        flex-direction:row;
+      }
+      .explorer{
+        bottom:70px!important;
+        left:32px;
+        transition:left .45s ease;
+      }
+      .question-panel{min-height:560px}
+    }
+
+    @media(max-width:590px){
+      .screen{padding:12px}
+      .welcome-copy{padding:38px 25px}
+      .welcome-art{padding:24px}
+      .history-table{min-height:355px}
+      .question-panel{padding:24px 18px}
+      .topbar{grid-template-columns:1fr}
+      .score-chip{justify-self:stretch}
+      .journey{display:none}
+    }
+
+    @media(prefers-reduced-motion:reduce){
+      *,*::before,*::after{
+        scroll-behavior:auto!important;
+        transition:none!important;
+        animation:none!important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <section id="splash" class="screen active" aria-label="Innovine">
+    <img src="assets/innovine-logo.png" alt="Innovine logo" />
+  </section>
+
+  <section id="welcome" class="screen">
+    <div class="panel welcome-grid">
+      <div class="welcome-copy">
+        <p class="eyebrow">Grade 6 • Social Science</p>
+        <h1>Time Trail</h1>
+        <p class="subtitle">Travel through the past, arrange events correctly, and examine clues left behind by earlier societies.</p>
+
+        <div class="instructions" aria-label="How to play">
+          <div class="instruction"><span>🧭</span><span>Choose the best answer to move along the history trail.</span></div>
+          <div class="instruction"><span>✌️</span><span>You get two chances for each challenge.</span></div>
+          <div class="instruction"><span>🏺</span><span>Complete every checkpoint to unlock the museum archive.</span></div>
+        </div>
+
+        <button id="startBtn" class="primary">Start the Journey</button>
+      </div>
+
+      <div class="welcome-art" aria-hidden="true">
+        <div class="history-table">
+          <div class="artifact pillar">🏛️</div>
+          <div class="artifact tool">🪨</div>
+          <div class="artifact scroll">📜</div>
+          <div class="artifact coin">🪙</div>
+          <div class="artifact pot">🏺</div>
+          <div class="museum-label">ARCHIVE OF THE PAST</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <main id="game" class="screen">
+    <div class="game-shell">
+      <div class="topbar">
+        <div class="progress-wrap">
+          <div class="progress-label">
+            <span>History trail</span>
+            <span id="progressText">Begin</span>
+          </div>
+          <div class="progress-track" aria-hidden="true">
+            <div id="progressFill" class="progress-fill"></div>
+          </div>
+        </div>
+        <div id="scoreChip" class="score-chip">Score: 0</div>
+      </div>
+
+      <div class="game-grid">
+        <aside class="journey" aria-label="Journey progress">
+          <h2>Path to the Archive</h2>
+          <p>Each correct response moves the explorer forward.</p>
+          <div class="route"><div id="routeFill" class="route-fill"></div></div>
+          <div id="routeNodes" class="route-nodes"></div>
+          <div id="explorer" class="explorer" aria-hidden="true">🧑‍🏫</div>
+        </aside>
+
+        <section class="question-panel">
+          <div class="chapter-tag">Timeline and Sources of History</div>
+          <h2 id="questionText" class="question-text"></h2>
+          <div id="options" class="options"></div>
+          <div id="feedback" class="feedback" role="status" aria-live="polite"></div>
+          <button id="nextBtn" class="primary next">Continue</button>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <section id="final" class="screen">
+    <div class="final-card">
+      <div class="final-icon" aria-hidden="true">🏛️</div>
+      <h2>Archive Unlocked!</h2>
+      <p id="finalResult" class="result"></p>
+      <div class="seal-row">
+        <span class="seal">Timeline Thinker</span>
+        <span class="seal">Source Detective</span>
+        <span class="seal">History Explorer</span>
+      </div>
+      <button id="replayBtn" class="primary">Play Again</button>
+    </div>
+  </section>
+
+  <audio id="correctSound" preload="auto" src="assets/correct.mp3"></audio>
+  <audio id="wrongSound" preload="auto" src="assets/wrong.mp3"></audio>
+  <audio id="clapSound" preload="auto">
+    <source src="assets/freesound_community-claps-44774.mp3" type="audio/mpeg" />
+    <source src="assets/claps.mp3" type="audio/mpeg" />
+  </audio>
+
+  <script>
+    const questionBank = [
+      {
+        q: `Riya is making a history project. She writes these events:
+• Indus Valley Civilization
+• Mauryan Empire
+• Modern Olympic Games
+
+Her teacher asks her to arrange them from the earliest to the latest.
+What skill is Riya using?`,
+        options: ["Excavation","Periodisation","Arranging events on a timeline","Domestication"],
+        answer: "Arranging events on a timeline",
+        explanation: "A timeline places events in chronological order, from the earliest to the latest."
+      },
+      {
+        q: `While reading two history books, Aarav notices one book uses 327 BC and another uses 327 BCE for the same event.
+
+What can he conclude?`,
+        options: ["They refer to different years.","BC and BCE represent the same period.","BCE comes after CE.","BC is used only in India."],
+        answer: "BC and BCE represent the same period.",
+        explanation: "BC and BCE count the same years before the Common Era."
+      },
+      {
+        q: `A museum has visitors from different countries. A guide explains that although different cultures follow different calendars, historians often compare events using one common system.
+
+Why is this useful?`,
+        options: ["It helps compare historical events easily.","It changes the dates of events.","It removes all old calendars.","It makes history shorter."],
+        answer: "It helps compare historical events easily.",
+        explanation: "A shared dating system helps historians compare when events took place."
+      },
+      {
+        q: `A student prepares this timeline:
+
+2500 BCE — Egyptian pyramids
+1500 BCE — Vedas composed
+776 BCE — First Olympic Games
+321 BCE — Mauryan Empire begins
+
+Which event happened most recently?`,
+        options: ["Egyptian pyramids","Vedas composed","First Olympic Games","Mauryan Empire begins"],
+        answer: "Mauryan Empire begins",
+        explanation: "Among BCE dates, the smaller number is closer to the Common Era and is therefore more recent."
+      },
+      {
+        q: `During a school trip, students find an old stone pillar with writing carved on it.
+
+Which type of historical source is this?`,
+        options: ["Documentary","Inscription","Newspaper","History textbook"],
+        answer: "Inscription",
+        explanation: "Writing carved or engraved on stone, metal, or another hard surface is an inscription."
+      },
+      {
+        q: `An archaeologist discovers pottery, coins, and tools while excavating an ancient city.
+
+Why are these objects important?`,
+        options: ["They help historians understand how people lived.","They predict future events.","They change history.","They replace written records."],
+        answer: "They help historians understand how people lived.",
+        explanation: "Material remains provide evidence about work, trade, technology, and daily life."
+      },
+      {
+        q: `A history teacher divides a lesson into Ancient, Medieval, and Modern periods.
+
+Why is history divided this way?`,
+        options: ["To make it easier to understand changes over time.","To reduce the number of historical events.","To separate countries.","To change historical facts."],
+        answer: "To make it easier to understand changes over time.",
+        explanation: "Periodisation organises the past into broad sections so that changes and continuities are easier to study."
+      },
+      {
+        q: `A student is researching the Mauryan Empire. She finds:
+• an inscription on an Ashoka Pillar
+• a history textbook
+• a documentary
+• a newspaper article about archaeology
+
+Which source was created during the Mauryan period itself?`,
+        options: ["History textbook","Documentary","Ashoka Pillar inscription","Newspaper article"],
+        answer: "Ashoka Pillar inscription",
+        explanation: "The pillar inscription is a primary source because it was produced during the period being studied."
+      },
+      {
+        q: `During a museum visit, Neha sees stone tools, animal bones, and cave paintings. She wonders what these objects tell us.
+
+What is the BEST conclusion?`,
+        options: ["Early humans depended on hunting and gathering.","Early humans lived in large cities.","Early humans used computers for communication.","Early humans travelled only by ships."],
+        answer: "Early humans depended on hunting and gathering.",
+        explanation: "These remains are evidence of hunting, food gathering, tool use, and early forms of expression."
+      }
+    ];
+
+    const screens = {
+      splash: document.getElementById("splash"),
+      welcome: document.getElementById("welcome"),
+      game: document.getElementById("game"),
+      final: document.getElementById("final")
+    };
+
+    const startBtn = document.getElementById("startBtn");
+    const replayBtn = document.getElementById("replayBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const questionText = document.getElementById("questionText");
+    const optionsBox = document.getElementById("options");
+    const feedback = document.getElementById("feedback");
+    const progressFill = document.getElementById("progressFill");
+    const progressText = document.getElementById("progressText");
+    const scoreChip = document.getElementById("scoreChip");
+    const routeFill = document.getElementById("routeFill");
+    const routeNodes = document.getElementById("routeNodes");
+    const explorer = document.getElementById("explorer");
+
+    const correctSound = document.getElementById("correctSound");
+    const wrongSound = document.getElementById("wrongSound");
+    const clapSound = document.getElementById("clapSound");
+
+    let questions = [];
+    let index = 0;
+    let score = 0;
+    let attempts = 0;
+    let locked = false;
+
+    function showScreen(name){
+      Object.values(screens).forEach(s => s.classList.remove("active"));
+      screens[name].classList.add("active");
+    }
+
+    function shuffle(list){
+      const arr = [...list];
+      for(let i = arr.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function safePlay(audio){
+      audio.currentTime = 0;
+      audio.play().catch(() => {});
+    }
+
+    function buildRoute(){
+      routeNodes.innerHTML = "";
+      const icons = ["🪨","🏺","🪙","📜","🏛️","🧭","🗿","📚","🔓"];
+      questions.forEach((_, i) => {
+        const node = document.createElement("div");
+        node.className = "node";
+        node.textContent = icons[i % icons.length];
+        node.setAttribute("aria-hidden","true");
+        routeNodes.appendChild(node);
+      });
+    }
+
+    function updateJourney(){
+      const completed = index;
+      const percent = questions.length ? (completed / questions.length) * 100 : 0;
+      progressFill.style.width = percent + "%";
+      progressText.textContent = completed === 0 ? "Begin" : completed === questions.length ? "Complete" : "Keep going";
+      scoreChip.textContent = `Score: ${score}`;
+
+      const nodes = [...routeNodes.children];
+      nodes.forEach((node, i) => node.classList.toggle("done", i < completed));
+
+      if(window.innerWidth <= 850 && window.innerWidth > 590){
+        routeFill.style.width = percent + "%";
+        routeFill.style.height = "100%";
+        explorer.style.left = `calc(32px + ${Math.min(percent,100)}% * .80)`;
+      }else{
+        routeFill.style.height = percent + "%";
+        routeFill.style.width = "100%";
+        explorer.style.bottom = `calc(37px + ${Math.min(percent,100)}% * 4.8)`;
+      }
+    }
+
+    function beginGame(){
+      questions = shuffle(questionBank).map(item => ({
+        ...item,
+        options: shuffle(item.options)
+      }));
+      index = 0;
+      score = 0;
+      attempts = 0;
+      locked = false;
+      showScreen("game");
+      buildRoute();
+      updateJourney();
+      renderQuestion();
+    }
+
+    function renderQuestion(){
+      attempts = 0;
+      locked = false;
+      feedback.className = "feedback";
+      feedback.textContent = "";
+      nextBtn.classList.remove("show");
+      optionsBox.innerHTML = "";
+
+      const current = questions[index];
+      questionText.textContent = current.q;
+
+      current.options.forEach(optionText => {
+        const btn = document.createElement("button");
+        btn.className = "option";
+        btn.type = "button";
+        btn.textContent = optionText;
+        btn.addEventListener("click", () => chooseAnswer(btn, optionText));
+        optionsBox.appendChild(btn);
+      });
+
+      updateJourney();
+      const firstOption = optionsBox.querySelector(".option");
+      if(firstOption) setTimeout(() => firstOption.focus({preventScroll:true}), 80);
+    }
+
+    function finishQuestion(message, type){
+      locked = true;
+      optionsBox.querySelectorAll(".option").forEach(btn => btn.disabled = true);
+      feedback.textContent = message;
+      feedback.className = `feedback show ${type}`;
+      nextBtn.classList.add("show");
+      nextBtn.focus({preventScroll:true});
+    }
+
+    function chooseAnswer(button, selected){
+      if(locked || button.disabled) return;
+
+      attempts += 1;
+      const current = questions[index];
+
+      if(selected === current.answer){
+        button.classList.add("correct");
+        score += attempts === 1 ? 10 : 5;
+        safePlay(correctSound);
+        finishQuestion(`Correct! ${current.explanation}`, "good");
+        return;
+      }
+
+      button.classList.add("wrong","used");
+      button.disabled = true;
+      safePlay(wrongSound);
+
+      if(attempts === 1){
+        feedback.textContent = "Not quite. Look at the clues and try once more.";
+        feedback.className = "feedback show try";
+      }else{
+        finishQuestion(`The best answer is “${current.answer}” ${current.explanation}`, "reveal");
+      }
+    }
+
+    function nextStep(){
+      index += 1;
+      updateJourney();
+      if(index >= questions.length){
+        finishGame();
+      }else{
+        renderQuestion();
+      }
+    }
+
+    function finishGame(){
+      progressFill.style.width = "100%";
+      routeFill.style.height = "100%";
+      const maxScore = questions.length * 10;
+      const percent = Math.round((score / maxScore) * 100);
+
+      let message = "You examined timelines and historical sources with care.";
+      if(percent >= 85) message = "Outstanding work! You used chronology and historical evidence like a skilled young historian.";
+      else if(percent >= 65) message = "Great work! You can identify sources and place events in time confidently.";
+
+      document.getElementById("finalResult").textContent =
+        `${message} Your score is ${score} out of ${maxScore}.`;
+
+      showScreen("final");
+      safePlay(clapSound);
+    }
+
+    nextBtn.addEventListener("click", nextStep);
+    startBtn.addEventListener("click", beginGame);
+    replayBtn.addEventListener("click", beginGame);
+
+    window.addEventListener("resize", updateJourney);
+
+    /* Logo remains visible for five seconds, then the game title appears. */
+    setTimeout(() => showScreen("welcome"), 5000);
+  </script>
+</body>
+</html>
