@@ -35,6 +35,19 @@
       min-height: 100%;
     }
 
+    html {
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+      scroll-behavior: smooth;
+    }
+
+    img,
+    svg,
+    video,
+    canvas {
+      max-width: 100%;
+    }
+
     body {
       margin: 0;
       color: var(--ink);
@@ -48,6 +61,8 @@
 
     button {
       font: inherit;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
     }
 
     button:focus-visible {
@@ -1012,7 +1027,9 @@
 
     .option {
       width: 100%;
+      min-height: 54px;
       padding: 16px;
+      overflow-wrap: anywhere;
       border: 2px solid #e4d9cb;
       border-radius: 18px;
       background: #fffdf9;
@@ -1192,68 +1209,412 @@
       font-weight: 900;
     }
 
-    @media (max-width: 900px) {
+    /* Responsive tablet and mobile layout */
+    @media (max-width: 960px) {
+      .screen {
+        align-items: flex-start;
+      }
+
+      #splash.screen {
+        align-items: center;
+      }
+
       .welcome {
         grid-template-columns: 1fr;
+        min-height: 0;
+      }
+
+      .welcome-copy {
+        padding: 44px 38px;
+      }
+
+      .welcome-art {
+        min-height: 480px;
       }
 
       .stage-frame {
-        min-height: 550px;
-      }
-    }
-
-    @media (max-width: 700px) {
-      .programme-strip {
-        grid-template-columns: repeat(6, 1fr);
+        min-height: 500px;
       }
 
       .scene-centre {
-        width: 86%;
+        width: min(520px, 82%);
+      }
+    }
+
+    @media (max-width: 760px) {
+      .screen {
+        padding: 14px;
+      }
+
+      #game {
+        padding-top: 14px;
+        padding-bottom: 20px;
+      }
+
+      .topbar {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .title-chip,
+      .score-chip {
+        width: 100%;
+      }
+
+      .title-chip {
+        text-align: center;
+        line-height: 1.35;
+      }
+
+      .theatre-head {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .theatre-count {
+        align-self: flex-start;
+      }
+
+      .programme-strip {
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+      }
+
+      .question-card {
+        min-height: 0;
+      }
+
+      .final-scenes {
+        grid-template-columns: repeat(3, 1fr);
       }
     }
 
     @media (max-width: 620px) {
       .screen {
-        padding: 12px;
+        padding:
+          max(10px, env(safe-area-inset-top))
+          max(10px, env(safe-area-inset-right))
+          max(14px, env(safe-area-inset-bottom))
+          max(10px, env(safe-area-inset-left));
+      }
+
+      #splash img {
+        width: min(300px, 76vw);
+      }
+
+      .welcome {
+        border-radius: 24px;
       }
 
       .welcome-copy {
-        padding: 38px 24px;
+        padding: 34px 22px 38px;
       }
 
-      .theatre-panel {
-        padding: 18px 12px;
+      h1 {
+        font-size: clamp(2.45rem, 13vw, 3.65rem);
       }
 
-      .question-card {
-        padding: 24px 18px;
+      .subtitle {
+        margin: 17px 0 24px;
+        font-size: 1rem;
+        line-height: 1.58;
       }
 
-      .topbar {
-        align-items: stretch;
+      .how-list {
+        gap: 12px;
+        margin-bottom: 28px;
       }
 
-      .score-chip {
+      .how {
+        font-size: 0.94rem;
+      }
+
+      .primary {
         width: 100%;
+        min-height: 52px;
+        text-align: center;
       }
 
-      .stage-frame {
-        min-height: 600px;
+      .welcome-art {
+        min-height: 390px;
+      }
+
+      .mini-theatre {
+        height: 350px;
+        width: min(340px, 92%);
         border-width: 8px;
       }
 
+      .mini-theatre::before {
+        height: 48px;
+        background:
+          radial-gradient(circle at 25px 17px, #ffe7a7 0 4px, transparent 5px),
+          radial-gradient(circle at 65px 17px, #ffe7a7 0 4px, transparent 5px),
+          radial-gradient(circle at 105px 17px, #ffe7a7 0 4px, transparent 5px),
+          radial-gradient(circle at 145px 17px, #ffe7a7 0 4px, transparent 5px),
+          radial-gradient(circle at 185px 17px, #ffe7a7 0 4px, transparent 5px),
+          radial-gradient(circle at 225px 17px, #ffe7a7 0 4px, transparent 5px),
+          radial-gradient(circle at 265px 17px, #ffe7a7 0 4px, transparent 5px),
+          radial-gradient(circle at 305px 17px, #ffe7a7 0 4px, transparent 5px),
+          linear-gradient(180deg, #7c542a, #5c3b20);
+      }
+
+      .mini-scene,
+      .mini-curtain {
+        top: 48px;
+        bottom: 52px;
+      }
+
+      .mini-floor {
+        height: 52px;
+      }
+
+      .mini-cloud.one {
+        left: 38px;
+        top: 72px;
+        transform: scale(0.78);
+      }
+
+      .mini-cloud.two {
+        right: 20px;
+        top: 120px;
+        transform: scale(0.55);
+      }
+
+      .mini-rain {
+        left: 60px;
+        top: 150px;
+      }
+
+      .mini-wind {
+        right: 18px;
+        bottom: 54px;
+        font-size: 44px;
+      }
+
+      .theatre-panel {
+        padding: 17px 10px 18px;
+        border-radius: 24px;
+      }
+
+      .theatre-head {
+        margin-bottom: 14px;
+      }
+
+      .theatre-head h2 {
+        font-size: 1.28rem;
+      }
+
+      .theatre-head small {
+        font-size: 0.86rem;
+        line-height: 1.4;
+      }
+
+      .stage-frame {
+        min-height: 410px;
+        border-width: 7px;
+        border-radius: 20px 20px 14px 14px;
+      }
+
       .marquee {
-        padding: 0 8px;
-        gap: 4px;
+        height: 48px;
+        padding: 0 6px;
+        gap: 3px;
       }
 
       .bulb {
-        width: 14px;
-        height: 14px;
+        width: 12px;
+        height: 12px;
       }
 
+      .stage-scene,
       .curtain {
-        width: 50%;
+        top: 48px;
+        bottom: 54px;
+      }
+
+      .stage-floor {
+        height: 54px;
+      }
+
+      .scene-centre {
+        width: 88%;
+        padding: 18px 14px;
+        border-radius: 18px;
+      }
+
+      .scene-icon {
+        font-size: 56px;
+        margin-bottom: 9px;
+      }
+
+      .scene-title {
+        font-size: clamp(1.25rem, 7vw, 1.75rem);
+      }
+
+      .scene-subtitle {
+        font-size: 0.78rem;
+        line-height: 1.4;
+      }
+
+      .cloud-shape {
+        transform: scale(0.75);
+      }
+
+      .cloud-shape.one {
+        left: 8px;
+        top: 76px;
+      }
+
+      .cloud-shape.two {
+        right: -15px;
+        top: 126px;
+      }
+
+      .wind-glyph {
+        right: 12px;
+        top: 118px;
+        font-size: 68px;
+      }
+
+      .lightning-bolt {
+        top: 66px;
+      }
+
+      .programme-strip {
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 6px;
+        margin-top: 10px;
+      }
+
+      .programme-icon {
+        min-height: 38px;
+        font-size: 18px;
+      }
+
+      .theatre-note {
+        font-size: 0.82rem;
+        line-height: 1.4;
+      }
+
+      .question-card {
+        padding: 23px 16px;
+        border-radius: 22px;
+      }
+
+      .question-text {
+        font-size: clamp(1.2rem, 5.7vw, 1.48rem);
+        line-height: 1.42;
+      }
+
+      .ar-line {
+        padding: 13px 14px;
+        font-size: clamp(1.05rem, 5.1vw, 1.3rem);
+      }
+
+      .options {
+        gap: 11px;
+        margin-top: 21px;
+      }
+
+      .option {
+        min-height: 56px;
+        padding: 14px;
+        border-radius: 15px;
+        font-size: 0.94rem;
+      }
+
+      .feedback {
+        min-height: 56px;
+        padding: 12px 14px;
+        font-size: 0.92rem;
+      }
+
+      .next {
+        width: 100%;
+      }
+
+      .final-card {
+        padding: 34px 18px;
+        border-radius: 24px;
+      }
+
+      .final-card h2 {
+        font-size: clamp(2rem, 10vw, 3rem);
+      }
+
+      .result {
+        font-size: 1rem;
+        line-height: 1.55;
+      }
+
+      .badge {
+        padding: 9px 11px;
+        font-size: 0.84rem;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .stage-frame {
+        min-height: 370px;
+      }
+
+      .scene-centre {
+        width: 91%;
+        padding: 15px 11px;
+      }
+
+      .scene-icon {
+        font-size: 48px;
+      }
+
+      .programme-icon {
+        min-height: 35px;
+        font-size: 17px;
+      }
+
+      .final-scenes {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 5px;
+      }
+
+      .final-scene {
+        min-height: 52px;
+        font-size: 24px;
+      }
+    }
+
+    @media (max-height: 520px) and (orientation: landscape) {
+      .screen {
+        min-height: auto;
+      }
+
+      .welcome {
+        grid-template-columns: 1.05fr 0.95fr;
+      }
+
+      .welcome-copy {
+        padding: 26px 28px;
+      }
+
+      .welcome-art {
+        min-height: 430px;
+      }
+
+      .stage-frame {
+        min-height: 360px;
+      }
+
+      .scene-centre {
+        padding: 12px;
+      }
+
+      .scene-icon {
+        font-size: 44px;
+        margin-bottom: 6px;
+      }
+
+      .programme-strip {
+        grid-template-columns: repeat(12, minmax(0, 1fr));
       }
     }
 
