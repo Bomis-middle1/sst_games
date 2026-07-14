@@ -1,1 +1,1223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#245b78" />
+  <title>India Cultural Scrapbook</title>
+  <style>
+    :root{
+      --ink:#2b2a2d;
+      --muted:#6a6770;
+      --paper:#fffdf7;
+      --cream:#f7edd9;
+      --blue:#245b78;
+      --blue-dark:#173f54;
+      --coral:#e66f51;
+      --mustard:#e7af3d;
+      --green:#3f8b68;
+      --green-soft:#e6f5ed;
+      --red:#c84543;
+      --red-soft:#fde9e8;
+      --purple:#7656a7;
+      --teal:#2d8f91;
+      --shadow:0 18px 42px rgba(31,55,70,.15);
+    }
 
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      color:var(--ink);
+      font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:
+        radial-gradient(circle at 10% 12%,rgba(230,111,81,.12),transparent 24%),
+        radial-gradient(circle at 90% 86%,rgba(45,143,145,.12),transparent 24%),
+        linear-gradient(135deg,#f8f2e8,#efe5d3);
+      overflow-x:hidden;
+    }
+
+    button{font:inherit}
+    button:focus-visible{outline:4px solid rgba(45,143,145,.32);outline-offset:3px}
+
+    .screen{
+      min-height:100vh;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+    }
+    .screen.active{display:flex}
+
+    /* Logo-only splash */
+    #splash{background:#fff}
+    #splash img{
+      width:min(360px,72vw);
+      max-height:220px;
+      object-fit:contain;
+      animation:logoIn .7s ease both;
+    }
+    @keyframes logoIn{
+      from{opacity:0;transform:scale(.94)}
+      to{opacity:1;transform:scale(1)}
+    }
+
+    /* Welcome */
+    .welcome{
+      width:min(1160px,100%);
+      min-height:690px;
+      display:grid;
+      grid-template-columns:1.02fr .98fr;
+      overflow:hidden;
+      border-radius:34px;
+      background:rgba(255,253,247,.98);
+      border:1px solid rgba(36,91,120,.10);
+      box-shadow:0 24px 56px rgba(31,55,70,.15);
+    }
+
+    .welcome-copy{
+      padding:58px 54px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      background:linear-gradient(180deg,rgba(255,255,255,.28),rgba(255,255,255,.02)),#fff8ea;
+    }
+
+    .eyebrow{
+      margin:0 0 13px;
+      color:var(--teal);
+      font-size:.82rem;
+      font-weight:900;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+    }
+
+    h1{
+      margin:0;
+      color:var(--blue-dark);
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:clamp(2.8rem,5vw,5rem);
+      line-height:.96;
+    }
+
+    .subtitle{
+      margin:20px 0 30px;
+      color:#635f64;
+      font-size:1.12rem;
+      line-height:1.7;
+      max-width:590px;
+    }
+
+    .how-list{display:grid;gap:14px;margin-bottom:34px}
+    .how{
+      display:flex;
+      gap:14px;
+      align-items:flex-start;
+      color:#4f4b50;
+      line-height:1.45;
+    }
+    .how-icon{
+      flex:0 0 36px;
+      width:36px;
+      height:36px;
+      border-radius:12px;
+      display:grid;
+      place-items:center;
+      background:#e9f3f3;
+    }
+
+    .primary{
+      align-self:flex-start;
+      border:0;
+      border-radius:16px;
+      padding:15px 24px;
+      color:#fff;
+      background:var(--blue);
+      font-weight:900;
+      cursor:pointer;
+      box-shadow:0 10px 0 var(--blue-dark);
+      transition:transform .15s ease,box-shadow .15s ease;
+    }
+    .primary:hover{transform:translateY(-2px);box-shadow:0 12px 0 var(--blue-dark)}
+    .primary:active{transform:translateY(5px);box-shadow:0 5px 0 var(--blue-dark)}
+
+    .welcome-art{
+      position:relative;
+      overflow:hidden;
+      background:
+        linear-gradient(180deg,#cfe7ee 0 30%,#f3cf8b 30% 65%,#efb675 65% 100%);
+    }
+
+    .sun{
+      position:absolute;
+      top:48px;
+      right:58px;
+      width:82px;
+      height:82px;
+      border-radius:50%;
+      background:#ffd872;
+      box-shadow:0 0 0 12px rgba(255,216,114,.18);
+      animation:sunPulse 3.5s ease-in-out infinite;
+    }
+    @keyframes sunPulse{
+      0%,100%{transform:scale(1)}
+      50%{transform:scale(1.07)}
+    }
+
+    .suitcase{
+      position:absolute;
+      left:50%;
+      top:52%;
+      transform:translate(-50%,-50%);
+      width:min(430px,82%);
+      height:420px;
+      border-radius:34px;
+      background:#9c643d;
+      border:10px solid #6f4428;
+      box-shadow:0 28px 45px rgba(83,49,29,.26),inset 0 0 0 5px rgba(255,255,255,.10);
+    }
+
+    .suitcase::before{
+      content:"";
+      position:absolute;
+      width:150px;
+      height:56px;
+      border:12px solid #6f4428;
+      border-bottom:0;
+      border-radius:28px 28px 0 0;
+      left:50%;
+      top:-56px;
+      transform:translateX(-50%);
+    }
+
+    .strap{
+      position:absolute;
+      top:0;bottom:0;
+      width:38px;
+      background:rgba(80,46,26,.42);
+    }
+    .strap.left{left:58px}
+    .strap.right{right:58px}
+
+    .sticker{
+      position:absolute;
+      width:98px;
+      height:74px;
+      border-radius:18px;
+      display:grid;
+      place-items:center;
+      background:#fff8dd;
+      border:4px solid rgba(255,255,255,.72);
+      box-shadow:0 10px 18px rgba(70,42,25,.16);
+      font-size:38px;
+      animation:floaty 3.6s ease-in-out infinite;
+    }
+    .s1{left:42px;top:48px;transform:rotate(-8deg)}
+    .s2{right:40px;top:60px;transform:rotate(8deg);animation-delay:-1.1s}
+    .s3{left:54px;bottom:60px;transform:rotate(7deg);animation-delay:-2s}
+    .s4{right:48px;bottom:50px;transform:rotate(-6deg);animation-delay:-1.6s}
+    .s5{left:50%;top:50%;transform:translate(-50%,-50%) rotate(3deg);width:120px;height:92px}
+    @keyframes floaty{
+      0%,100%{margin-top:0}
+      50%{margin-top:-9px}
+    }
+
+    .plane{
+      position:absolute;
+      left:-70px;
+      top:125px;
+      font-size:44px;
+      animation:flyAcross 8s linear infinite;
+      filter:drop-shadow(0 6px 8px rgba(0,0,0,.12));
+    }
+    @keyframes flyAcross{
+      from{transform:translateX(0) rotate(6deg)}
+      to{transform:translateX(690px) rotate(6deg)}
+    }
+
+    /* Game */
+    #game{align-items:flex-start;padding-top:24px;padding-bottom:24px}
+    .game-shell{width:min(1180px,100%)}
+
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:16px;
+      flex-wrap:wrap;
+      margin-bottom:16px;
+    }
+
+    .title-chip{
+      padding:10px 14px;
+      border-radius:999px;
+      background:#e8f2f5;
+      color:var(--blue);
+      font-size:.82rem;
+      font-weight:900;
+      letter-spacing:.05em;
+      text-transform:uppercase;
+    }
+
+    .score-chip{
+      min-width:132px;
+      text-align:center;
+      padding:13px 18px;
+      border-radius:16px;
+      background:var(--blue);
+      color:#fff;
+      font-weight:900;
+      box-shadow:var(--shadow);
+    }
+
+    /* Different progress style: a scrapbook collage, not a path */
+    .scrapbook{
+      position:relative;
+      overflow:hidden;
+      margin-bottom:18px;
+      padding:22px;
+      border-radius:28px;
+      background:
+        linear-gradient(90deg,transparent 0 48%,rgba(80,67,58,.10) 49% 51%,transparent 52%),
+        repeating-linear-gradient(0deg,rgba(90,74,60,.035) 0 1px,transparent 1px 28px),
+        #fff8e9;
+      border:1px solid rgba(36,91,120,.10);
+      box-shadow:var(--shadow);
+    }
+
+    .scrapbook::before{
+      content:"";
+      position:absolute;
+      left:50%;
+      top:0;bottom:0;
+      width:14px;
+      transform:translateX(-50%);
+      background:repeating-linear-gradient(0deg,#d1aa75 0 12px,#f0d7ab 12px 24px);
+      box-shadow:0 0 0 1px rgba(100,70,45,.10);
+    }
+
+    .scrapbook-head{
+      position:relative;
+      z-index:2;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:16px;
+      flex-wrap:wrap;
+      margin-bottom:18px;
+    }
+
+    .scrapbook h2{
+      margin:0;
+      color:var(--blue-dark);
+      font-family:Georgia,serif;
+      font-size:1.45rem;
+    }
+
+    .scrapbook small{
+      color:var(--muted);
+      font-size:.95rem;
+    }
+
+    .album-count{
+      padding:9px 13px;
+      border-radius:999px;
+      background:#fff;
+      color:var(--coral);
+      font-size:.84rem;
+      font-weight:900;
+      box-shadow:0 6px 14px rgba(31,55,70,.07);
+    }
+
+    .postcard-grid{
+      position:relative;
+      z-index:2;
+      display:grid;
+      grid-template-columns:repeat(5,minmax(104px,1fr));
+      gap:16px;
+    }
+
+    .postcard-slot{
+      min-height:98px;
+      position:relative;
+      border-radius:12px;
+      border:2px dashed rgba(36,91,120,.23);
+      background:rgba(255,255,255,.52);
+      display:grid;
+      place-items:center;
+      overflow:visible;
+    }
+
+    .postcard-slot::before{
+      content:"";
+      width:28px;
+      height:28px;
+      border-radius:50%;
+      border:3px dotted rgba(36,91,120,.23);
+    }
+
+    .postcard{
+      position:absolute;
+      inset:6px;
+      border-radius:10px;
+      background:linear-gradient(145deg,var(--pc-a),var(--pc-b));
+      border:5px solid #fff;
+      box-shadow:0 10px 18px rgba(31,55,70,.15);
+      display:grid;
+      place-items:center;
+      overflow:hidden;
+      opacity:0;
+      transform:translate(300px,-160px) rotate(24deg) scale(.72);
+    }
+
+    .postcard-image{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+      border-radius:5px;
+    }
+
+    .postcard-slot.collected .postcard{
+      opacity:1;
+      transform:translate(0,0) rotate(var(--pc-rot)) scale(1);
+      transition:transform .75s cubic-bezier(.18,.82,.2,1.14),opacity .2s ease;
+    }
+
+    .postcard-slot.new-card .postcard{
+      animation:postcardLand .85s cubic-bezier(.16,.82,.22,1.12);
+    }
+
+    @keyframes postcardLand{
+      0%{transform:translate(340px,-190px) rotate(28deg) scale(.68);opacity:0}
+      55%{transform:translate(-8px,5px) rotate(calc(var(--pc-rot) - 4deg)) scale(1.08);opacity:1}
+      100%{transform:translate(0,0) rotate(var(--pc-rot)) scale(1);opacity:1}
+    }
+
+    .tape{
+      position:absolute;
+      width:44px;
+      height:15px;
+      top:-7px;
+      left:50%;
+      transform:translateX(-50%) rotate(-4deg);
+      background:rgba(255,236,155,.78);
+      opacity:0;
+      box-shadow:0 2px 3px rgba(0,0,0,.08);
+    }
+
+    .postcard-slot.collected .tape{
+      opacity:1;
+      transition:opacity .25s .55s ease;
+    }
+
+    .postcard-check{
+      position:absolute;
+      right:-8px;
+      bottom:-8px;
+      width:30px;
+      height:30px;
+      border-radius:50%;
+      display:grid;
+      place-items:center;
+      background:var(--green);
+      color:#fff;
+      border:3px solid #fff;
+      font-weight:900;
+      opacity:0;
+      transform:scale(0);
+    }
+
+    .postcard-slot.collected .postcard-check{
+      opacity:1;
+      transform:scale(1);
+      transition:transform .28s .62s ease,opacity .2s .62s ease;
+    }
+
+    .album-note{
+      position:relative;
+      z-index:2;
+      margin-top:16px;
+      color:#6c625b;
+      font-size:.94rem;
+      font-weight:700;
+    }
+
+    .question-card{
+      position:relative;
+      min-height:555px;
+      padding:34px;
+      overflow:hidden;
+      border-radius:28px;
+      background:rgba(255,253,247,.98);
+      border:1px solid rgba(36,91,120,.10);
+      box-shadow:var(--shadow);
+    }
+
+    .question-card.flash{
+      animation:cameraFlash .72s ease;
+    }
+
+    @keyframes cameraFlash{
+      0%{box-shadow:var(--shadow)}
+      18%{box-shadow:0 0 0 9999px rgba(255,255,255,.68),var(--shadow)}
+      100%{box-shadow:var(--shadow)}
+    }
+
+    .question-text{
+      margin:0 0 20px;
+      color:var(--blue-dark);
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:clamp(1.35rem,2.05vw,1.92rem);
+      line-height:1.45;
+      white-space:pre-line;
+    }
+
+    .options{
+      display:grid;
+      gap:13px;
+      margin-top:26px;
+    }
+
+    .option{
+      width:100%;
+      padding:16px;
+      border:2px solid #e4d9c9;
+      border-radius:18px;
+      background:#fffdf9;
+      color:var(--ink);
+      text-align:left;
+      font-weight:800;
+      line-height:1.45;
+      cursor:pointer;
+      transition:transform .14s ease,border-color .14s ease,box-shadow .14s ease,background .14s ease;
+    }
+
+    .option:hover:not(:disabled){
+      transform:translateY(-2px);
+      border-color:#9cc2cc;
+      box-shadow:0 10px 20px rgba(31,55,70,.08);
+    }
+
+    .option:disabled{cursor:default}
+    .option.correct{
+      background:var(--green-soft);
+      border-color:var(--green);
+      color:#1f5f41;
+    }
+    .option.wrong{
+      background:var(--red-soft);
+      border-color:var(--red);
+      color:#8d2b2a;
+    }
+    .option.used{opacity:.72}
+
+    .feedback{
+      min-height:64px;
+      margin-top:18px;
+      padding:14px 16px;
+      border-radius:18px;
+      display:flex;
+      align-items:center;
+      line-height:1.45;
+      font-weight:800;
+      visibility:hidden;
+    }
+    .feedback.show{visibility:visible}
+    .feedback.good{background:var(--green-soft);color:#1f5f41}
+    .feedback.try{background:#fff1cf;color:#7a5413}
+    .feedback.reveal{background:#edf3f6;color:#294f62}
+
+    .next{
+      display:none;
+      margin-top:14px;
+      margin-left:auto;
+    }
+    .next.show{display:inline-block}
+
+    /* New success animation: postcard arrival + camera flash + travelling ribbon */
+    .success-ribbon{
+      position:absolute;
+      left:-40%;
+      top:38%;
+      width:42%;
+      height:72px;
+      z-index:8;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:14px;
+      border-radius:0 18px 18px 0;
+      background:linear-gradient(90deg,var(--coral),var(--mustard),var(--teal));
+      color:#fff;
+      font-weight:900;
+      font-size:1.15rem;
+      box-shadow:0 14px 26px rgba(31,55,70,.18);
+      opacity:0;
+      pointer-events:none;
+    }
+
+    .success-ribbon.show{
+      animation:ribbonTravel 1.05s ease both;
+    }
+
+    @keyframes ribbonTravel{
+      0%{left:-42%;opacity:0;transform:rotate(-4deg)}
+      18%{opacity:1}
+      55%{left:29%;opacity:1;transform:rotate(1deg)}
+      100%{left:108%;opacity:0;transform:rotate(4deg)}
+    }
+
+    .ribbon-icon{
+      width:50px;
+      height:42px;
+      display:grid;
+      place-items:center;
+      overflow:hidden;
+      border-radius:9px;
+      background:rgba(255,255,255,.24);
+      border:2px solid rgba(255,255,255,.55);
+    }
+
+    .ribbon-icon img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+
+    /* Final */
+    .final-card{
+      width:min(840px,100%);
+      padding:52px 34px;
+      text-align:center;
+      border-radius:30px;
+      background:rgba(255,253,247,.98);
+      border:1px solid rgba(36,91,120,.10);
+      box-shadow:0 24px 56px rgba(31,55,70,.15);
+      position:relative;
+      overflow:hidden;
+    }
+
+    .final-card::before{
+      content:"";
+      position:absolute;
+      inset:-30px;
+      background:
+        radial-gradient(circle at 20% 22%,rgba(230,111,81,.11),transparent 18%),
+        radial-gradient(circle at 82% 24%,rgba(231,175,61,.11),transparent 18%),
+        radial-gradient(circle at 50% 88%,rgba(45,143,145,.12),transparent 18%);
+      pointer-events:none;
+    }
+
+    .final-content{position:relative;z-index:2}
+    .final-icon{
+      font-size:84px;
+      animation:finalPop .9s ease both;
+    }
+    @keyframes finalPop{
+      from{opacity:0;transform:translateY(10px) scale(.82)}
+      to{opacity:1;transform:translateY(0) scale(1)}
+    }
+
+    .final-card h2{
+      margin:14px 0 10px;
+      color:var(--blue-dark);
+      font-family:Georgia,serif;
+      font-size:clamp(2.25rem,5vw,3.8rem);
+    }
+
+    .result{
+      margin:0 auto 26px;
+      max-width:650px;
+      color:#625e63;
+      font-size:1.1rem;
+      line-height:1.65;
+    }
+
+    .badges{
+      display:flex;
+      justify-content:center;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-bottom:30px;
+    }
+
+    .badge{
+      padding:11px 14px;
+      border-radius:14px;
+      background:#e8f2f5;
+      color:var(--blue);
+      font-weight:900;
+    }
+
+    @media(max-width:940px){
+      .welcome{grid-template-columns:1fr}
+    }
+
+    @media(max-width:760px){
+      .postcard-grid{grid-template-columns:repeat(2,1fr)}
+      .scrapbook::before{display:none}
+    }
+
+    @media(max-width:620px){
+      .screen{padding:12px}
+      .welcome-copy{padding:38px 24px}
+      .scrapbook{padding:18px 14px}
+      .question-card{padding:24px 18px}
+      .topbar{align-items:stretch}
+      .score-chip{width:100%}
+      .success-ribbon{width:72%;font-size:1rem}
+    }
+
+    @media(prefers-reduced-motion:reduce){
+      *,*::before,*::after{
+        animation:none!important;
+        transition:none!important;
+        scroll-behavior:auto!important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <section id="splash" class="screen active" aria-label="Innovine">
+    <img src="assets/innovine-logo.png" alt="Innovine logo" />
+  </section>
+
+  <section id="welcome" class="screen">
+    <div class="welcome">
+      <div class="welcome-copy">
+        <p class="eyebrow">Grade 6 • Social Science</p>
+        <h1>India Cultural Scrapbook</h1>
+        <p class="subtitle">Travel through India’s landscapes, festivals, food, clothing, languages, and traditions while exploring the idea of unity in diversity.</p>
+
+        <div class="how-list" aria-label="How to play">
+          <div class="how"><span class="how-icon">🧠</span><span>Choose the best answer for each question.</span></div>
+          <div class="how"><span class="how-icon">✌️</span><span>You get two chances for every question.</span></div>
+          <div class="how"><span class="how-icon">📸</span><span>Each correct answer adds a new cultural postcard to the scrapbook.</span></div>
+        </div>
+
+        <button id="startBtn" class="primary">Open the Scrapbook</button>
+      </div>
+
+      <div class="welcome-art" aria-hidden="true">
+        <div class="sun"></div>
+        <div class="plane">✈️</div>
+        <div class="suitcase">
+          <div class="strap left"></div>
+          <div class="strap right"></div>
+          <div class="sticker s1">🏔️</div>
+          <div class="sticker s2">🌴</div>
+          <div class="sticker s3">🥁</div>
+          <div class="sticker s4">🥘</div>
+          <div class="sticker s5">🧵</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <main id="game" class="screen">
+    <div class="game-shell">
+      <div class="topbar">
+        <div class="title-chip">Chapter 8 • Unity in Diversity</div>
+        <div id="scoreChip" class="score-chip">Score: 0</div>
+      </div>
+
+      <section class="scrapbook">
+        <div class="scrapbook-head">
+          <div>
+            <h2>Cultural Postcard Album</h2>
+            <small>Every correct answer adds one postcard.</small>
+          </div>
+          <div id="albumCount" class="album-count">0 of 10</div>
+        </div>
+
+        <div id="postcardGrid" class="postcard-grid" aria-label="Collected cultural postcards"></div>
+        <div class="album-note">Collect all 10 postcards to complete the album.</div>
+      </section>
+
+      <section id="questionCard" class="question-card">
+        <div id="successRibbon" class="success-ribbon" aria-hidden="true">
+          <span class="ribbon-icon"><img id="ribbonImage" alt="" /></span>
+          <span>Postcard collected!</span>
+        </div>
+
+        <h2 id="questionText" class="question-text"></h2>
+        <div id="options" class="options"></div>
+        <div id="feedback" class="feedback" role="status" aria-live="polite"></div>
+        <button id="nextBtn" class="primary next">Continue</button>
+      </section>
+    </div>
+  </main>
+
+  <section id="final" class="screen">
+    <div class="final-card">
+      <div class="final-content">
+        <div class="final-icon" aria-hidden="true">📒</div>
+        <h2>Scrapbook Complete!</h2>
+        <p id="finalResult" class="result"></p>
+        <div class="badges">
+          <span class="badge">Culture Explorer</span>
+          <span class="badge">Respectful Citizen</span>
+          <span class="badge">Unity Champion</span>
+        </div>
+        <button id="replayBtn" class="primary">Play Again</button>
+      </div>
+    </div>
+  </section>
+
+  <audio id="correctSound" preload="auto" src="assets/correct.mp3"></audio>
+  <audio id="wrongSound" preload="auto" src="assets/wrong.mp3"></audio>
+  <audio id="clapSound" preload="auto" src="assets/freesound_community-claps-44774.mp3"></audio>
+
+  <script>
+    const questionBank = [
+      {
+        q: `Rohan's family travelled from Kashmir to Kerala. They saw snow-covered mountains first and later coconut trees and beaches.
+
+Which statement best explains this experience?`,
+        options: [
+          "India has only one type of climate.",
+          "India has different geographical regions with different climates.",
+          "Kerala is colder than Kashmir.",
+          "Mountains and beaches are found in the same place."
+        ],
+        answer: "India has different geographical regions with different climates.",
+        card: "assets/postcards/kashmir-kerala.svg",
+        cardAlt: "Snowy Kashmir mountains and a Kerala beach"
+      },
+      {
+        q: `Look at the table.
+
+Festival — State
+Pongal — Tamil Nadu
+Onam — Kerala
+Baisakhi — Punjab
+Bihu — Assam
+
+A student wants to learn about a rice harvest festival in Tamil Nadu.
+Which festival should the student choose?`,
+        options: ["Onam","Pongal","Baisakhi","Bihu"],
+        answer: "Pongal",
+        card: "assets/postcards/pongal.svg",
+        cardAlt: "Pongal pot and sugarcane"
+      },
+      {
+        q: `Maria celebrates Christmas. Her friends Aarav and Sameer visit her home, decorate the Christmas tree and enjoy cakes together.
+
+What does this show?`,
+        options: [
+          "People should celebrate only their own festivals.",
+          "Festivals can help people understand and respect different cultures.",
+          "Christmas is celebrated only in schools.",
+          "Only Christians can enjoy Christmas."
+        ],
+        answer: "Festivals can help people understand and respect different cultures.",
+        card: "assets/postcards/christmas-together.svg",
+        cardAlt: "Friends celebrating Christmas together"
+      },
+      {
+        q: `Priya visits two homes.
+
+In one home people eat rice.
+In another home people eat rotis.
+Both families use turmeric and cumin while cooking.
+
+What does this show?`,
+        options: [
+          "Indian food is completely different everywhere.",
+          "Different regions share common ingredients even though dishes differ.",
+          "Rice and wheat cannot be eaten together.",
+          "Spices are used only in North India."
+        ],
+        answer: "Different regions share common ingredients even though dishes differ.",
+        card: "assets/postcards/shared-ingredients.svg",
+        cardAlt: "Rice, rotis, turmeric and cumin"
+      },
+      {
+        q: `Ritu visited Gujarat and Tamil Nadu.
+
+She noticed that women wore different kinds of sarees. The colours, fabrics and designs were different, but everyone proudly wore traditional clothing.
+
+What is the best conclusion?`,
+        options: [
+          "Sarees have no connection with culture.",
+          "Different sarees represent regional traditions while showing India's cultural unity.",
+          "Only silk sarees are traditional.",
+          "Every state wears the same saree."
+        ],
+        answer: "Different sarees represent regional traditions while showing India's cultural unity.",
+        card: "assets/postcards/regional-sarees.svg",
+        cardAlt: "Different regional saree designs"
+      },
+      {
+        q: `Look at the table.
+
+Crop — Mostly Eaten In
+Wheat — North India
+Rice — South and East India
+Bajra — Western India
+
+A family moves from Punjab to Tamil Nadu.
+Which food change is most likely?`,
+        options: ["More rice dishes","More wheat dishes","No cereals","Only fruits"],
+        answer: "More rice dishes",
+        card: "assets/postcards/rice-dishes.svg",
+        cardAlt: "Rice dishes associated with South India"
+      },
+      {
+        q: `Which one does NOT belong to the same group?`,
+        options: ["Banarasi Saree","Patola Saree","Kanjeevaram Saree","Bhangra"],
+        answer: "Bhangra",
+        card: "assets/postcards/sarees-bhangra.svg",
+        cardAlt: "Three sarees and a Bhangra dancer"
+      },
+      {
+        q: `Your school is organising "India Day."
+
+Students from different states will bring food, wear traditional clothes and perform dances.
+
+Which action best represents unity in diversity?`,
+        options: [
+          "Allow only one state's culture.",
+          "Encourage every group to share and learn from one another.",
+          "Celebrate only national festivals.",
+          "Everyone should wear identical clothes."
+        ],
+        answer: "Encourage every group to share and learn from one another.",
+        card: "assets/postcards/india-day.svg",
+        cardAlt: "Students sharing cultures during India Day"
+      },
+      {
+        q: `Your new classmate speaks a different language and celebrates different festivals.
+
+What should you do?`,
+        options: [
+          "Ignore the classmate.",
+          "Ask them to stop following their traditions.",
+          "Respect their culture and learn about it.",
+          "Tell them only your traditions are correct."
+        ],
+        answer: "Respect their culture and learn about it.",
+        card: "assets/postcards/respect-classmate.svg",
+        cardAlt: "Classmates respecting different languages and traditions"
+      },
+      {
+        q: `During a cultural week, the school cafeteria serves idli, parathas, dhokla and momos on the same day.
+
+What does this menu best represent?`,
+        options: [
+          "Only one region has important food.",
+          "India has diverse regional foods that can be enjoyed together.",
+          "All Indian dishes taste exactly the same.",
+          "Traditional food should not be shared."
+        ],
+        answer: "India has diverse regional foods that can be enjoyed together.",
+        card: "assets/postcards/regional-foods.svg",
+        cardAlt: "Idli, paratha, dhokla and momos on one platter"
+      }
+    ];
+
+    const screens = {
+      splash: document.getElementById("splash"),
+      welcome: document.getElementById("welcome"),
+      game: document.getElementById("game"),
+      final: document.getElementById("final")
+    };
+
+    const startBtn = document.getElementById("startBtn");
+    const replayBtn = document.getElementById("replayBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const questionText = document.getElementById("questionText");
+    const optionsBox = document.getElementById("options");
+    const feedback = document.getElementById("feedback");
+    const scoreChip = document.getElementById("scoreChip");
+    const albumCount = document.getElementById("albumCount");
+    const postcardGrid = document.getElementById("postcardGrid");
+    const questionCard = document.getElementById("questionCard");
+    const successRibbon = document.getElementById("successRibbon");
+    const ribbonImage = document.getElementById("ribbonImage");
+
+    const correctSound = document.getElementById("correctSound");
+    const wrongSound = document.getElementById("wrongSound");
+    const clapSound = document.getElementById("clapSound");
+
+    let questions = [];
+    let index = 0;
+    let score = 0;
+    let attempts = 0;
+    let locked = false;
+    let solved = [];
+    let audioContext = null;
+
+    const postcardColours = [
+      ["#9bd1e3","#4d88a8"],
+      ["#f2c96e","#e28b43"],
+      ["#8bc7a2","#3f8b68"],
+      ["#f3a17f","#d65d45"],
+      ["#c4a6e5","#7656a7"],
+      ["#f4d879","#e3a73e"],
+      ["#e98475","#b84b68"],
+      ["#6fb9bb","#2d8f91"],
+      ["#9bcf9d","#3e8f5f"],
+      ["#f0b476","#d9794f"]
+    ];
+    const postcardRotations = ["-3deg","2deg","-2deg","3deg","-1deg","2deg","-3deg","1deg","-2deg","3deg"];
+
+    function showScreen(name){
+      Object.values(screens).forEach(screen => screen.classList.remove("active"));
+      screens[name].classList.add("active");
+    }
+
+    function shuffle(list){
+      const arr = [...list];
+      for(let i = arr.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function getAudioContext(){
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if(!AudioContextClass) return null;
+      if(!audioContext) audioContext = new AudioContextClass();
+      if(audioContext.state === "suspended"){
+        audioContext.resume().catch(() => {});
+      }
+      return audioContext;
+    }
+
+    function playToneSequence(kind){
+      const ctx = getAudioContext();
+      if(!ctx) return;
+
+      const patterns = {
+        correct: [
+          {frequency: 660,start:0.00,duration:0.12},
+          {frequency: 880,start:0.13,duration:0.12},
+          {frequency:1046,start:0.27,duration:0.22}
+        ],
+        wrong: [
+          {frequency:260,start:0.00,duration:0.18},
+          {frequency:190,start:0.19,duration:0.30}
+        ],
+        clap: [
+          {frequency:523,start:0.00,duration:0.10},
+          {frequency:659,start:0.11,duration:0.10},
+          {frequency:784,start:0.22,duration:0.10},
+          {frequency:1046,start:0.33,duration:0.25}
+        ]
+      };
+
+      const now = ctx.currentTime + 0.02;
+      (patterns[kind] || patterns.correct).forEach(note => {
+        const oscillator = ctx.createOscillator();
+        const gain = ctx.createGain();
+        oscillator.type = kind === "wrong" ? "square" : "sine";
+        oscillator.frequency.setValueAtTime(note.frequency,now + note.start);
+        gain.gain.setValueAtTime(0.0001,now + note.start);
+        gain.gain.exponentialRampToValueAtTime(kind === "wrong" ? 0.24 : 0.20,now + note.start + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.0001,now + note.start + note.duration);
+        oscillator.connect(gain);
+        gain.connect(ctx.destination);
+        oscillator.start(now + note.start);
+        oscillator.stop(now + note.start + note.duration + 0.03);
+      });
+    }
+
+    function safePlay(audio,kind){
+      playToneSequence(kind);
+      if(!audio) return;
+      try{
+        audio.pause();
+        audio.currentTime = 0;
+        const promise = audio.play();
+        if(promise && typeof promise.catch === "function") promise.catch(() => {});
+      }catch(error){}
+    }
+
+    function buildAlbum(){
+      postcardGrid.innerHTML = "";
+      questions.forEach((_,i) => {
+        const slot = document.createElement("div");
+        slot.className = "postcard-slot";
+        slot.dataset.index = i;
+        slot.style.setProperty("--pc-a",postcardColours[i][0]);
+        slot.style.setProperty("--pc-b",postcardColours[i][1]);
+        slot.style.setProperty("--pc-rot",postcardRotations[i]);
+        slot.innerHTML = `
+          <div class="postcard">
+            <img class="postcard-image" src="${questions[i].card}" alt="${questions[i].cardAlt}" />
+            <div class="tape"></div>
+            <div class="postcard-check">✓</div>
+          </div>
+        `;
+        postcardGrid.appendChild(slot);
+      });
+      updateAlbum();
+    }
+
+    function updateAlbum(){
+      scoreChip.textContent = `Score: ${score}`;
+      albumCount.textContent = `${solved.filter(Boolean).length} of ${questions.length}`;
+    }
+
+    function collectPostcard(cardIndex){
+      const slot = postcardGrid.querySelector(`[data-index="${cardIndex}"]`);
+      if(!slot) return;
+      slot.classList.add("collected","new-card");
+      setTimeout(() => slot.classList.remove("new-card"),900);
+      updateAlbum();
+    }
+
+    function playSuccessAnimation(cardIndex){
+      ribbonImage.src = questions[cardIndex].card;
+      ribbonImage.alt = questions[cardIndex].cardAlt;
+      questionCard.classList.remove("flash");
+      successRibbon.classList.remove("show");
+
+      void questionCard.offsetWidth;
+
+      questionCard.classList.add("flash");
+      successRibbon.classList.add("show");
+
+      setTimeout(() => {
+        questionCard.classList.remove("flash");
+        successRibbon.classList.remove("show");
+      },1100);
+    }
+
+    function beginGame(){
+      questions = shuffle(questionBank).map(item => ({
+        ...item,
+        options: shuffle(item.options)
+      }));
+
+      index = 0;
+      score = 0;
+      attempts = 0;
+      locked = false;
+      solved = Array(questions.length).fill(false);
+
+      buildAlbum();
+      showScreen("game");
+      renderQuestion();
+    }
+
+    function renderQuestion(){
+      attempts = 0;
+      locked = false;
+      feedback.className = "feedback";
+      feedback.textContent = "";
+      nextBtn.classList.remove("show");
+      optionsBox.innerHTML = "";
+      successRibbon.classList.remove("show");
+
+      const current = questions[index];
+      questionText.textContent = current.q;
+
+      current.options.forEach(optionText => {
+        const button = document.createElement("button");
+        button.className = "option";
+        button.type = "button";
+        button.textContent = optionText;
+        button.addEventListener("click",() => chooseAnswer(button,optionText));
+        optionsBox.appendChild(button);
+      });
+
+      updateAlbum();
+      const firstOption = optionsBox.querySelector(".option");
+      if(firstOption) setTimeout(() => firstOption.focus({preventScroll:true}),80);
+    }
+
+    function finishQuestion(message,type){
+      locked = true;
+      optionsBox.querySelectorAll(".option").forEach(button => button.disabled = true);
+      feedback.textContent = message;
+      feedback.className = `feedback show ${type}`;
+      nextBtn.classList.add("show");
+      nextBtn.focus({preventScroll:true});
+    }
+
+    function chooseAnswer(button,selected){
+      if(locked || button.disabled) return;
+
+      attempts += 1;
+      const current = questions[index];
+
+      if(selected === current.answer){
+        button.classList.add("correct");
+        score += attempts === 1 ? 10 : 5;
+        solved[index] = true;
+        safePlay(correctSound,"correct");
+        collectPostcard(index);
+        playSuccessAnimation(index);
+        finishQuestion("Correct!","good");
+        return;
+      }
+
+      button.classList.add("wrong","used");
+      button.disabled = true;
+      safePlay(wrongSound,"wrong");
+
+      if(attempts === 1){
+        feedback.textContent = "Incorrect. Try again.";
+        feedback.className = "feedback show try";
+      }else{
+        optionsBox.querySelectorAll(".option").forEach(optionButton => {
+          if(optionButton.textContent === current.answer){
+            optionButton.classList.add("correct");
+          }
+        });
+        finishQuestion(`Incorrect. The correct answer is “${current.answer}”.`,"reveal");
+      }
+    }
+
+    function nextStep(){
+      index += 1;
+      updateAlbum();
+
+      if(index >= questions.length){
+        finishGame();
+      }else{
+        renderQuestion();
+      }
+    }
+
+    function finishGame(){
+      updateAlbum();
+      const maximum = questions.length * 10;
+      const percentage = Math.round((score / maximum) * 100);
+
+      let message = "You completed the cultural scrapbook and explored the idea of unity in diversity.";
+      if(percentage >= 85){
+        message = "Outstanding work! You showed a strong understanding of India’s diversity and shared cultural unity.";
+      }else if(percentage >= 65){
+        message = "Great work! You understood many important examples of unity in diversity.";
+      }
+
+      document.getElementById("finalResult").textContent =
+        `${message} Your score is ${score} out of ${maximum}.`;
+
+      showScreen("final");
+      safePlay(clapSound,"clap");
+    }
+
+    startBtn.addEventListener("click",() => {
+      getAudioContext();
+      beginGame();
+    });
+
+    replayBtn.addEventListener("click",() => {
+      getAudioContext();
+      beginGame();
+    });
+
+    nextBtn.addEventListener("click",nextStep);
+
+    setTimeout(() => showScreen("welcome"),5000);
+  </script>
+</body>
+</html>
