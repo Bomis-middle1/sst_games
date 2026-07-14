@@ -1,1 +1,1406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#2f6b5e" />
+  <title>Community Courtyard Challenge</title>
+  <style>
+    :root{
+      --ink:#26312d;
+      --muted:#68736e;
+      --paper:#fffdf7;
+      --cream:#f7efdf;
+      --green:#2f6b5e;
+      --green-dark:#1f4d43;
+      --mint:#dff2e9;
+      --coral:#e8785d;
+      --mustard:#e4b24d;
+      --blue:#4e7fa6;
+      --purple:#7a5ba7;
+      --red:#c74442;
+      --red-soft:#fde9e8;
+      --good:#2f845d;
+      --good-soft:#e6f5ed;
+      --shadow:0 18px 42px rgba(34,74,63,.15);
+    }
 
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      color:var(--ink);
+      font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:
+        radial-gradient(circle at 9% 12%,rgba(228,178,77,.14),transparent 22%),
+        radial-gradient(circle at 90% 86%,rgba(78,127,166,.12),transparent 24%),
+        linear-gradient(135deg,#f8f2e8,#efe5d6);
+      overflow-x:hidden;
+    }
+
+    button{font:inherit}
+    button:focus-visible{outline:4px solid rgba(47,107,94,.30);outline-offset:3px}
+
+    .screen{
+      min-height:100vh;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+    }
+    .screen.active{display:flex}
+
+    /* Logo-only splash */
+    #splash{background:#fff}
+    #splash img{
+      width:min(360px,72vw);
+      max-height:220px;
+      object-fit:contain;
+      animation:logoIn .7s ease both;
+    }
+    @keyframes logoIn{
+      from{opacity:0;transform:scale(.94)}
+      to{opacity:1;transform:scale(1)}
+    }
+
+    /* Welcome */
+    .welcome{
+      width:min(1160px,100%);
+      min-height:700px;
+      display:grid;
+      grid-template-columns:1.02fr .98fr;
+      overflow:hidden;
+      border-radius:34px;
+      background:rgba(255,253,247,.98);
+      border:1px solid rgba(47,107,94,.10);
+      box-shadow:0 24px 56px rgba(34,74,63,.15);
+    }
+
+    .welcome-copy{
+      padding:58px 54px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      background:linear-gradient(180deg,rgba(255,255,255,.28),rgba(255,255,255,.02)),#fff9ed;
+    }
+
+    .eyebrow{
+      margin:0 0 13px;
+      color:var(--blue);
+      font-size:.82rem;
+      font-weight:900;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+    }
+
+    h1{
+      margin:0;
+      color:var(--green-dark);
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:clamp(2.8rem,5vw,5rem);
+      line-height:.96;
+    }
+
+    .subtitle{
+      margin:20px 0 30px;
+      color:#625f61;
+      font-size:1.12rem;
+      line-height:1.7;
+      max-width:590px;
+    }
+
+    .how-list{display:grid;gap:14px;margin-bottom:34px}
+    .how{
+      display:flex;
+      gap:14px;
+      align-items:flex-start;
+      color:#4c4b4d;
+      line-height:1.45;
+    }
+    .how-icon{
+      flex:0 0 36px;
+      width:36px;
+      height:36px;
+      border-radius:12px;
+      display:grid;
+      place-items:center;
+      background:#e9f3ef;
+    }
+
+    .primary{
+      align-self:flex-start;
+      border:0;
+      border-radius:16px;
+      padding:15px 24px;
+      color:#fff;
+      background:var(--green);
+      font-weight:900;
+      cursor:pointer;
+      box-shadow:0 10px 0 var(--green-dark);
+      transition:transform .15s ease,box-shadow .15s ease;
+    }
+    .primary:hover{transform:translateY(-2px);box-shadow:0 12px 0 var(--green-dark)}
+    .primary:active{transform:translateY(5px);box-shadow:0 5px 0 var(--green-dark)}
+
+    .welcome-art{
+      position:relative;
+      overflow:hidden;
+      background:
+        linear-gradient(180deg,#cde6ec 0 34%,#f0d79d 34% 68%,#d9b978 68% 100%);
+    }
+
+    .sun{
+      position:absolute;
+      top:48px;
+      right:58px;
+      width:82px;
+      height:82px;
+      border-radius:50%;
+      background:#ffd871;
+      box-shadow:0 0 0 12px rgba(255,216,113,.18);
+      animation:sunPulse 3.5s ease-in-out infinite;
+    }
+    @keyframes sunPulse{
+      0%,100%{transform:scale(1)}
+      50%{transform:scale(1.07)}
+    }
+
+    .courtyard-scene{
+      position:absolute;
+      left:50%;
+      top:54%;
+      transform:translate(-50%,-50%);
+      width:min(470px,88%);
+      height:500px;
+    }
+
+    .tree{
+      position:absolute;
+      left:50%;
+      top:82px;
+      transform:translateX(-50%);
+      width:180px;
+      height:260px;
+    }
+    .tree-trunk{
+      position:absolute;
+      left:76px;
+      bottom:0;
+      width:31px;
+      height:135px;
+      border-radius:18px;
+      background:#815031;
+    }
+    .tree-crown{
+      position:absolute;
+      left:15px;
+      top:0;
+      width:150px;
+      height:150px;
+      border-radius:50%;
+      background:#4f9a65;
+      box-shadow:
+        -38px 36px 0 #5aa56d,
+        38px 36px 0 #43895a,
+        0 58px 0 #4c9662;
+      animation:treeSway 4s ease-in-out infinite;
+    }
+    @keyframes treeSway{
+      0%,100%{transform:rotate(-1deg)}
+      50%{transform:rotate(1.5deg)}
+    }
+
+    .home{
+      position:absolute;
+      width:125px;
+      height:115px;
+      border-radius:12px 12px 8px 8px;
+      background:#f6d28d;
+      border:6px solid rgba(102,70,41,.22);
+      box-shadow:0 18px 26px rgba(82,55,35,.18);
+    }
+    .home::before{
+      content:"";
+      position:absolute;
+      left:50%;
+      top:-48px;
+      transform:translateX(-50%);
+      width:0;height:0;
+      border-left:72px solid transparent;
+      border-right:72px solid transparent;
+      border-bottom:52px solid #c56d52;
+    }
+    .home::after{
+      content:"";
+      position:absolute;
+      left:50%;
+      bottom:0;
+      transform:translateX(-50%);
+      width:34px;
+      height:55px;
+      border-radius:8px 8px 0 0;
+      background:#7a4f34;
+    }
+    .home.left{left:20px;bottom:68px}
+    .home.right{right:20px;bottom:68px;background:#d7e9f1}
+    .window{
+      position:absolute;
+      width:30px;
+      height:30px;
+      border-radius:6px;
+      background:#87b6c7;
+      border:4px solid #fff7e8;
+      top:33px;
+    }
+    .window.w1{left:14px}
+    .window.w2{right:14px}
+
+    .family-group{
+      position:absolute;
+      left:50%;
+      bottom:32px;
+      transform:translateX(-50%);
+      display:flex;
+      gap:10px;
+      align-items:flex-end;
+    }
+    .person{
+      width:44px;
+      height:74px;
+      border-radius:24px 24px 12px 12px;
+      background:var(--shirt);
+      position:relative;
+      animation:wavePerson 3.8s ease-in-out infinite;
+    }
+    .person::before{
+      content:"";
+      position:absolute;
+      left:50%;
+      top:-22px;
+      transform:translateX(-50%);
+      width:38px;
+      height:38px;
+      border-radius:50%;
+      background:var(--skin);
+    }
+    .person::after{
+      content:"";
+      position:absolute;
+      right:-12px;
+      top:15px;
+      width:26px;
+      height:10px;
+      border-radius:8px;
+      background:var(--skin);
+      transform-origin:left center;
+      transform:rotate(-28deg);
+    }
+    .p1{--shirt:#4e7fa6;--skin:#b47a57;animation-delay:-.4s}
+    .p2{--shirt:#e8785d;--skin:#d19770;height:66px}
+    .p3{--shirt:#7a5ba7;--skin:#8f624b;animation-delay:-1.2s}
+    @keyframes wavePerson{
+      0%,100%{transform:translateY(0)}
+      50%{transform:translateY(-5px)}
+    }
+
+    .string-lights{
+      position:absolute;
+      left:18px;
+      right:18px;
+      top:48px;
+      height:80px;
+      border-top:4px solid rgba(65,78,67,.35);
+      border-radius:50%;
+    }
+    .bulb{
+      position:absolute;
+      top:-3px;
+      width:15px;height:20px;
+      border-radius:50% 50% 45% 45%;
+      background:var(--bulb);
+      box-shadow:0 0 12px var(--bulb);
+      animation:blink 2.4s ease-in-out infinite;
+    }
+    .b1{left:10%;--bulb:#f3c84f}
+    .b2{left:30%;--bulb:#e8785d;animation-delay:-.5s}
+    .b3{left:50%;--bulb:#4e7fa6;animation-delay:-1s}
+    .b4{left:70%;--bulb:#7a5ba7;animation-delay:-1.5s}
+    .b5{left:90%;--bulb:#51a775;animation-delay:-2s}
+    @keyframes blink{
+      0%,100%{opacity:.55;transform:scale(.9)}
+      50%{opacity:1;transform:scale(1.08)}
+    }
+
+    /* Game */
+    #game{align-items:flex-start;padding-top:24px;padding-bottom:24px}
+    .game-shell{width:min(1180px,100%)}
+
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:16px;
+      flex-wrap:wrap;
+      margin-bottom:16px;
+    }
+
+    .title-chip{
+      padding:10px 14px;
+      border-radius:999px;
+      background:#e8f2ef;
+      color:var(--green);
+      font-size:.82rem;
+      font-weight:900;
+      letter-spacing:.05em;
+      text-transform:uppercase;
+    }
+
+    .score-chip{
+      min-width:132px;
+      text-align:center;
+      padding:13px 18px;
+      border-radius:16px;
+      background:var(--green);
+      color:#fff;
+      font-weight:900;
+      box-shadow:var(--shadow);
+    }
+
+    /* Distinct progress system: a neighbourhood fills with people and lights */
+    .neighbourhood{
+      position:relative;
+      overflow:hidden;
+      margin-bottom:18px;
+      padding:22px;
+      border-radius:28px;
+      background:
+        linear-gradient(180deg,#dceef3 0 44%,#f0d699 44% 100%);
+      border:1px solid rgba(47,107,94,.10);
+      box-shadow:var(--shadow);
+    }
+
+    .neighbourhood-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:16px;
+      flex-wrap:wrap;
+      margin-bottom:18px;
+      position:relative;
+      z-index:3;
+    }
+
+    .neighbourhood h2{
+      margin:0;
+      color:var(--green-dark);
+      font-family:Georgia,serif;
+      font-size:1.45rem;
+    }
+
+    .neighbourhood small{
+      color:#5c6863;
+      font-size:.95rem;
+    }
+
+    .community-count{
+      padding:9px 13px;
+      border-radius:999px;
+      background:#fff;
+      color:var(--coral);
+      font-size:.84rem;
+      font-weight:900;
+      box-shadow:0 6px 14px rgba(31,55,70,.07);
+    }
+
+    .community-grid{
+      display:grid;
+      grid-template-columns:repeat(6,minmax(90px,1fr));
+      gap:14px;
+      position:relative;
+      z-index:2;
+    }
+
+    .community-plot{
+      min-height:112px;
+      position:relative;
+      border-radius:16px;
+      background:rgba(255,255,255,.42);
+      border:2px dashed rgba(47,107,94,.22);
+      display:grid;
+      place-items:end center;
+      padding-bottom:12px;
+      overflow:hidden;
+    }
+
+    .plot-ground{
+      position:absolute;
+      left:0;right:0;bottom:0;
+      height:30px;
+      background:#a7c978;
+    }
+
+    .mini-home{
+      width:64px;
+      height:54px;
+      position:relative;
+      z-index:2;
+      border-radius:8px 8px 5px 5px;
+      background:#d9d9d6;
+      border:4px solid rgba(80,80,80,.12);
+      filter:grayscale(1);
+      opacity:.46;
+      transform:translateY(15px) scale(.9);
+      transition:filter .45s ease,opacity .45s ease,transform .45s ease,background .45s ease;
+    }
+    .mini-home::before{
+      content:"";
+      position:absolute;
+      left:50%;
+      top:-27px;
+      transform:translateX(-50%);
+      width:0;height:0;
+      border-left:38px solid transparent;
+      border-right:38px solid transparent;
+      border-bottom:30px solid #9f9f9a;
+      transition:border-bottom-color .45s ease;
+    }
+    .mini-home::after{
+      content:"";
+      position:absolute;
+      left:50%;
+      bottom:0;
+      transform:translateX(-50%);
+      width:18px;height:28px;
+      border-radius:4px 4px 0 0;
+      background:#8e8d89;
+    }
+
+    .mini-window{
+      position:absolute;
+      top:14px;
+      width:15px;height:15px;
+      border-radius:4px;
+      background:#8c9699;
+      border:3px solid rgba(255,255,255,.68);
+      transition:background .35s ease,box-shadow .35s ease;
+    }
+    .mini-window.left{left:7px}
+    .mini-window.right{right:7px}
+
+    .mini-person{
+      position:absolute;
+      right:5px;
+      bottom:8px;
+      z-index:3;
+      width:20px;height:31px;
+      border-radius:12px 12px 6px 6px;
+      background:var(--person-colour);
+      opacity:0;
+      transform:translateY(18px) scale(.7);
+    }
+    .mini-person::before{
+      content:"";
+      position:absolute;
+      left:50%;
+      top:-10px;
+      transform:translateX(-50%);
+      width:17px;height:17px;
+      border-radius:50%;
+      background:#ba7c58;
+    }
+
+    .community-plot.active .mini-home{
+      filter:none;
+      opacity:1;
+      transform:translateY(0) scale(1);
+      background:var(--house-colour);
+    }
+    .community-plot.active .mini-home::before{
+      border-bottom-color:var(--roof-colour);
+    }
+    .community-plot.active .mini-window{
+      background:#ffd869;
+      box-shadow:0 0 10px rgba(255,216,105,.9);
+    }
+    .community-plot.active .mini-person{
+      opacity:1;
+      animation:personArrives .75s .25s cubic-bezier(.2,.8,.2,1.15) both;
+    }
+
+    @keyframes personArrives{
+      from{transform:translateY(24px) scale(.65)}
+      60%{transform:translateY(-5px) scale(1.08)}
+      to{transform:translateY(0) scale(1)}
+    }
+
+    .community-plot.new-home{
+      animation:plotCelebrate .9s ease;
+    }
+    @keyframes plotCelebrate{
+      0%{transform:scale(.95)}
+      40%{transform:scale(1.08)}
+      100%{transform:scale(1)}
+    }
+
+    .community-note{
+      margin-top:16px;
+      color:#5f6964;
+      font-size:.94rem;
+      font-weight:700;
+      position:relative;
+      z-index:2;
+    }
+
+    .question-card{
+      position:relative;
+      min-height:555px;
+      padding:34px;
+      overflow:hidden;
+      border-radius:28px;
+      background:rgba(255,253,247,.98);
+      border:1px solid rgba(47,107,94,.10);
+      box-shadow:var(--shadow);
+    }
+
+    .question-text{
+      margin:0 0 20px;
+      color:var(--green-dark);
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:clamp(1.35rem,2.05vw,1.92rem);
+      line-height:1.45;
+      white-space:pre-line;
+    }
+
+    .ar-block{
+      display:grid;
+      gap:14px;
+      margin:0 0 20px;
+    }
+    .ar-line{
+      display:block;
+      padding:14px 16px;
+      border-radius:16px;
+      background:#f5f0e5;
+      border-left:6px solid var(--mustard);
+      color:var(--green-dark);
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:clamp(1.18rem,1.75vw,1.55rem);
+      line-height:1.5;
+    }
+    .ar-line.reason{
+      border-left-color:var(--blue);
+      background:#eef4f7;
+    }
+
+    .options{
+      display:grid;
+      gap:13px;
+      margin-top:26px;
+    }
+
+    .option{
+      width:100%;
+      padding:16px;
+      border:2px solid #e4d9c9;
+      border-radius:18px;
+      background:#fffdf9;
+      color:var(--ink);
+      text-align:left;
+      font-weight:800;
+      line-height:1.45;
+      cursor:pointer;
+      transition:transform .14s ease,border-color .14s ease,box-shadow .14s ease,background .14s ease;
+    }
+
+    .option:hover:not(:disabled){
+      transform:translateY(-2px);
+      border-color:#9ec1b7;
+      box-shadow:0 10px 20px rgba(34,74,63,.08);
+    }
+
+    .option:disabled{cursor:default}
+    .option.correct{
+      background:var(--good-soft);
+      border-color:var(--good);
+      color:#1f5f41;
+    }
+    .option.wrong{
+      background:var(--red-soft);
+      border-color:var(--red);
+      color:#8d2b2a;
+    }
+    .option.used{opacity:.72}
+
+    .feedback{
+      min-height:64px;
+      margin-top:18px;
+      padding:14px 16px;
+      border-radius:18px;
+      display:flex;
+      align-items:center;
+      line-height:1.45;
+      font-weight:800;
+      visibility:hidden;
+    }
+    .feedback.show{visibility:visible}
+    .feedback.good{background:var(--good-soft);color:#1f5f41}
+    .feedback.try{background:#fff1cf;color:#7a5413}
+    .feedback.reveal{background:#edf3f6;color:#294f62}
+
+    .next{
+      display:none;
+      margin-top:14px;
+      margin-left:auto;
+    }
+    .next.show{display:inline-block}
+
+    /* New success idea: helping hands join around a centre */
+    .hands-celebration{
+      position:absolute;
+      inset:0;
+      z-index:8;
+      display:grid;
+      place-items:center;
+      background:rgba(255,253,247,.84);
+      backdrop-filter:blur(2px);
+      opacity:0;
+      visibility:hidden;
+      pointer-events:none;
+    }
+    .hands-celebration.show{
+      opacity:1;
+      visibility:visible;
+    }
+
+    .hands-ring{
+      position:relative;
+      width:220px;
+      height:220px;
+      border-radius:50%;
+      animation:ringPop 1.05s ease both;
+    }
+    @keyframes ringPop{
+      from{transform:scale(.45) rotate(-25deg);opacity:0}
+      40%{opacity:1}
+      to{transform:scale(1) rotate(0);opacity:1}
+    }
+
+    .hand{
+      position:absolute;
+      left:50%;
+      top:50%;
+      width:56px;
+      height:56px;
+      display:grid;
+      place-items:center;
+      border-radius:18px;
+      background:var(--hand-bg);
+      border:4px solid #fff;
+      box-shadow:0 10px 18px rgba(34,74,63,.14);
+      font-size:30px;
+      transform:
+        translate(-50%,-50%)
+        rotate(var(--angle))
+        translateY(-86px)
+        rotate(calc(-1 * var(--angle)));
+      animation:handJoin .85s cubic-bezier(.2,.8,.2,1.15) both;
+      animation-delay:var(--delay);
+    }
+    @keyframes handJoin{
+      from{
+        transform:
+          translate(-50%,-50%)
+          rotate(var(--angle))
+          translateY(-155px)
+          rotate(calc(-1 * var(--angle)))
+          scale(.6);
+        opacity:0;
+      }
+      70%{opacity:1}
+      to{
+        transform:
+          translate(-50%,-50%)
+          rotate(var(--angle))
+          translateY(-86px)
+          rotate(calc(-1 * var(--angle)))
+          scale(1);
+        opacity:1;
+      }
+    }
+
+    .success-centre{
+      position:absolute;
+      left:50%;
+      top:50%;
+      transform:translate(-50%,-50%);
+      width:112px;
+      height:112px;
+      border-radius:50%;
+      display:grid;
+      place-items:center;
+      background:linear-gradient(145deg,#fff2bd,#f0b657);
+      border:7px solid #fff;
+      box-shadow:0 18px 34px rgba(34,74,63,.18);
+      font-size:48px;
+      animation:centrePop .8s .18s ease both;
+    }
+    @keyframes centrePop{
+      from{transform:translate(-50%,-50%) scale(.3);opacity:0}
+      65%{transform:translate(-50%,-50%) scale(1.13);opacity:1}
+      to{transform:translate(-50%,-50%) scale(1)}
+    }
+
+    .success-word{
+      position:absolute;
+      left:50%;
+      top:calc(50% + 128px);
+      transform:translateX(-50%);
+      padding:9px 18px;
+      border-radius:999px;
+      background:var(--green);
+      color:#fff;
+      font-weight:900;
+      letter-spacing:.04em;
+      white-space:nowrap;
+      animation:wordRise .75s .25s ease both;
+    }
+    @keyframes wordRise{
+      from{transform:translate(-50%,18px);opacity:0}
+      to{transform:translate(-50%,0);opacity:1}
+    }
+
+    /* Final */
+    .final-card{
+      width:min(840px,100%);
+      padding:52px 34px;
+      text-align:center;
+      border-radius:30px;
+      background:rgba(255,253,247,.98);
+      border:1px solid rgba(47,107,94,.10);
+      box-shadow:0 24px 56px rgba(34,74,63,.15);
+      position:relative;
+      overflow:hidden;
+    }
+
+    .final-card::before{
+      content:"";
+      position:absolute;
+      inset:-30px;
+      background:
+        radial-gradient(circle at 20% 22%,rgba(232,120,93,.11),transparent 18%),
+        radial-gradient(circle at 82% 24%,rgba(228,178,77,.11),transparent 18%),
+        radial-gradient(circle at 50% 88%,rgba(78,127,166,.12),transparent 18%);
+      pointer-events:none;
+    }
+
+    .final-content{position:relative;z-index:2}
+    .final-icon{
+      font-size:84px;
+      animation:finalPop .9s ease both;
+    }
+    @keyframes finalPop{
+      from{opacity:0;transform:translateY(10px) scale(.82)}
+      to{opacity:1;transform:translateY(0) scale(1)}
+    }
+
+    .final-card h2{
+      margin:14px 0 10px;
+      color:var(--green-dark);
+      font-family:Georgia,serif;
+      font-size:clamp(2.25rem,5vw,3.8rem);
+    }
+
+    .result{
+      margin:0 auto 26px;
+      max-width:650px;
+      color:#625e63;
+      font-size:1.1rem;
+      line-height:1.65;
+    }
+
+    .badges{
+      display:flex;
+      justify-content:center;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-bottom:30px;
+    }
+
+    .badge{
+      padding:11px 14px;
+      border-radius:14px;
+      background:#e8f2ef;
+      color:var(--green);
+      font-weight:900;
+    }
+
+    @media(max-width:940px){
+      .welcome{grid-template-columns:1fr}
+    }
+
+    @media(max-width:760px){
+      .community-grid{grid-template-columns:repeat(3,1fr)}
+    }
+
+    @media(max-width:620px){
+      .screen{padding:12px}
+      .welcome-copy{padding:38px 24px}
+      .neighbourhood{padding:18px 14px}
+      .community-grid{grid-template-columns:repeat(2,1fr)}
+      .question-card{padding:24px 18px}
+      .topbar{align-items:stretch}
+      .score-chip{width:100%}
+    }
+
+    @media(prefers-reduced-motion:reduce){
+      *,*::before,*::after{
+        animation:none!important;
+        transition:none!important;
+        scroll-behavior:auto!important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <section id="splash" class="screen active" aria-label="Innovine">
+    <img src="assets/innovine-logo.png" alt="Innovine logo" />
+  </section>
+
+  <section id="welcome" class="screen">
+    <div class="welcome">
+      <div class="welcome-copy">
+        <p class="eyebrow">Grade 6 • Social Science</p>
+        <h1>Community Courtyard Challenge</h1>
+        <p class="subtitle">Explore how families share responsibilities, make decisions, preserve traditions, and support one another in the wider community.</p>
+
+        <div class="how-list" aria-label="How to play">
+          <div class="how"><span class="how-icon">🧠</span><span>Choose the best answer for each situation.</span></div>
+          <div class="how"><span class="how-icon">✌️</span><span>You get two chances for every question.</span></div>
+          <div class="how"><span class="how-icon">🏘️</span><span>Each correct answer brings a new family into the neighbourhood.</span></div>
+        </div>
+
+        <button id="startBtn" class="primary">Enter the Courtyard</button>
+      </div>
+
+      <div class="welcome-art" aria-hidden="true">
+        <div class="sun"></div>
+        <div class="courtyard-scene">
+          <div class="string-lights">
+            <span class="bulb b1"></span>
+            <span class="bulb b2"></span>
+            <span class="bulb b3"></span>
+            <span class="bulb b4"></span>
+            <span class="bulb b5"></span>
+          </div>
+
+          <div class="home left">
+            <span class="window w1"></span>
+            <span class="window w2"></span>
+          </div>
+
+          <div class="home right">
+            <span class="window w1"></span>
+            <span class="window w2"></span>
+          </div>
+
+          <div class="tree">
+            <div class="tree-crown"></div>
+            <div class="tree-trunk"></div>
+          </div>
+
+          <div class="family-group">
+            <span class="person p1"></span>
+            <span class="person p2"></span>
+            <span class="person p3"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <main id="game" class="screen">
+    <div class="game-shell">
+      <div class="topbar">
+        <div class="title-chip">Chapter 9 • Family and Community</div>
+        <div id="scoreChip" class="score-chip">Score: 0</div>
+      </div>
+
+      <section class="neighbourhood">
+        <div class="neighbourhood-head">
+          <div>
+            <h2>Growing Neighbourhood</h2>
+            <small>Correct answers light up homes and welcome new neighbours.</small>
+          </div>
+          <div id="communityCount" class="community-count">0 of 12</div>
+        </div>
+
+        <div id="communityGrid" class="community-grid" aria-label="Growing community progress"></div>
+        <div class="community-note">Light up all 12 homes to complete the neighbourhood.</div>
+      </section>
+
+      <section id="questionCard" class="question-card">
+        <div id="handsCelebration" class="hands-celebration" aria-hidden="true">
+          <div class="hands-ring">
+            <span class="hand" style="--angle:0deg;--delay:0s;--hand-bg:#f4c66d;">🤝</span>
+            <span class="hand" style="--angle:60deg;--delay:.08s;--hand-bg:#e89179;">🙌</span>
+            <span class="hand" style="--angle:120deg;--delay:.16s;--hand-bg:#92bfdb;">🤲</span>
+            <span class="hand" style="--angle:180deg;--delay:.24s;--hand-bg:#bca3dc;">🤝</span>
+            <span class="hand" style="--angle:240deg;--delay:.32s;--hand-bg:#8bc69b;">🙌</span>
+            <span class="hand" style="--angle:300deg;--delay:.40s;--hand-bg:#f1b879;">🤲</span>
+            <span id="successCentre" class="success-centre">🏠</span>
+          </div>
+          <div class="success-word">Together we grow!</div>
+        </div>
+
+        <div id="questionArea"></div>
+        <div id="options" class="options"></div>
+        <div id="feedback" class="feedback" role="status" aria-live="polite"></div>
+        <button id="nextBtn" class="primary next">Continue</button>
+      </section>
+    </div>
+  </main>
+
+  <section id="final" class="screen">
+    <div class="final-card">
+      <div class="final-content">
+        <div class="final-icon" aria-hidden="true">🏘️</div>
+        <h2>Neighbourhood Complete!</h2>
+        <p id="finalResult" class="result"></p>
+        <div class="badges">
+          <span class="badge">Family Helper</span>
+          <span class="badge">Responsible Member</span>
+          <span class="badge">Community Champion</span>
+        </div>
+        <button id="replayBtn" class="primary">Play Again</button>
+      </div>
+    </div>
+  </section>
+
+  <audio id="correctSound" preload="auto" src="assets/correct.mp3"></audio>
+  <audio id="wrongSound" preload="auto" src="assets/wrong.mp3"></audio>
+  <audio id="clapSound" preload="auto" src="assets/freesound_community-claps-44774.mp3"></audio>
+
+  <script>
+    const questionBank = [
+      {
+        q: `Aarav's grandmother is unwell. His mother cooks meals, his father takes her to the doctor, and Aarav helps by bringing her water and medicines.
+
+What does this situation show?`,
+        options: [
+          "Family members work together to support each other.",
+          "Only adults have responsibilities.",
+          "Children should not help at home.",
+          "Grandparents must do household work."
+        ],
+        answer: "Family members work together to support each other.",
+        icon: "💊"
+      },
+      {
+        q: `Maya finishes her homework and then helps her younger brother understand his maths lesson.
+
+Which family value is Maya showing?`,
+        options: ["Laziness","Responsibility and care","Competition","Independence from family"],
+        answer: "Responsibility and care",
+        icon: "📚"
+      },
+      {
+        q: `A family is sitting together around a table and discussing holiday plans.
+
+What is the family doing?`,
+        options: ["Ignoring each other's opinions","Making a decision together","Playing a game","Solving homework"],
+        answer: "Making a decision together",
+        icon: "🗣️"
+      },
+      {
+        q: `Rohan lives in an apartment. The Residents' Welfare Association organises a cleanliness drive. Rohan and his parents join other neighbours to clean the park.
+
+Why is this activity important?`,
+        options: ["It helps only one family.","It improves the neighbourhood for everyone.","It is only for children.","It is done to earn money."],
+        answer: "It improves the neighbourhood for everyone.",
+        icon: "🧹"
+      },
+      {
+        q: `During Diwali, Meera's grandparents teach her how to make traditional sweets and tell stories about old family customs.
+
+What are the grandparents helping to preserve?`,
+        options: ["Sports skills","Family traditions and culture","School rules","Household expenses"],
+        answer: "Family traditions and culture",
+        icon: "🪔"
+      },
+      {
+        assertion: "Families should listen to everyone's ideas before making important decisions.",
+        reason: "Listening to others helps everyone feel included.",
+        options: [
+          "Both statements are true, and the reason explains the assertion.",
+          "Both statements are true, but the reason does not explain it.",
+          "Assertion is true, but reason is false.",
+          "Assertion is false, but reason is true."
+        ],
+        answer: "Both statements are true, and the reason explains the assertion.",
+        icon: "🤝"
+      },
+      {
+        q: `Which one does NOT belong with the others?`,
+        options: ["Grandmother","Uncle","Teacher","Cousin"],
+        answer: "Teacher",
+        icon: "👩‍🏫"
+      },
+      {
+        q: `Riya wrote these sentences about families.
+
+Which sentence is incorrect?`,
+        options: [
+          "Children can help with simple household work.",
+          "Families support each other during difficult times.",
+          "Only parents should care for family members.",
+          "Grandparents can share family traditions."
+        ],
+        answer: "Only parents should care for family members.",
+        icon: "📝"
+      },
+      {
+        q: `Heavy rain causes flooding in Saloni's village. Neighbours cook food together, provide shelter, and help families move to safer places.
+
+What is the biggest benefit of the community's actions?`,
+        options: ["People become famous.","Families receive support during emergencies.","Everyone gets new houses.","Children do not have to study."],
+        answer: "Families receive support during emergencies.",
+        icon: "🌧️"
+      },
+      {
+        q: `A class survey shows how students helped at home during one week.
+
+Activity — Number of Students
+Cleaning rooms — 12
+Helping siblings — 18
+Watering plants — 8
+Setting the table — 10
+
+Which responsibility was performed by the greatest number of students?`,
+        options: ["Cleaning rooms","Watering plants","Helping siblings","Setting the table"],
+        answer: "Helping siblings",
+        icon: "📊"
+      },
+      {
+        q: `Your family is planning a picnic. Your younger sister wants to visit the zoo, while your grandparents prefer a nearby park.
+
+What is the best way to make the decision?`,
+        options: ["Ignore the younger sister.","Let only one person decide.","Listen to everyone's ideas and choose together.","Cancel the picnic."],
+        answer: "Listen to everyone's ideas and choose together.",
+        icon: "🧺"
+      },
+      {
+        q: `Your neighbour's family has gone to the hospital because someone is ill.
+
+Which action shows good community spirit?`,
+        options: ["Make fun of them.","Stay away from everyone.","Offer help by bringing food or taking care of small tasks.","Wait for someone else to help."],
+        answer: "Offer help by bringing food or taking care of small tasks.",
+        icon: "🥘"
+      }
+    ];
+
+    const screens = {
+      splash: document.getElementById("splash"),
+      welcome: document.getElementById("welcome"),
+      game: document.getElementById("game"),
+      final: document.getElementById("final")
+    };
+
+    const startBtn = document.getElementById("startBtn");
+    const replayBtn = document.getElementById("replayBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const questionArea = document.getElementById("questionArea");
+    const optionsBox = document.getElementById("options");
+    const feedback = document.getElementById("feedback");
+    const scoreChip = document.getElementById("scoreChip");
+    const communityCount = document.getElementById("communityCount");
+    const communityGrid = document.getElementById("communityGrid");
+    const handsCelebration = document.getElementById("handsCelebration");
+    const successCentre = document.getElementById("successCentre");
+
+    const correctSound = document.getElementById("correctSound");
+    const wrongSound = document.getElementById("wrongSound");
+    const clapSound = document.getElementById("clapSound");
+
+    let questions = [];
+    let index = 0;
+    let score = 0;
+    let attempts = 0;
+    let locked = false;
+    let solved = [];
+    let audioContext = null;
+
+    const houseColours = ["#f6d28d","#c9e2ed","#f1b9a9","#d9c7ef","#c7e2bd","#f2d39e","#b9d9d0","#efc1cf","#c4d7ef","#ead5a5","#cce1b8","#efbda8"];
+    const roofColours = ["#c66c54","#4e7fa6","#e8785d","#7a5ba7","#5c9a62","#d58d45","#2f8d86","#c45c7d","#50729c","#b47a41","#4f875c","#d66b50"];
+    const personColours = ["#4e7fa6","#e8785d","#7a5ba7","#3f8b68","#e4b24d","#2d8f91","#c05a76","#6d83b8","#d7814e","#4b9670","#8f63aa","#be6a59"];
+
+    function showScreen(name){
+      Object.values(screens).forEach(screen => screen.classList.remove("active"));
+      screens[name].classList.add("active");
+    }
+
+    function shuffle(list){
+      const arr = [...list];
+      for(let i = arr.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i],arr[j]] = [arr[j],arr[i]];
+      }
+      return arr;
+    }
+
+    function getAudioContext(){
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if(!AudioContextClass) return null;
+      if(!audioContext) audioContext = new AudioContextClass();
+      if(audioContext.state === "suspended"){
+        audioContext.resume().catch(() => {});
+      }
+      return audioContext;
+    }
+
+    function playToneSequence(kind){
+      const ctx = getAudioContext();
+      if(!ctx) return;
+
+      const patterns = {
+        correct:[
+          {frequency:660,start:0.00,duration:0.12},
+          {frequency:880,start:0.13,duration:0.12},
+          {frequency:1046,start:0.27,duration:0.22}
+        ],
+        wrong:[
+          {frequency:260,start:0.00,duration:0.18},
+          {frequency:190,start:0.19,duration:0.30}
+        ],
+        clap:[
+          {frequency:523,start:0.00,duration:0.10},
+          {frequency:659,start:0.11,duration:0.10},
+          {frequency:784,start:0.22,duration:0.10},
+          {frequency:1046,start:0.33,duration:0.25}
+        ]
+      };
+
+      const now = ctx.currentTime + 0.02;
+      (patterns[kind] || patterns.correct).forEach(note => {
+        const oscillator = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        oscillator.type = kind === "wrong" ? "square" : "sine";
+        oscillator.frequency.setValueAtTime(note.frequency,now + note.start);
+
+        gain.gain.setValueAtTime(0.0001,now + note.start);
+        gain.gain.exponentialRampToValueAtTime(kind === "wrong" ? 0.24 : 0.20,now + note.start + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.0001,now + note.start + note.duration);
+
+        oscillator.connect(gain);
+        gain.connect(ctx.destination);
+        oscillator.start(now + note.start);
+        oscillator.stop(now + note.start + note.duration + 0.03);
+      });
+    }
+
+    function safePlay(audio,kind){
+      playToneSequence(kind);
+      if(!audio) return;
+      try{
+        audio.pause();
+        audio.currentTime = 0;
+        const promise = audio.play();
+        if(promise && typeof promise.catch === "function") promise.catch(() => {});
+      }catch(error){}
+    }
+
+    function buildCommunity(){
+      communityGrid.innerHTML = "";
+
+      questions.forEach((question,i) => {
+        const plot = document.createElement("div");
+        plot.className = "community-plot";
+        plot.dataset.index = i;
+        plot.style.setProperty("--house-colour",houseColours[i]);
+        plot.style.setProperty("--roof-colour",roofColours[i]);
+        plot.style.setProperty("--person-colour",personColours[i]);
+
+        plot.innerHTML = `
+          <div class="plot-ground"></div>
+          <div class="mini-home">
+            <span class="mini-window left"></span>
+            <span class="mini-window right"></span>
+          </div>
+          <div class="mini-person"></div>
+        `;
+
+        communityGrid.appendChild(plot);
+      });
+
+      updateCommunity();
+    }
+
+    function updateCommunity(){
+      scoreChip.textContent = `Score: ${score}`;
+      communityCount.textContent = `${solved.filter(Boolean).length} of ${questions.length}`;
+    }
+
+    function activateHome(homeIndex){
+      const plot = communityGrid.querySelector(`[data-index="${homeIndex}"]`);
+      if(!plot) return;
+
+      plot.classList.add("active","new-home");
+      setTimeout(() => plot.classList.remove("new-home"),950);
+      updateCommunity();
+    }
+
+    function showSuccessAnimation(questionIndex){
+      successCentre.textContent = questions[questionIndex].icon || "🏠";
+      handsCelebration.classList.remove("show");
+      void handsCelebration.offsetWidth;
+      handsCelebration.classList.add("show");
+
+      setTimeout(() => {
+        handsCelebration.classList.remove("show");
+      },1150);
+    }
+
+    function beginGame(){
+      questions = shuffle(questionBank).map(item => ({
+        ...item,
+        options:shuffle(item.options)
+      }));
+
+      index = 0;
+      score = 0;
+      attempts = 0;
+      locked = false;
+      solved = Array(questions.length).fill(false);
+
+      buildCommunity();
+      showScreen("game");
+      renderQuestion();
+    }
+
+    function renderQuestion(){
+      attempts = 0;
+      locked = false;
+      feedback.className = "feedback";
+      feedback.textContent = "";
+      nextBtn.classList.remove("show");
+      optionsBox.innerHTML = "";
+      handsCelebration.classList.remove("show");
+
+      const current = questions[index];
+
+      if(current.assertion && current.reason){
+        questionArea.innerHTML = `
+          <div class="ar-block">
+            <span class="ar-line"><strong>Assertion:</strong> ${current.assertion}</span>
+            <span class="ar-line reason"><strong>Reason:</strong> ${current.reason}</span>
+          </div>
+        `;
+      }else{
+        questionArea.innerHTML = `<h2 class="question-text">${current.q.replace(/\n/g,"<br>")}</h2>`;
+      }
+
+      current.options.forEach(optionText => {
+        const button = document.createElement("button");
+        button.className = "option";
+        button.type = "button";
+        button.textContent = optionText;
+        button.addEventListener("click",() => chooseAnswer(button,optionText));
+        optionsBox.appendChild(button);
+      });
+
+      updateCommunity();
+      const firstOption = optionsBox.querySelector(".option");
+      if(firstOption) setTimeout(() => firstOption.focus({preventScroll:true}),80);
+    }
+
+    function finishQuestion(message,type){
+      locked = true;
+      optionsBox.querySelectorAll(".option").forEach(button => button.disabled = true);
+      feedback.textContent = message;
+      feedback.className = `feedback show ${type}`;
+      nextBtn.classList.add("show");
+      nextBtn.focus({preventScroll:true});
+    }
+
+    function chooseAnswer(button,selected){
+      if(locked || button.disabled) return;
+
+      attempts += 1;
+      const current = questions[index];
+
+      if(selected === current.answer){
+        button.classList.add("correct");
+        score += attempts === 1 ? 10 : 5;
+        solved[index] = true;
+
+        safePlay(correctSound,"correct");
+        activateHome(index);
+        showSuccessAnimation(index);
+        finishQuestion("Correct!","good");
+        return;
+      }
+
+      button.classList.add("wrong","used");
+      button.disabled = true;
+      safePlay(wrongSound,"wrong");
+
+      if(attempts === 1){
+        feedback.textContent = "Incorrect. Try again.";
+        feedback.className = "feedback show try";
+      }else{
+        optionsBox.querySelectorAll(".option").forEach(optionButton => {
+          if(optionButton.textContent === current.answer){
+            optionButton.classList.add("correct");
+          }
+        });
+        finishQuestion(`Incorrect. The correct answer is “${current.answer}”.`,"reveal");
+      }
+    }
+
+    function nextStep(){
+      index += 1;
+      updateCommunity();
+
+      if(index >= questions.length){
+        finishGame();
+      }else{
+        renderQuestion();
+      }
+    }
+
+    function finishGame(){
+      updateCommunity();
+      const maximum = questions.length * 10;
+      const percentage = Math.round((score / maximum) * 100);
+
+      let message = "You completed the neighbourhood and explored important family and community values.";
+      if(percentage >= 85){
+        message = "Outstanding work! You showed a strong understanding of responsibility, care, inclusion, and community spirit.";
+      }else if(percentage >= 65){
+        message = "Great work! You understood many important ways families and communities support one another.";
+      }
+
+      document.getElementById("finalResult").textContent =
+        `${message} Your score is ${score} out of ${maximum}.`;
+
+      showScreen("final");
+      safePlay(clapSound,"clap");
+    }
+
+    startBtn.addEventListener("click",() => {
+      getAudioContext();
+      beginGame();
+    });
+
+    replayBtn.addEventListener("click",() => {
+      getAudioContext();
+      beginGame();
+    });
+
+    nextBtn.addEventListener("click",nextStep);
+
+    setTimeout(() => showScreen("welcome"),5000);
+  </script>
+</body>
+</html>
