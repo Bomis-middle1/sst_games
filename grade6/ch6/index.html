@@ -1,1 +1,1141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#37486b" />
+  <title>Harappan Excavation Quest</title>
+  <style>
+    :root{
+      --navy:#33415f;
+      --navy-deep:#232f48;
+      --sand:#f4e1bd;
+      --sand-dark:#d4b27c;
+      --sand-soft:#fff8ea;
+      --clay:#c56b3c;
+      --clay-deep:#924826;
+      --teal:#3c8e9d;
+      --teal-soft:#dff3f6;
+      --green:#2f7c54;
+      --green-soft:#e5f4ea;
+      --red:#bc4540;
+      --red-soft:#fde8e6;
+      --gold:#d6a84f;
+      --ink:#2d261f;
+      --muted:#6a6259;
+      --card-shadow:0 18px 40px rgba(35,47,72,.14);
+    }
 
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color:var(--ink);
+      background:
+        radial-gradient(circle at 8% 10%, rgba(60,142,157,.12), transparent 20%),
+        radial-gradient(circle at 90% 85%, rgba(197,107,60,.10), transparent 22%),
+        linear-gradient(135deg,#f7f2e6,#efe3cb);
+      overflow-x:hidden;
+    }
+
+    button{font:inherit}
+    button:focus-visible{outline:4px solid rgba(60,142,157,.35);outline-offset:3px}
+
+    .screen{
+      min-height:100vh;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+    }
+    .screen.active{display:flex}
+
+    /* splash */
+    #splash{background:#fff}
+    #splash img{
+      width:min(360px,70vw);
+      max-height:220px;
+      object-fit:contain;
+      animation:fadeScale .7s ease both;
+    }
+    @keyframes fadeScale{
+      from{opacity:0;transform:scale(.94)}
+      to{opacity:1;transform:scale(1)}
+    }
+
+    /* welcome */
+    .welcome-panel{
+      width:min(1140px,100%);
+      background:rgba(255,248,234,.98);
+      border:1px solid rgba(51,65,95,.10);
+      border-radius:34px;
+      box-shadow:0 22px 55px rgba(35,47,72,.14);
+      overflow:hidden;
+      display:grid;
+      grid-template-columns:1.02fr .98fr;
+      min-height:680px;
+    }
+
+    .welcome-copy{
+      padding:58px 54px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      background:
+        linear-gradient(180deg,rgba(255,255,255,.24),rgba(255,255,255,.02)),
+        var(--sand-soft);
+    }
+
+    .eyebrow{
+      margin:0 0 14px;
+      color:var(--teal);
+      font-size:.82rem;
+      font-weight:900;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+    }
+
+    h1{
+      margin:0;
+      color:var(--navy-deep);
+      font-family:Georgia, "Times New Roman", serif;
+      font-size:clamp(2.7rem,5vw,4.9rem);
+      line-height:.95;
+    }
+
+    .subtitle{
+      margin:20px 0 30px;
+      font-size:1.12rem;
+      line-height:1.7;
+      color:#64584d;
+      max-width:590px;
+    }
+
+    .how-list{
+      display:grid;
+      gap:14px;
+      margin-bottom:34px;
+    }
+
+    .how{
+      display:flex;
+      gap:14px;
+      align-items:flex-start;
+    }
+    .how .icon{
+      flex:0 0 34px;
+      width:34px;
+      height:34px;
+      display:grid;
+      place-items:center;
+      border-radius:10px;
+      background:#e6f0f2;
+    }
+    .how span:last-child{
+      line-height:1.45;
+      color:#4c443d;
+    }
+
+    .primary{
+      align-self:flex-start;
+      border:0;
+      border-radius:16px;
+      padding:15px 24px;
+      background:var(--navy);
+      color:#fff;
+      font-weight:900;
+      cursor:pointer;
+      box-shadow:0 10px 0 var(--navy-deep);
+      transition:transform .15s ease, box-shadow .15s ease;
+    }
+    .primary:hover{transform:translateY(-2px);box-shadow:0 12px 0 var(--navy-deep)}
+    .primary:active{transform:translateY(5px);box-shadow:0 5px 0 var(--navy-deep)}
+
+    .scene{
+      position:relative;
+      overflow:hidden;
+      background:
+        linear-gradient(180deg,#e7f2f4 0 34%, #efd9ac 34% 100%);
+    }
+
+    .scene::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        linear-gradient(transparent 0 40%, rgba(51,65,95,.05) 40% 41%, transparent 41%),
+        linear-gradient(90deg, transparent 0 40%, rgba(51,65,95,.05) 40% 41%, transparent 41%);
+      background-size:80px 80px;
+      opacity:.4;
+      mix-blend-mode:multiply;
+    }
+
+    .sun{
+      position:absolute;
+      top:44px;
+      right:52px;
+      width:86px;
+      height:86px;
+      border-radius:50%;
+      background:#ffd774;
+      box-shadow:0 0 0 12px rgba(255,215,116,.18);
+      animation:pulseSun 3.4s ease-in-out infinite;
+    }
+    @keyframes pulseSun{
+      0%,100%{transform:scale(1)}
+      50%{transform:scale(1.08)}
+    }
+
+    .site{
+      position:absolute;
+      left:50%;
+      bottom:40px;
+      transform:translateX(-50%);
+      width:min(460px,85%);
+      height:520px;
+    }
+
+    .mound{
+      position:absolute;
+      left:0;right:0;bottom:0;
+      height:330px;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,.18), transparent 30%),
+        linear-gradient(180deg,#e7c98e,#d6ad73);
+      border-radius:44px 44px 26px 26px;
+      box-shadow:inset 0 0 0 6px rgba(255,255,255,.14);
+    }
+
+    .trench{
+      position:absolute;
+      left:50%;
+      top:110px;
+      transform:translateX(-50%);
+      width:260px;
+      height:220px;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.18) 0 7%, transparent 7% 93%, rgba(0,0,0,.08) 93%),
+        linear-gradient(180deg,#c89657,#b57b47);
+      border:8px solid #8c5a31;
+      border-radius:20px;
+      box-shadow:inset 0 0 0 4px rgba(255,255,255,.12);
+    }
+
+    .gridline-h,.gridline-v{
+      position:absolute;
+      background:rgba(71,45,25,.28);
+    }
+    .gridline-h{left:10px;right:10px;height:3px}
+    .gridline-v{top:10px;bottom:10px;width:3px}
+    .h1{top:70px}.h2{top:138px}
+    .v1{left:82px}.v2{left:164px}
+
+    .find{
+      position:absolute;
+      display:grid;
+      place-items:center;
+      border-radius:14px;
+      box-shadow:0 10px 18px rgba(36,27,19,.12);
+      animation:floaty 3s ease-in-out infinite;
+    }
+    .find.seal{left:34px;top:32px;width:72px;height:72px;background:#fff1d4;font-size:34px}
+    .find.brick{right:26px;top:42px;width:84px;height:44px;background:#cd7d49;font-size:24px;color:#fff;animation-delay:-1s}
+    .find.boat{left:24px;bottom:78px;width:84px;height:56px;background:#e2f0f3;font-size:32px;animation-delay:-1.6s}
+    .find.bath{right:34px;bottom:74px;width:82px;height:82px;background:#dff3f6;font-size:34px;animation-delay:-.4s}
+
+    .brush{
+      position:absolute;
+      right:34px;
+      top:194px;
+      width:126px;
+      height:22px;
+      border-radius:999px;
+      background:linear-gradient(90deg,#7a4d2b 0 65%, #f1c96b 65% 100%);
+      transform-origin:20% 50%;
+      animation:brushSweep 3.2s ease-in-out infinite;
+    }
+    .brush::after{
+      content:"";
+      position:absolute;
+      right:-18px;top:-5px;
+      width:32px;height:32px;
+      border-radius:50%;
+      background:#f4d47a;
+    }
+    @keyframes brushSweep{
+      0%,100%{transform:rotate(-18deg) translateX(0)}
+      50%{transform:rotate(12deg) translateX(-28px)}
+    }
+
+    .dust{
+      position:absolute;
+      width:10px;height:10px;border-radius:50%;
+      background:rgba(255,255,255,.65);
+      animation:dustUp 3.6s linear infinite;
+    }
+    .d1{right:158px;top:215px;animation-delay:0s}
+    .d2{right:175px;top:230px;animation-delay:-1.2s}
+    .d3{right:138px;top:206px;animation-delay:-2.2s}
+    @keyframes dustUp{
+      from{transform:translateY(0) scale(.9);opacity:0}
+      20%{opacity:.8}
+      to{transform:translateY(-28px) scale(1.3);opacity:0}
+    }
+
+    /* game shell */
+    #game{align-items:flex-start;padding-top:26px;padding-bottom:26px}
+    .game-shell{width:min(1180px,100%)}
+
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      gap:18px;
+      align-items:center;
+      margin-bottom:18px;
+      flex-wrap:wrap;
+    }
+
+    .title-chip{
+      padding:10px 14px;
+      border-radius:999px;
+      background:#e3f1f3;
+      color:var(--teal);
+      font-size:.82rem;
+      font-weight:900;
+      letter-spacing:.05em;
+      text-transform:uppercase;
+    }
+
+    .score-chip{
+      padding:13px 18px;
+      border-radius:16px;
+      background:var(--navy);
+      color:#fff;
+      font-weight:900;
+      box-shadow:var(--card-shadow);
+      min-width:130px;
+      text-align:center;
+    }
+
+    /* NEW success path style */
+    .tracker{
+      background:rgba(255,248,234,.96);
+      border:1px solid rgba(51,65,95,.10);
+      border-radius:28px;
+      box-shadow:var(--card-shadow);
+      padding:20px 18px 28px;
+      margin-bottom:18px;
+      position:relative;
+      overflow:hidden;
+    }
+    .tracker-top{
+      display:flex;
+      justify-content:space-between;
+      gap:16px;
+      align-items:center;
+      margin-bottom:14px;
+      flex-wrap:wrap;
+    }
+    .tracker h2{
+      margin:0;
+      color:var(--navy-deep);
+      font-family:Georgia,serif;
+      font-size:1.45rem;
+    }
+    .tracker small{
+      color:var(--muted);
+      font-size:.95rem;
+    }
+
+    .path-wrap{
+      position:relative;
+      padding:22px 4px 8px;
+      overflow-x:auto;
+      scrollbar-width:thin;
+    }
+
+    .path-line{
+      position:absolute;
+      left:48px;
+      right:48px;
+      top:62px;
+      height:8px;
+      border-radius:999px;
+      background:repeating-linear-gradient(90deg,#d7dfe7 0 24px, #eef2f5 24px 42px);
+    }
+
+    .path-progress{
+      position:absolute;
+      left:48px;
+      top:62px;
+      height:8px;
+      width:0;
+      border-radius:999px;
+      background:linear-gradient(90deg,var(--teal),#62b7c4,var(--gold));
+      transition:width .45s ease;
+    }
+
+    .steps{
+      min-width:840px;
+      display:grid;
+      grid-template-columns:repeat(10,1fr);
+      gap:12px;
+      position:relative;
+      z-index:2;
+      align-items:start;
+    }
+
+    .step{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:8px;
+      position:relative;
+    }
+
+    .step-node{
+      width:52px;
+      height:52px;
+      display:grid;
+      place-items:center;
+      border-radius:18px;
+      background:#fff;
+      border:3px solid #d7dde5;
+      box-shadow:0 8px 16px rgba(35,47,72,.08);
+      font-size:24px;
+      transition:transform .3s ease, background .3s ease, border-color .3s ease;
+    }
+
+    .step.done .step-node{
+      background:#edf9fb;
+      border-color:var(--teal);
+      transform:translateY(-4px) rotate(-4deg);
+    }
+
+    .stamp{
+      font-size:.75rem;
+      font-weight:900;
+      color:#fff;
+      background:var(--teal);
+      padding:5px 8px;
+      border-radius:999px;
+      opacity:0;
+      transform:scale(.85);
+      transition:opacity .25s ease, transform .25s ease;
+    }
+    .step.done .stamp{
+      opacity:1;
+      transform:scale(1);
+    }
+
+    .traveller{
+      position:absolute;
+      top:24px;
+      left:18px;
+      width:58px;
+      height:58px;
+      border-radius:18px;
+      background:#fff7df;
+      border:3px solid #f0d08b;
+      display:grid;
+      place-items:center;
+      font-size:28px;
+      box-shadow:0 10px 18px rgba(35,47,72,.10);
+      transition:left .45s ease;
+      z-index:3;
+    }
+
+    .progress-note{
+      margin-top:12px;
+      color:#685d50;
+      font-weight:700;
+      font-size:.94rem;
+    }
+
+    /* content area */
+    .content-grid{
+      display:grid;
+      grid-template-columns:1fr 330px;
+      gap:18px;
+      align-items:stretch;
+    }
+
+    .question-card, .info-card{
+      background:rgba(255,248,234,.97);
+      border:1px solid rgba(51,65,95,.10);
+      border-radius:28px;
+      box-shadow:var(--card-shadow);
+      overflow:hidden;
+    }
+
+    .question-card{
+      padding:34px;
+      display:flex;
+      flex-direction:column;
+      min-height:580px;
+    }
+
+    .question-text{
+      margin:0 0 18px;
+      color:var(--navy-deep);
+      font-family:Georgia, "Times New Roman", serif;
+      font-size:clamp(1.35rem,2.05vw,1.9rem);
+      line-height:1.45;
+      white-space:pre-line;
+    }
+
+    .options{
+      display:grid;
+      gap:13px;
+      margin-top:auto;
+    }
+
+    .option{
+      width:100%;
+      border:2px solid #e2d4bc;
+      border-radius:18px;
+      padding:16px 16px;
+      text-align:left;
+      background:#fffdf8;
+      color:var(--ink);
+      line-height:1.45;
+      font-weight:800;
+      cursor:pointer;
+      transition:transform .14s ease,border-color .14s ease,box-shadow .14s ease,background .14s ease;
+    }
+    .option:hover:not(:disabled){
+      transform:translateY(-2px);
+      border-color:#9fbec4;
+      box-shadow:0 10px 20px rgba(35,47,72,.08);
+    }
+    .option:disabled{cursor:default}
+    .option.correct{
+      background:var(--green-soft);
+      border-color:var(--green);
+      color:#1e5e3f;
+    }
+    .option.wrong{
+      background:var(--red-soft);
+      border-color:var(--red);
+      color:#902c2a;
+    }
+    .option.used{opacity:.72}
+
+    .feedback{
+      min-height:64px;
+      margin-top:18px;
+      padding:14px 16px;
+      border-radius:18px;
+      display:flex;
+      align-items:center;
+      line-height:1.45;
+      font-weight:800;
+      visibility:hidden;
+    }
+    .feedback.show{visibility:visible}
+    .feedback.good{background:var(--green-soft);color:#1e5e3f}
+    .feedback.try{background:#fff1cf;color:#7b5413}
+    .feedback.reveal{background:#ecf3f6;color:#294f62}
+
+    .next{
+      align-self:flex-end;
+      margin-top:14px;
+      display:none;
+    }
+    .next.show{display:inline-block}
+
+    .info-card{
+      position:relative;
+      min-height:580px;
+      background:
+        linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,.02)),
+        linear-gradient(180deg,#edf5f6 0 28%, #f5e4c0 28% 100%);
+      padding:22px;
+    }
+
+    .info-card h3{
+      margin:0 0 6px;
+      color:var(--navy-deep);
+      font-family:Georgia,serif;
+      font-size:1.45rem;
+    }
+
+    .info-card p{
+      margin:0 0 18px;
+      color:#665d55;
+      line-height:1.55;
+      font-size:.96rem;
+    }
+
+    .mini-map{
+      position:relative;
+      height:270px;
+      border-radius:24px;
+      background:
+        radial-gradient(circle at 22% 32%, rgba(255,255,255,.35), transparent 18%),
+        linear-gradient(180deg,#dcc18f,#c79e64);
+      border:4px solid rgba(82,59,38,.18);
+      overflow:hidden;
+      margin-bottom:16px;
+    }
+
+    .mini-map::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        linear-gradient(transparent 0 33%, rgba(76,60,47,.14) 33% 34%, transparent 34% 66%, rgba(76,60,47,.14) 66% 67%, transparent 67%),
+        linear-gradient(90deg, transparent 0 33%, rgba(76,60,47,.14) 33% 34%, transparent 34% 66%, rgba(76,60,47,.14) 66% 67%, transparent 67%);
+    }
+
+    .mini-river{
+      position:absolute;
+      left:24px;
+      top:26px;
+      width:128px;
+      height:180px;
+      border-left:10px solid rgba(60,142,157,.82);
+      border-bottom:10px solid rgba(60,142,157,.82);
+      border-radius:44%;
+      transform:rotate(12deg);
+    }
+
+    .mini-site{
+      position:absolute;
+      width:70px;
+      height:70px;
+      border-radius:18px;
+      background:#fff4d5;
+      border:3px solid rgba(105,75,48,.24);
+      display:grid;
+      place-items:center;
+      font-size:30px;
+      box-shadow:0 12px 20px rgba(35,47,72,.08);
+      animation:floaty 3.1s ease-in-out infinite;
+    }
+    .ms1{right:24px;top:28px}
+    .ms2{left:80px;bottom:34px;animation-delay:-1s}
+    .ms3{right:40px;bottom:30px;animation-delay:-1.9s}
+
+    @keyframes floaty{
+      0%,100%{transform:translateY(0)}
+      50%{transform:translateY(-8px)}
+    }
+
+    .fact-box{
+      background:#fffdf8;
+      border:1px dashed rgba(60,142,157,.42);
+      border-radius:18px;
+      padding:14px 14px;
+      font-size:.93rem;
+      line-height:1.5;
+      color:#504840;
+      font-weight:700;
+      margin-top:14px;
+    }
+
+    .fact-box strong{
+      color:var(--teal);
+      display:block;
+      margin-bottom:6px;
+    }
+
+    /* final screen */
+    .final-card{
+      width:min(840px,100%);
+      text-align:center;
+      padding:52px 34px;
+      background:rgba(255,248,234,.98);
+      border:1px solid rgba(51,65,95,.10);
+      border-radius:30px;
+      box-shadow:0 22px 55px rgba(35,47,72,.14);
+      position:relative;
+      overflow:hidden;
+    }
+    .final-card::before{
+      content:"";
+      position:absolute;
+      inset:-30px;
+      background:
+        radial-gradient(circle at 20% 22%, rgba(60,142,157,.10), transparent 18%),
+        radial-gradient(circle at 84% 25%, rgba(197,107,60,.10), transparent 18%),
+        radial-gradient(circle at 50% 88%, rgba(214,168,79,.11), transparent 20%);
+      pointer-events:none;
+    }
+
+    .final-content{position:relative;z-index:2}
+    .final-icon{
+      font-size:82px;
+      animation:pop .9s ease both;
+    }
+    @keyframes pop{
+      from{opacity:0;transform:scale(.8) translateY(10px)}
+      to{opacity:1;transform:scale(1) translateY(0)}
+    }
+
+    .final-card h2{
+      margin:14px 0 10px;
+      color:var(--navy-deep);
+      font-family:Georgia,serif;
+      font-size:clamp(2.25rem,5vw,3.8rem);
+    }
+
+    .result{
+      margin:0 auto 26px;
+      max-width:640px;
+      color:#635b53;
+      font-size:1.1rem;
+      line-height:1.65;
+    }
+
+    .badges{
+      display:flex;
+      justify-content:center;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-bottom:30px;
+    }
+    .badge{
+      padding:11px 14px;
+      border-radius:14px;
+      background:#e7f3f5;
+      color:var(--teal);
+      font-weight:900;
+    }
+
+    @media (max-width: 930px){
+      .welcome-panel{grid-template-columns:1fr}
+      .content-grid{grid-template-columns:1fr}
+      .info-card{min-height:auto}
+      .question-card{min-height:unset}
+    }
+
+    @media (max-width: 620px){
+      .screen{padding:12px}
+      .welcome-copy{padding:38px 24px}
+      .tracker{padding:18px 12px 24px}
+      .question-card{padding:24px 18px}
+      .info-card{padding:18px}
+      .topbar{align-items:stretch}
+      .score-chip{width:100%}
+      .steps{min-width:760px}
+      .traveller{width:52px;height:52px;font-size:24px}
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      *,*::before,*::after{
+        animation:none!important;
+        transition:none!important;
+        scroll-behavior:auto!important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <section id="splash" class="screen active" aria-label="Innovine">
+    <img src="assets/innovine-logo.png" alt="Innovine logo" />
+  </section>
+
+  <section id="welcome" class="screen">
+    <div class="welcome-panel">
+      <div class="welcome-copy">
+        <p class="eyebrow">Grade 6 • Social Science</p>
+        <h1>Harappan Excavation Quest</h1>
+        <p class="subtitle">This version has a completely fresh look and feel. Dig through clues about civilisation, planned cities, covered drains, granaries, the Great Bath, and Lothal’s dockyard.</p>
+
+        <div class="how-list" aria-label="How to play">
+          <div class="how"><span class="icon">🧭</span><span>Choose the best answer to uncover each archaeological clue.</span></div>
+          <div class="how"><span class="icon">✌️</span><span>You get two chances for every question.</span></div>
+          <div class="how"><span class="icon">🔎</span><span>Each correct answer stamps your discovery track.</span></div>
+        </div>
+
+        <button id="startBtn" class="primary">Begin Excavation</button>
+      </div>
+
+      <div class="scene" aria-hidden="true">
+        <div class="sun"></div>
+        <div class="site">
+          <div class="mound"></div>
+          <div class="trench">
+            <div class="gridline-h h1"></div>
+            <div class="gridline-h h2"></div>
+            <div class="gridline-v v1"></div>
+            <div class="gridline-v v2"></div>
+          </div>
+          <div class="find seal">🪙</div>
+          <div class="find brick">🧱</div>
+          <div class="find boat">🛶</div>
+          <div class="find bath">🛁</div>
+          <div class="brush"></div>
+          <div class="dust d1"></div>
+          <div class="dust d2"></div>
+          <div class="dust d3"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <main id="game" class="screen">
+    <div class="game-shell">
+      <div class="topbar">
+        <div class="title-chip">Civilisation and the Harappan World</div>
+        <div id="scoreChip" class="score-chip">Score: 0</div>
+      </div>
+
+      <section class="tracker">
+        <div class="tracker-top">
+          <div>
+            <h2>Discovery Track</h2>
+            <small>Each success stamps the path and moves the explorer marker.</small>
+          </div>
+          <div id="progressText" class="title-chip">Begin</div>
+        </div>
+
+        <div class="path-wrap">
+          <div class="path-line"></div>
+          <div id="pathProgress" class="path-progress"></div>
+          <div id="traveller" class="traveller" aria-hidden="true">🧑‍🏺</div>
+          <div id="steps" class="steps"></div>
+        </div>
+
+        <div class="progress-note">Unlock all 10 discoveries to complete the excavation.</div>
+      </section>
+
+      <div class="content-grid">
+        <section class="question-card">
+          <h2 id="questionText" class="question-text"></h2>
+          <div id="options" class="options"></div>
+          <div id="feedback" class="feedback" role="status" aria-live="polite"></div>
+          <button id="nextBtn" class="primary next">Continue</button>
+        </section>
+
+        <aside class="info-card">
+          <h3>Excavation Board</h3>
+          <p>Watch the clues build as you move across the discovery path.</p>
+
+          <div class="mini-map">
+            <div class="mini-river"></div>
+            <div class="mini-site ms1">🏠</div>
+            <div class="mini-site ms2">🛁</div>
+            <div class="mini-site ms3">⚓</div>
+          </div>
+
+          <div class="fact-box">
+            <strong>Remember:</strong>
+            A civilisation usually shows settled life, food surplus, planned living spaces, trade, and organised systems.
+          </div>
+
+          <div class="fact-box">
+            <strong>Harappan clues:</strong>
+            Baked bricks, covered drains, granaries, seals, and Lothal’s dockyard are important features of the Harappan world.
+          </div>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <section id="final" class="screen">
+    <div class="final-card">
+      <div class="final-content">
+        <div class="final-icon" aria-hidden="true">🏺</div>
+        <h2>Excavation Complete!</h2>
+        <p id="finalResult" class="result"></p>
+        <div class="badges">
+          <span class="badge">Site Detective</span>
+          <span class="badge">City Planner</span>
+          <span class="badge">Harappan Historian</span>
+        </div>
+        <button id="replayBtn" class="primary">Play Again</button>
+      </div>
+    </div>
+  </section>
+
+  <audio id="correctSound" preload="auto" src="assets/correct.mp3"></audio>
+  <audio id="wrongSound" preload="auto" src="assets/wrong.mp3"></audio>
+  <audio id="clapSound" preload="auto" src="assets/freesound_community-claps-44774.mp3"></audio>
+
+  <script>
+    const questionBank = [
+      {
+        q: `A community begins producing enough food to settle in one place. People build permanent homes, start trading, and develop writing.
+
+What does this change show?`,
+        options: ["The beginning of a civilisation","The beginning of migration","The end of agriculture","The discovery of metals"],
+        answer: "The beginning of a civilisation",
+        explanation: "A civilisation develops when people begin settled life and build organised systems such as trade, writing, and specialised work."
+      },
+      {
+        q: `A newly discovered ancient settlement has planned streets, specialised workers, trade, and a writing system.
+
+Which conclusion is MOST appropriate?`,
+        options: ["It was a civilisation.","It was only a farming village.","It was a temporary campsite.","It was a forest settlement."],
+        answer: "It was a civilisation.",
+        explanation: "Planned settlement, specialised jobs, trade, and writing are key features of a civilisation."
+      },
+      {
+        q: `A student prepares this table.
+
+Civilisation — River
+Egyptian — Nile
+Mesopotamian — Tigris & Euphrates
+Chinese — Hwang Ho
+Indus Valley — Indus
+
+What do these civilisations have in common?`,
+        options: ["They developed near rivers.","They developed on islands.","They depended mainly on deserts.","They were built on mountains."],
+        answer: "They developed near rivers.",
+        explanation: "Early civilisations often grew near rivers because rivers provided water, fertile soil, and transport."
+      },
+      {
+        q: `During an excavation, archaeologists uncover baked brick houses, drains, and seals.
+
+Why are such discoveries important?`,
+        options: ["They help historians understand how ancient people lived.","They predict future events.","They replace written history.","They only show where rivers flowed."],
+        answer: "They help historians understand how ancient people lived.",
+        explanation: "Archaeological remains give evidence about housing, city planning, crafts, trade, and daily life."
+      },
+      {
+        q: `Archaeologists discover Harappan artefacts at sites spread across present-day Gujarat, Rajasthan, Haryana, Punjab, and Pakistan.
+
+What does this suggest?`,
+        options: ["The civilisation covered a large geographical area.","Each site belonged to a different civilisation.","The Harappans lived only near Harappa.","People travelled only by sea."],
+        answer: "The civilisation covered a large geographical area.",
+        explanation: "Finding Harappan remains across many regions shows that the civilisation spread over a very large area."
+      },
+      {
+        q: `A city planner designs roads that intersect at right angles, with houses built in neat rows and separate drainage channels.
+
+Which ancient civilisation is this plan most similar to?`,
+        options: ["Harappan Civilisation","Roman Empire","Gupta Empire","Mughal Empire"],
+        answer: "Harappan Civilisation",
+        explanation: "The Harappans are known for well-planned cities with grid-like streets and advanced drainage systems."
+      },
+      {
+        q: `A visitor notices that every house in an ancient city is connected to covered street drains.
+
+What does this tell us about the people?`,
+        options: ["They cared about cleanliness and sanitation.","They avoided building houses.","They had no knowledge of engineering.","They depended only on rivers."],
+        answer: "They cared about cleanliness and sanitation.",
+        explanation: "Covered drains connected to homes show careful planning for hygiene and sanitation."
+      },
+      {
+        q: `Archaeologists discovered a large brick-lined tank with steps leading into it. Its walls were made waterproof, and rooms surrounded the structure.
+
+What is the MOST likely purpose of this building?`,
+        options: ["Storage of grain","Ritual bathing","Market trading","Defence during wars"],
+        answer: "Ritual bathing",
+        explanation: "This description matches the Great Bath, which is believed to have been used for ritual bathing."
+      },
+      {
+        q: `A city has a large building located close to the river. Archaeologists believe it was used to store harvested grain before transporting it to other places.
+
+Which Harappan structure matches this description?`,
+        options: ["Dockyard","Great Bath","Granary","Assembly Hall"],
+        answer: "Granary",
+        explanation: "A granary was used to store grain before distribution or transport."
+      },
+      {
+        q: `A merchant wants to send goods by sea to another civilisation.
+
+Which Harappan site would be most useful?`,
+        options: ["Harappa","Mohenjo-Daro","Lothal","Kalibangan"],
+        answer: "Lothal",
+        explanation: "Lothal is famous for its dockyard and was an important centre for maritime trade."
+      }
+    ];
+
+    const screens = {
+      splash: document.getElementById("splash"),
+      welcome: document.getElementById("welcome"),
+      game: document.getElementById("game"),
+      final: document.getElementById("final")
+    };
+
+    const startBtn = document.getElementById("startBtn");
+    const replayBtn = document.getElementById("replayBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const questionText = document.getElementById("questionText");
+    const optionsBox = document.getElementById("options");
+    const feedback = document.getElementById("feedback");
+    const progressText = document.getElementById("progressText");
+    const scoreChip = document.getElementById("scoreChip");
+    const stepsBox = document.getElementById("steps");
+    const traveller = document.getElementById("traveller");
+    const pathProgress = document.getElementById("pathProgress");
+
+    const correctSound = document.getElementById("correctSound");
+    const wrongSound = document.getElementById("wrongSound");
+    const clapSound = document.getElementById("clapSound");
+
+    let questions = [];
+    let index = 0;
+    let score = 0;
+    let attempts = 0;
+    let locked = false;
+
+    function showScreen(name){
+      Object.values(screens).forEach(screen => screen.classList.remove("active"));
+      screens[name].classList.add("active");
+    }
+
+    function shuffle(list){
+      const arr = [...list];
+      for(let i = arr.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function safePlay(audio){
+      audio.currentTime = 0;
+      audio.play().catch(() => {});
+    }
+
+    function buildSteps(){
+      stepsBox.innerHTML = "";
+      const icons = ["🌾","🏠","🌊","🧱","🪙","🛁","🛣️","⚓","🏺","📜"];
+      questions.forEach((_, i) => {
+        const step = document.createElement("div");
+        step.className = "step";
+        step.innerHTML = `
+          <div class="step-node" aria-hidden="true">${icons[i % icons.length]}</div>
+          <div class="stamp">FOUND</div>
+        `;
+        stepsBox.appendChild(step);
+      });
+    }
+
+    function updateTracker(){
+      const total = questions.length;
+      const completed = index;
+      const percent = total ? (completed / total) * 100 : 0;
+
+      scoreChip.textContent = `Score: ${score}`;
+      progressText.textContent = completed === 0 ? "Begin" : completed === total ? "Complete" : "Keep digging";
+
+      [...stepsBox.children].forEach((step, i) => step.classList.toggle("done", i < completed));
+
+      const baseLeft = 18;
+      const maxMove = Math.max(0, stepsBox.scrollWidth - 92);
+      traveller.style.left = `${baseLeft + (percent/100)*maxMove}px`;
+
+      const lineWidth = Math.max(0, stepsBox.scrollWidth - 96);
+      pathProgress.style.width = `${(percent/100)*lineWidth}px`;
+    }
+
+    function beginGame(){
+      questions = shuffle(questionBank).map(item => ({
+        ...item,
+        options: shuffle(item.options)
+      }));
+      index = 0;
+      score = 0;
+      attempts = 0;
+      locked = false;
+      buildSteps();
+      showScreen("game");
+      renderQuestion();
+      updateTracker();
+    }
+
+    function renderQuestion(){
+      attempts = 0;
+      locked = false;
+      feedback.className = "feedback";
+      feedback.textContent = "";
+      nextBtn.classList.remove("show");
+      optionsBox.innerHTML = "";
+
+      const current = questions[index];
+      questionText.textContent = current.q;
+
+      current.options.forEach(optionText => {
+        const btn = document.createElement("button");
+        btn.className = "option";
+        btn.type = "button";
+        btn.textContent = optionText;
+        btn.addEventListener("click", () => chooseAnswer(btn, optionText));
+        optionsBox.appendChild(btn);
+      });
+
+      updateTracker();
+      const firstOption = optionsBox.querySelector(".option");
+      if(firstOption) setTimeout(() => firstOption.focus({preventScroll:true}), 80);
+    }
+
+    function finishQuestion(message, type){
+      locked = true;
+      optionsBox.querySelectorAll(".option").forEach(btn => btn.disabled = true);
+      feedback.textContent = message;
+      feedback.className = `feedback show ${type}`;
+      nextBtn.classList.add("show");
+      nextBtn.focus({preventScroll:true});
+    }
+
+    function chooseAnswer(button, selected){
+      if(locked || button.disabled) return;
+
+      attempts += 1;
+      const current = questions[index];
+
+      if(selected === current.answer){
+        button.classList.add("correct");
+        score += attempts === 1 ? 10 : 5;
+        safePlay(correctSound);
+        finishQuestion(`Correct! ${current.explanation}`, "good");
+        return;
+      }
+
+      button.classList.add("wrong","used");
+      button.disabled = true;
+      safePlay(wrongSound);
+
+      if(attempts === 1){
+        feedback.textContent = "Not quite. Recheck the archaeological clue and try once more.";
+        feedback.className = "feedback show try";
+      } else {
+        finishQuestion(`The best answer is “${current.answer}” ${current.explanation}`, "reveal");
+      }
+    }
+
+    function nextStep(){
+      index += 1;
+      updateTracker();
+      if(index >= questions.length){
+        finishGame();
+      } else {
+        renderQuestion();
+      }
+    }
+
+    function finishGame(){
+      updateTracker();
+      const maximum = questions.length * 10;
+      const percentage = Math.round((score / maximum) * 100);
+
+      let message = "You explored the signs of civilisation and discovered important features of the Harappan world.";
+      if(percentage >= 85){
+        message = "Outstanding work! You uncovered the Harappan clues like a confident young archaeologist.";
+      } else if(percentage >= 65){
+        message = "Great work! You identified cities, drains, trade, and structures from the Harappan civilisation very well.";
+      }
+
+      document.getElementById("finalResult").textContent =
+        `${message} Your score is ${score} out of ${maximum}.`;
+
+      showScreen("final");
+      safePlay(clapSound);
+    }
+
+    startBtn.addEventListener("click", beginGame);
+    replayBtn.addEventListener("click", beginGame);
+    nextBtn.addEventListener("click", nextStep);
+    window.addEventListener("resize", updateTracker);
+
+    setTimeout(() => showScreen("welcome"), 5000);
+  </script>
+</body>
+</html>
