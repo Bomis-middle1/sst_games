@@ -1,1 +1,1793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#1d2930" />
+  <title>Work & Worth Engine</title>
+  <style>
+    :root{
+      --bg:#17242b;
+      --bg-2:#26353b;
+      --cream:#fff8e8;
+      --paper:#fffdf8;
+      --ink:#27343a;
+      --muted:#68767b;
+      --orange:#e87f45;
+      --orange-dark:#b9542d;
+      --amber:#f4bd55;
+      --teal:#2a9b93;
+      --teal-dark:#197169;
+      --blue:#397aa2;
+      --purple:#75559c;
+      --green:#35875f;
+      --green-soft:#e5f6ed;
+      --red:#c64a47;
+      --red-soft:#fde9e7;
+      --shadow:0 22px 52px rgba(0,0,0,.23);
+    }
 
+    *{box-sizing:border-box}
+
+    html,body{height:100%}
+
+    body{
+      margin:0;
+      color:var(--ink);
+      font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:
+        radial-gradient(circle at 10% 12%,rgba(244,189,85,.11),transparent 20%),
+        radial-gradient(circle at 90% 86%,rgba(42,155,147,.11),transparent 22%),
+        linear-gradient(135deg,var(--bg),var(--bg-2));
+      overflow-x:hidden;
+    }
+
+    button{font:inherit}
+
+    button:focus-visible{
+      outline:4px solid rgba(42,155,147,.3);
+      outline-offset:3px;
+    }
+
+    .screen{
+      min-height:100vh;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+    }
+
+    .screen.active{display:flex}
+
+    /* Logo-only splash */
+    #splash{background:#fff}
+
+    #splash img{
+      width:min(360px,72vw);
+      max-height:220px;
+      object-fit:contain;
+      animation:logoIn .7s ease both;
+    }
+
+    @keyframes logoIn{
+      from{opacity:0;transform:scale(.94)}
+      to{opacity:1;transform:scale(1)}
+    }
+
+    /* Welcome */
+    .welcome{
+      width:min(1160px,100%);
+      min-height:710px;
+      display:grid;
+      grid-template-columns:1.02fr .98fr;
+      overflow:hidden;
+      border-radius:36px;
+      background:rgba(255,253,248,.97);
+      border:1px solid rgba(255,255,255,.12);
+      box-shadow:0 28px 60px rgba(0,0,0,.26);
+    }
+
+    .welcome-copy{
+      padding:58px 54px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      background:
+        radial-gradient(circle at 12% 16%,rgba(244,189,85,.12),transparent 22%),
+        linear-gradient(180deg,#fffdf7,#fff5e3);
+    }
+
+    .eyebrow{
+      margin:0 0 13px;
+      color:var(--teal);
+      font-size:.82rem;
+      font-weight:900;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+    }
+
+    h1{
+      margin:0;
+      color:#39464b;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:clamp(2.9rem,5vw,5rem);
+      line-height:.96;
+    }
+
+    .subtitle{
+      margin:20px 0 30px;
+      color:#687176;
+      font-size:1.12rem;
+      line-height:1.7;
+      max-width:590px;
+    }
+
+    .how-list{
+      display:grid;
+      gap:14px;
+      margin-bottom:34px;
+    }
+
+    .how{
+      display:flex;
+      gap:14px;
+      align-items:flex-start;
+      color:#505b60;
+      line-height:1.45;
+    }
+
+    .how-icon{
+      flex:0 0 38px;
+      width:38px;
+      height:38px;
+      border-radius:14px;
+      display:grid;
+      place-items:center;
+      background:linear-gradient(145deg,#fff,#f7e3c5);
+      box-shadow:0 8px 18px rgba(107,78,41,.1);
+    }
+
+    .primary{
+      align-self:flex-start;
+      border:0;
+      border-radius:17px;
+      padding:15px 24px;
+      color:#fff;
+      background:linear-gradient(145deg,var(--orange),var(--orange-dark));
+      font-weight:900;
+      cursor:pointer;
+      box-shadow:0 10px 0 #8f3e22;
+      transition:transform .15s ease,box-shadow .15s ease;
+    }
+
+    .primary:hover{
+      transform:translateY(-2px);
+      box-shadow:0 12px 0 #8f3e22;
+    }
+
+    .primary:active{
+      transform:translateY(5px);
+      box-shadow:0 5px 0 #8f3e22;
+    }
+
+    .welcome-art{
+      position:relative;
+      overflow:hidden;
+      background:
+        radial-gradient(circle at 50% 18%,rgba(255,229,174,.16),transparent 18%),
+        linear-gradient(180deg,#29373d 0 62%,#1d292f 62% 100%);
+    }
+
+    .workshop-wall{
+      position:absolute;
+      inset:0;
+      background:
+        linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px),
+        linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px);
+      background-size:34px 34px;
+    }
+
+    .lamp{
+      position:absolute;
+      left:50%;
+      top:30px;
+      transform:translateX(-50%);
+      width:150px;
+      height:78px;
+      border-radius:75px 75px 14px 14px;
+      background:#e5a74b;
+      box-shadow:0 20px 70px rgba(255,203,103,.22);
+    }
+
+    .lamp::after{
+      content:"";
+      position:absolute;
+      left:50%;
+      top:78px;
+      transform:translateX(-50%);
+      width:360px;
+      height:300px;
+      clip-path:polygon(34% 0,66% 0,100% 100%,0 100%);
+      background:linear-gradient(180deg,rgba(255,220,142,.18),transparent 82%);
+      pointer-events:none;
+    }
+
+    .workbench{
+      position:absolute;
+      left:50%;
+      top:54%;
+      transform:translate(-50%,-50%);
+      width:min(470px,90%);
+      height:510px;
+    }
+
+    .bench-top{
+      position:absolute;
+      left:20px;
+      right:20px;
+      bottom:92px;
+      height:42px;
+      border-radius:16px;
+      background:linear-gradient(180deg,#b9824d,#8d5d37);
+      box-shadow:0 18px 24px rgba(0,0,0,.28);
+    }
+
+    .bench-leg{
+      position:absolute;
+      bottom:0;
+      width:30px;
+      height:105px;
+      background:#6d472d;
+    }
+
+    .bench-leg.left{left:58px}
+    .bench-leg.right{right:58px}
+
+    .machine{
+      position:absolute;
+      left:50%;
+      top:50%;
+      transform:translate(-50%,-54%);
+      width:270px;
+      height:270px;
+    }
+
+    .machine-body{
+      position:absolute;
+      left:50%;
+      top:52%;
+      transform:translate(-50%,-50%);
+      width:190px;
+      height:190px;
+      border-radius:42px;
+      background:linear-gradient(145deg,#49575c,#2e3b40);
+      border:8px solid rgba(255,255,255,.06);
+      box-shadow:0 24px 34px rgba(0,0,0,.3);
+    }
+
+    .machine-window{
+      position:absolute;
+      inset:34px;
+      border-radius:50%;
+      background:
+        radial-gradient(circle,#fff3c8 0 20%,#f4bd55 21% 38%,#e87f45 39% 55%,#2d3a40 56%);
+      border:7px solid #1f2b30;
+      box-shadow:inset 0 0 0 5px rgba(255,255,255,.08),0 0 28px rgba(244,189,85,.18);
+      display:grid;
+      place-items:center;
+      font-size:48px;
+      animation:machineGlow 3.3s ease-in-out infinite;
+    }
+
+    @keyframes machineGlow{
+      0%,100%{filter:brightness(.94)}
+      50%{filter:brightness(1.12)}
+    }
+
+    .pipe{
+      position:absolute;
+      top:119px;
+      width:92px;
+      height:34px;
+      background:#536268;
+      border:6px solid #263238;
+    }
+
+    .pipe.left{
+      left:-8px;
+      border-radius:18px 0 0 18px;
+    }
+
+    .pipe.right{
+      right:-8px;
+      border-radius:0 18px 18px 0;
+    }
+
+    .gear{
+      position:absolute;
+      width:76px;
+      height:76px;
+      border-radius:50%;
+      display:grid;
+      place-items:center;
+      background:repeating-conic-gradient(#f4bd55 0 12deg,#df8d3f 12deg 24deg);
+      border:8px solid #2c393f;
+      box-shadow:0 12px 18px rgba(0,0,0,.25);
+      color:#2b3539;
+      font-size:30px;
+      font-weight:900;
+      animation:gearSpin 8s linear infinite;
+    }
+
+    .gear.g1{left:8px;top:28px}
+    .gear.g2{right:4px;bottom:28px;animation-direction:reverse}
+    .gear.g3{left:14px;bottom:24px;width:58px;height:58px;animation-duration:6s}
+
+    @keyframes gearSpin{
+      from{transform:rotate(0)}
+      to{transform:rotate(360deg)}
+    }
+
+    .raw-item,.finished-item{
+      position:absolute;
+      top:120px;
+      width:66px;
+      height:66px;
+      border-radius:22px;
+      display:grid;
+      place-items:center;
+      background:#fff7db;
+      border:5px solid rgba(255,255,255,.84);
+      box-shadow:0 14px 22px rgba(0,0,0,.22);
+      font-size:32px;
+      animation:itemFloat 3.4s ease-in-out infinite;
+    }
+
+    .raw-item{left:-36px}
+    .finished-item{right:-36px;animation-delay:-1.6s}
+
+    @keyframes itemFloat{
+      0%,100%{transform:translateY(0)}
+      50%{transform:translateY(-8px)}
+    }
+
+    /* Game */
+    #game{
+      align-items:flex-start;
+      padding-top:24px;
+      padding-bottom:24px;
+    }
+
+    .game-shell{
+      width:min(1180px,100%);
+      position:relative;
+    }
+
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:16px;
+      flex-wrap:wrap;
+      margin-bottom:16px;
+    }
+
+    .title-chip{
+      padding:10px 14px;
+      border-radius:999px;
+      background:rgba(255,255,255,.1);
+      color:#fff6e6;
+      font-size:.82rem;
+      font-weight:900;
+      letter-spacing:.05em;
+      text-transform:uppercase;
+      border:1px solid rgba(255,255,255,.08);
+      backdrop-filter:blur(6px);
+    }
+
+    .score-chip{
+      min-width:132px;
+      text-align:center;
+      padding:13px 18px;
+      border-radius:16px;
+      background:linear-gradient(145deg,var(--teal),var(--teal-dark));
+      color:#fff;
+      font-weight:900;
+      box-shadow:var(--shadow);
+    }
+
+    .engine-panel{
+      position:relative;
+      overflow:hidden;
+      margin-bottom:18px;
+      border-radius:32px;
+      background:
+        radial-gradient(circle at 50% 38%,rgba(255,226,167,.09),transparent 26%),
+        linear-gradient(180deg,#2a383e,#1c292f);
+      border:1px solid rgba(255,255,255,.07);
+      box-shadow:var(--shadow);
+      padding:22px;
+    }
+
+    .engine-panel::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px),
+        linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px);
+      background-size:30px 30px;
+      pointer-events:none;
+    }
+
+    .engine-head{
+      position:relative;
+      z-index:3;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:16px;
+      flex-wrap:wrap;
+      margin-bottom:18px;
+    }
+
+    .engine-head h2{
+      margin:0;
+      color:#fff8e9;
+      font-family:Georgia,serif;
+      font-size:1.45rem;
+    }
+
+    .engine-head small{
+      color:#d3dcdf;
+      font-size:.95rem;
+    }
+
+    .engine-count{
+      padding:9px 13px;
+      border-radius:999px;
+      background:rgba(255,255,255,.09);
+      color:#fff1cc;
+      font-size:.84rem;
+      font-weight:900;
+      border:1px solid rgba(255,255,255,.1);
+    }
+
+    .engine-layout{
+      position:relative;
+      z-index:2;
+      display:grid;
+      grid-template-columns:1.25fr .9fr;
+      gap:22px;
+      align-items:stretch;
+    }
+
+    .engine-core{
+      min-height:370px;
+      border-radius:28px;
+      background:linear-gradient(180deg,#35454b,#25343a);
+      border:1px solid rgba(255,255,255,.05);
+      box-shadow:inset 0 0 0 2px rgba(255,255,255,.02);
+      position:relative;
+      overflow:hidden;
+    }
+
+    .power-track{
+      position:absolute;
+      left:24px;
+      right:24px;
+      bottom:24px;
+      height:18px;
+      border-radius:999px;
+      background:rgba(255,255,255,.08);
+      overflow:hidden;
+      box-shadow:inset 0 0 0 2px rgba(255,255,255,.025);
+    }
+
+    .power-fill{
+      width:0;
+      height:100%;
+      border-radius:999px;
+      background:linear-gradient(90deg,var(--orange),var(--amber),var(--teal));
+      transition:width .45s ease;
+      box-shadow:0 0 18px rgba(244,189,85,.32);
+    }
+
+    .power-label{
+      position:absolute;
+      left:24px;
+      bottom:51px;
+      color:#dbe5e8;
+      font-size:.75rem;
+      font-weight:900;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+    }
+
+    .progress-machine{
+      position:absolute;
+      left:50%;
+      top:46%;
+      transform:translate(-50%,-50%);
+      width:330px;
+      height:270px;
+    }
+
+    .progress-machine .machine-shell{
+      position:absolute;
+      left:50%;
+      top:50%;
+      transform:translate(-50%,-50%);
+      width:210px;
+      height:188px;
+      border-radius:44px;
+      background:linear-gradient(145deg,#5b696d,#354349);
+      border:8px solid rgba(255,255,255,.05);
+      box-shadow:0 22px 30px rgba(0,0,0,.25);
+    }
+
+    .engine-chamber{
+      position:absolute;
+      left:50%;
+      top:50%;
+      transform:translate(-50%,-50%);
+      width:126px;
+      height:126px;
+      border-radius:50%;
+      display:grid;
+      place-items:center;
+      background:
+        radial-gradient(circle,#fff8d8 0 23%,#f4bd55 24% 40%,#e87f45 41% 59%,#27353a 60%);
+      border:8px solid #1d292e;
+      box-shadow:inset 0 0 0 5px rgba(255,255,255,.07),0 0 26px rgba(244,189,85,.18);
+      font-size:44px;
+      z-index:2;
+      transition:filter .3s ease,box-shadow .3s ease;
+    }
+
+    .progress-machine.processing .engine-chamber{
+      animation:chamberPulse .78s ease;
+    }
+
+    @keyframes chamberPulse{
+      0%{transform:translate(-50%,-50%) scale(.92);filter:brightness(.9)}
+      50%{transform:translate(-50%,-50%) scale(1.1);filter:brightness(1.4);box-shadow:0 0 48px rgba(244,189,85,.42)}
+      100%{transform:translate(-50%,-50%) scale(1);filter:brightness(1)}
+    }
+
+    .engine-gear{
+      position:absolute;
+      width:86px;
+      height:86px;
+      border-radius:50%;
+      display:grid;
+      place-items:center;
+      background:repeating-conic-gradient(var(--amber) 0 12deg,#db7c39 12deg 24deg);
+      border:8px solid #223036;
+      color:#27343a;
+      font-size:28px;
+      font-weight:900;
+      box-shadow:0 14px 20px rgba(0,0,0,.22);
+    }
+
+    .engine-gear.e1{left:12px;top:12px}
+    .engine-gear.e2{right:8px;bottom:10px}
+    .engine-gear.e3{left:22px;bottom:6px;width:64px;height:64px}
+
+    .progress-machine.processing .engine-gear.e1{animation:quickSpin .78s linear}
+    .progress-machine.processing .engine-gear.e2{animation:quickSpinReverse .78s linear}
+    .progress-machine.processing .engine-gear.e3{animation:quickSpin .62s linear}
+
+    @keyframes quickSpin{
+      from{transform:rotate(0)}
+      to{transform:rotate(360deg)}
+    }
+
+    @keyframes quickSpinReverse{
+      from{transform:rotate(0)}
+      to{transform:rotate(-360deg)}
+    }
+
+    .intake,.output{
+      position:absolute;
+      top:116px;
+      width:86px;
+      height:38px;
+      background:#59686d;
+      border:6px solid #253238;
+    }
+
+    .intake{
+      left:-2px;
+      border-radius:18px 0 0 18px;
+    }
+
+    .output{
+      right:-2px;
+      border-radius:0 18px 18px 0;
+    }
+
+    .gauge-panel{
+      display:grid;
+      gap:14px;
+      align-content:center;
+    }
+
+    .gauge{
+      border-radius:22px;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.06);
+      padding:18px;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .gauge.pulse{animation:gaugePulse .72s ease}
+
+    @keyframes gaugePulse{
+      0%{transform:scale(.96)}
+      50%{transform:scale(1.03);box-shadow:0 0 0 7px rgba(255,255,255,.05)}
+      100%{transform:scale(1)}
+    }
+
+    .gauge-top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      margin-bottom:12px;
+    }
+
+    .gauge-title{
+      color:#f4f7f8;
+      font-weight:900;
+      font-size:.9rem;
+    }
+
+    .gauge-count{
+      min-width:34px;
+      text-align:center;
+      padding:5px 8px;
+      border-radius:999px;
+      color:#fff;
+      font-weight:900;
+      background:var(--gauge-colour);
+    }
+
+    .gauge-track{
+      height:12px;
+      border-radius:999px;
+      background:rgba(255,255,255,.08);
+      overflow:hidden;
+    }
+
+    .gauge-fill{
+      width:0;
+      height:100%;
+      border-radius:999px;
+      background:linear-gradient(90deg,var(--gauge-colour),var(--gauge-colour-2));
+      transition:width .42s ease;
+      box-shadow:0 0 15px color-mix(in srgb,var(--gauge-colour) 45%,transparent);
+    }
+
+    .engine-note{
+      position:relative;
+      z-index:3;
+      margin-top:14px;
+      color:#d3dcdf;
+      font-size:.9rem;
+      font-weight:700;
+      text-align:center;
+    }
+
+    .question-card{
+      position:relative;
+      min-height:560px;
+      padding:34px;
+      overflow:hidden;
+      border-radius:28px;
+      background:rgba(255,253,248,.97);
+      border:1px solid rgba(255,255,255,.16);
+      box-shadow:var(--shadow);
+    }
+
+    .question-text{
+      margin:0 0 20px;
+      color:#3a474c;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:clamp(1.35rem,2.05vw,1.92rem);
+      line-height:1.45;
+      white-space:pre-line;
+    }
+
+    .ar-block{
+      display:grid;
+      gap:14px;
+      margin:0 0 20px;
+    }
+
+    .ar-line{
+      display:block;
+      padding:14px 16px;
+      border-radius:16px;
+      background:#fff4df;
+      border-left:6px solid var(--amber);
+      color:#3a474c;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:clamp(1.16rem,1.75vw,1.52rem);
+      line-height:1.5;
+    }
+
+    .ar-line.reason{
+      border-left-color:var(--teal);
+      background:#eaf8f6;
+    }
+
+    .options{
+      display:grid;
+      gap:13px;
+      margin-top:26px;
+    }
+
+    .option{
+      width:100%;
+      padding:16px;
+      border:2px solid #eadfce;
+      border-radius:18px;
+      background:#fffdf9;
+      color:var(--ink);
+      text-align:left;
+      font-weight:800;
+      line-height:1.45;
+      cursor:pointer;
+      transition:transform .14s ease,border-color .14s ease,box-shadow .14s ease,background .14s ease;
+    }
+
+    .option:hover:not(:disabled){
+      transform:translateY(-2px);
+      border-color:#dca56f;
+      box-shadow:0 10px 20px rgba(125,80,39,.08);
+    }
+
+    .option:disabled{cursor:default}
+
+    .option.correct{
+      background:var(--green-soft);
+      border-color:var(--green);
+      color:#1f5f41;
+    }
+
+    .option.wrong{
+      background:var(--red-soft);
+      border-color:var(--red);
+      color:#8d2b2a;
+    }
+
+    .option.used{opacity:.72}
+
+    .feedback{
+      min-height:64px;
+      margin-top:18px;
+      padding:14px 16px;
+      border-radius:18px;
+      display:flex;
+      align-items:center;
+      line-height:1.45;
+      font-weight:800;
+      visibility:hidden;
+    }
+
+    .feedback.show{visibility:visible}
+    .feedback.good{background:var(--green-soft);color:#1f5f41}
+    .feedback.try{background:#fff1cf;color:#7a5413}
+    .feedback.reveal{background:#eef2f3;color:#455b65}
+
+    .next{
+      display:none;
+      margin-top:14px;
+      margin-left:auto;
+    }
+
+    .next.show{display:inline-block}
+
+    /* Theme-based success animation: raw material enters the engine and a finished item emerges */
+    .transform-layer{
+      position:absolute;
+      inset:0;
+      z-index:16;
+      pointer-events:none;
+      opacity:0;
+      visibility:hidden;
+    }
+
+    .transform-layer.show{
+      opacity:1;
+      visibility:visible;
+    }
+
+    .raw-token,.finished-token{
+      position:absolute;
+      width:72px;
+      height:72px;
+      margin-left:-36px;
+      margin-top:-36px;
+      border-radius:24px;
+      display:grid;
+      place-items:center;
+      border:5px solid rgba(255,255,255,.92);
+      box-shadow:0 18px 30px rgba(0,0,0,.22);
+      font-size:34px;
+      opacity:0;
+    }
+
+    .raw-token{
+      left:var(--from-x);
+      top:var(--from-y);
+      background:linear-gradient(145deg,#fff8dc,#f5d99d);
+    }
+
+    .finished-token{
+      left:var(--machine-x);
+      top:var(--machine-y);
+      background:linear-gradient(145deg,#e5fbf5,#91dfce);
+    }
+
+    .transform-layer.show .raw-token{
+      animation:rawToMachine .86s cubic-bezier(.2,.78,.2,1.05) both;
+    }
+
+    .transform-layer.show .finished-token{
+      animation:finishedOut .92s .58s cubic-bezier(.16,.82,.22,1.08) both;
+    }
+
+    @keyframes rawToMachine{
+      0%{
+        left:var(--from-x);
+        top:var(--from-y);
+        opacity:0;
+        transform:scale(.7) rotate(-12deg);
+      }
+      20%{opacity:1}
+      78%{
+        left:var(--machine-x);
+        top:var(--machine-y);
+        opacity:1;
+        transform:scale(1.08) rotate(8deg);
+      }
+      100%{
+        left:var(--machine-x);
+        top:var(--machine-y);
+        opacity:0;
+        transform:scale(.15);
+      }
+    }
+
+    @keyframes finishedOut{
+      0%{
+        left:var(--machine-x);
+        top:var(--machine-y);
+        opacity:0;
+        transform:scale(.2) rotate(-8deg);
+      }
+      22%{opacity:1}
+      72%{
+        left:var(--out-x);
+        top:var(--out-y);
+        opacity:1;
+        transform:scale(1.12) rotate(6deg);
+      }
+      100%{
+        left:var(--out-x);
+        top:var(--out-y);
+        opacity:0;
+        transform:scale(.9);
+      }
+    }
+
+    .spark-ring{
+      position:absolute;
+      left:var(--machine-x);
+      top:var(--machine-y);
+      width:118px;
+      height:118px;
+      margin-left:-59px;
+      margin-top:-59px;
+      border-radius:50%;
+      border:4px solid rgba(244,189,85,.55);
+      opacity:0;
+    }
+
+    .transform-layer.show .spark-ring.r1{animation:sparkOut .9s .34s ease-out both}
+    .transform-layer.show .spark-ring.r2{animation:sparkOut .9s .5s ease-out both}
+
+    @keyframes sparkOut{
+      0%{transform:scale(.2);opacity:.9}
+      100%{transform:scale(1.7);opacity:0}
+    }
+
+    .success-word{
+      position:absolute;
+      left:50%;
+      top:calc(50% + 118px);
+      transform:translate(-50%,16px);
+      padding:10px 18px;
+      border-radius:999px;
+      background:linear-gradient(145deg,var(--orange),var(--orange-dark));
+      color:#fff;
+      font-weight:900;
+      letter-spacing:.04em;
+      opacity:0;
+      white-space:nowrap;
+      box-shadow:0 12px 24px rgba(0,0,0,.18);
+    }
+
+    .transform-layer.show .success-word{
+      animation:wordRise .72s .62s ease both;
+    }
+
+    @keyframes wordRise{
+      from{transform:translate(-50%,16px);opacity:0}
+      to{transform:translate(-50%,0);opacity:1}
+    }
+
+    /* Final */
+    .final-card{
+      width:min(860px,100%);
+      padding:52px 34px;
+      text-align:center;
+      border-radius:30px;
+      background:rgba(255,253,248,.97);
+      border:1px solid rgba(255,255,255,.16);
+      box-shadow:0 24px 56px rgba(0,0,0,.22);
+      position:relative;
+      overflow:hidden;
+    }
+
+    .final-card::before{
+      content:"";
+      position:absolute;
+      inset:-30px;
+      background:
+        radial-gradient(circle at 20% 22%,rgba(244,189,85,.14),transparent 18%),
+        radial-gradient(circle at 82% 24%,rgba(42,155,147,.13),transparent 18%),
+        radial-gradient(circle at 50% 88%,rgba(232,127,69,.12),transparent 18%);
+      pointer-events:none;
+    }
+
+    .final-content{position:relative;z-index:2}
+
+    .final-icon{
+      font-size:84px;
+      animation:finalPop .9s ease both;
+    }
+
+    @keyframes finalPop{
+      from{opacity:0;transform:translateY(10px) scale(.82)}
+      to{opacity:1;transform:translateY(0) scale(1)}
+    }
+
+    .final-card h2{
+      margin:14px 0 10px;
+      color:#39464b;
+      font-family:Georgia,serif;
+      font-size:clamp(2.25rem,5vw,3.8rem);
+    }
+
+    .result{
+      margin:0 auto 26px;
+      max-width:680px;
+      color:#646f74;
+      font-size:1.1rem;
+      line-height:1.65;
+    }
+
+    .badges{
+      display:flex;
+      justify-content:center;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-bottom:30px;
+    }
+
+    .badge{
+      padding:11px 14px;
+      border-radius:14px;
+      background:#f4e9d5;
+      color:#7a4c2d;
+      font-weight:900;
+    }
+
+    @media(max-width:940px){
+      .welcome{grid-template-columns:1fr}
+      .engine-layout{grid-template-columns:1fr}
+      .gauge-panel{grid-template-columns:repeat(3,1fr)}
+    }
+
+    @media(max-width:720px){
+      .gauge-panel{grid-template-columns:1fr}
+      .engine-core{min-height:330px}
+      .progress-machine{transform:translate(-50%,-50%) scale(.86)}
+    }
+
+    @media(max-width:620px){
+      .screen{padding:12px}
+      .welcome-copy{padding:38px 24px}
+      .engine-panel{padding:18px 14px}
+      .question-card{padding:24px 18px}
+      .topbar{align-items:stretch}
+      .score-chip{width:100%}
+      .progress-machine{transform:translate(-50%,-50%) scale(.72)}
+      .engine-core{min-height:300px}
+      .success-word{font-size:.85rem}
+    }
+
+    @media(prefers-reduced-motion:reduce){
+      *,*::before,*::after{
+        animation:none!important;
+        transition:none!important;
+        scroll-behavior:auto!important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <section id="splash" class="screen active" aria-label="Innovine">
+    <img src="assets/innovine-logo.png" alt="Innovine logo" />
+  </section>
+
+  <section id="welcome" class="screen">
+    <div class="welcome">
+      <div class="welcome-copy">
+        <p class="eyebrow">Grade 6 • Social Science</p>
+        <h1>Work & Worth Engine</h1>
+        <p class="subtitle">Explore economic work, community service, value addition, and the many ways useful activities support people and society.</p>
+
+        <div class="how-list" aria-label="How to play">
+          <div class="how"><span class="how-icon">🧠</span><span>Choose the best answer for each situation.</span></div>
+          <div class="how"><span class="how-icon">✌️</span><span>You get two chances for every question.</span></div>
+          <div class="how"><span class="how-icon">⚙️</span><span>Each correct answer powers the engine and creates value.</span></div>
+        </div>
+
+        <button id="startBtn" class="primary">Start the Engine</button>
+      </div>
+
+      <div class="welcome-art" aria-hidden="true">
+        <div class="workshop-wall"></div>
+        <div class="lamp"></div>
+
+        <div class="workbench">
+          <div class="bench-top"></div>
+          <div class="bench-leg left"></div>
+          <div class="bench-leg right"></div>
+
+          <div class="machine">
+            <div class="gear g1">⚙</div>
+            <div class="gear g2">⚙</div>
+            <div class="gear g3">⚙</div>
+
+            <div class="pipe left"></div>
+            <div class="pipe right"></div>
+
+            <div class="machine-body">
+              <div class="machine-window">✨</div>
+            </div>
+
+            <div class="raw-item">🥛</div>
+            <div class="finished-item">🧀</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <main id="game" class="screen">
+    <div id="gameShell" class="game-shell">
+      <div class="topbar">
+        <div class="title-chip">Chapter 13 • The Value of Work</div>
+        <div id="scoreChip" class="score-chip">Score: 0</div>
+      </div>
+
+      <section class="engine-panel">
+        <div class="engine-head">
+          <div>
+            <h2>Value Creation Engine</h2>
+            <small>Correct answers power the machine and strengthen different kinds of work.</small>
+          </div>
+          <div id="engineCount" class="engine-count">0 of 14</div>
+        </div>
+
+        <div class="engine-layout">
+          <div class="engine-core">
+            <div id="progressMachine" class="progress-machine">
+              <div class="engine-gear e1">⚙</div>
+              <div class="engine-gear e2">⚙</div>
+              <div class="engine-gear e3">⚙</div>
+              <div class="intake"></div>
+              <div class="output"></div>
+
+              <div class="machine-shell">
+                <div id="engineChamber" class="engine-chamber">⚙️</div>
+              </div>
+            </div>
+
+            <div class="power-label">Engine Power</div>
+            <div class="power-track"><div id="powerFill" class="power-fill"></div></div>
+          </div>
+
+          <div class="gauge-panel">
+            <div id="gaugeEconomic" class="gauge" style="--gauge-colour:#e87f45;--gauge-colour-2:#f4bd55;">
+              <div class="gauge-top">
+                <span class="gauge-title">Earns Income</span>
+                <span id="countEconomic" class="gauge-count">0</span>
+              </div>
+              <div class="gauge-track"><div id="fillEconomic" class="gauge-fill"></div></div>
+            </div>
+
+            <div id="gaugeValue" class="gauge" style="--gauge-colour:#397aa2;--gauge-colour-2:#2a9b93;">
+              <div class="gauge-top">
+                <span class="gauge-title">Adds Value</span>
+                <span id="countValue" class="gauge-count">0</span>
+              </div>
+              <div class="gauge-track"><div id="fillValue" class="gauge-fill"></div></div>
+            </div>
+
+            <div id="gaugeCommunity" class="gauge" style="--gauge-colour:#75559c;--gauge-colour-2:#2a9b93;">
+              <div class="gauge-top">
+                <span class="gauge-title">Helps Community</span>
+                <span id="countCommunity" class="gauge-count">0</span>
+              </div>
+              <div class="gauge-track"><div id="fillCommunity" class="gauge-fill"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="engine-note">Power the engine by completing all 14 challenges.</div>
+      </section>
+
+      <section id="questionCard" class="question-card">
+        <div id="questionArea"></div>
+        <div id="options" class="options"></div>
+        <div id="feedback" class="feedback" role="status" aria-live="polite"></div>
+        <button id="nextBtn" class="primary next">Continue</button>
+      </section>
+
+      <div id="transformLayer" class="transform-layer" aria-hidden="true">
+        <div id="rawToken" class="raw-token">🥛</div>
+        <div id="finishedToken" class="finished-token">🧀</div>
+        <div class="spark-ring r1"></div>
+        <div class="spark-ring r2"></div>
+        <div class="success-word">Value created!</div>
+      </div>
+    </div>
+  </main>
+
+  <section id="final" class="screen">
+    <div class="final-card">
+      <div class="final-content">
+        <div class="final-icon" aria-hidden="true">⚙️</div>
+        <h2>Engine Fully Powered!</h2>
+        <p id="finalResult" class="result"></p>
+
+        <div class="badges">
+          <span class="badge">Value Creator</span>
+          <span class="badge">Community Contributor</span>
+          <span class="badge">Work & Worth Explorer</span>
+        </div>
+
+        <button id="replayBtn" class="primary">Play Again</button>
+      </div>
+    </div>
+  </section>
+
+  <audio id="correctSound" preload="auto" src="assets/correct.mp3"></audio>
+  <audio id="wrongSound" preload="auto" src="assets/wrong.mp3"></audio>
+  <audio id="clapSound" preload="auto" src="assets/freesound_community-claps-44774.mp3"></audio>
+
+  <script>
+    const questionBank = [
+      {
+        q:`Rina's mother runs a tailoring shop and earns money by stitching clothes. After work, she spends an hour teaching children in the neighbourhood free of cost.
+
+Which statement best describes her activities?`,
+        options:[
+          "Both are economic activities.",
+          "Stitching clothes is an economic activity, while teaching children free of cost is a non-economic activity.",
+          "Both are non-economic activities.",
+          "Teaching children is an economic activity because it helps society."
+        ],
+        answer:"Stitching clothes is an economic activity, while teaching children free of cost is a non-economic activity.",
+        category:"economic",
+        raw:"🧵",
+        finished:"👗"
+      },
+      {
+        q:`A farmer grows mangoes. Instead of selling all the fresh mangoes, she uses some of them to prepare mango jam, which sells at a higher price.
+
+Why is making mango jam called value addition?`,
+        options:[
+          "It increases the number of mango trees.",
+          "It makes the product more useful and valuable.",
+          "It reduces the need to harvest mangoes.",
+          "It stops people from buying fresh mangoes."
+        ],
+        answer:"It makes the product more useful and valuable.",
+        category:"value",
+        raw:"🥭",
+        finished:"🫙"
+      },
+      {
+        q:`During summer vacation, Arjun has two choices:
+
+• Help his uncle at the grocery shop and earn money.
+• Spend one afternoon every week helping younger children read at the community library.
+
+What would be the best way for Arjun to maintain a healthy balance?`,
+        options:[
+          "Only work at the grocery shop.",
+          "Only help at the library.",
+          "Divide his time between earning money and helping others.",
+          "Avoid both activities."
+        ],
+        answer:"Divide his time between earning money and helping others.",
+        category:"community",
+        raw:"🕒",
+        finished:"⚖️"
+      },
+      {
+        q:`A group of students organised a tree plantation drive in their neighbourhood.
+
+How does this activity benefit society even though they are not paid?`,
+        options:[
+          "It increases business profits.",
+          "It helps protect the environment and improves community well-being.",
+          "It helps them earn salaries.",
+          "It replaces all economic activities."
+        ],
+        answer:"It helps protect the environment and improves community well-being.",
+        category:"community",
+        raw:"🌱",
+        finished:"🌳"
+      },
+      {
+        q:`Which group contains only economic activities?`,
+        options:[
+          "Farming, shopkeeping, teaching in a school for salary",
+          "Playing with friends, volunteering, gardening for fun",
+          "Cleaning a park, feeding stray animals, helping grandparents",
+          "Reading a storybook, painting for fun, exercising"
+        ],
+        answer:"Farming, shopkeeping, teaching in a school for salary",
+        category:"economic",
+        raw:"🧑‍🌾",
+        finished:"💰"
+      },
+      {
+        q:`Imagine there were no economic activities in a country.
+
+Which problem would most likely arise?`,
+        options:[
+          "People would have unlimited goods and services.",
+          "People would find it difficult to earn money and meet their daily needs.",
+          "Schools would automatically improve.",
+          "Families would spend more time together."
+        ],
+        answer:"People would find it difficult to earn money and meet their daily needs.",
+        category:"economic",
+        raw:"🛒",
+        finished:"🏠"
+      },
+      {
+        q:`Which example shows value addition?`,
+        options:[
+          "Selling milk directly after milking the cow.",
+          "Turning milk into cheese and selling it.",
+          "Drinking the milk at home.",
+          "Feeding milk to calves."
+        ],
+        answer:"Turning milk into cheese and selling it.",
+        category:"value",
+        raw:"🥛",
+        finished:"🧀"
+      },
+      {
+        q:`Meena wants to start a small business using lemons grown in her garden.
+
+Which idea shows value addition?`,
+        options:[
+          "Throw away extra lemons.",
+          "Sell fresh lemons only.",
+          "Make lemon squash and sell it in bottles.",
+          "Keep all lemons at home."
+        ],
+        answer:"Make lemon squash and sell it in bottles.",
+        category:"value",
+        raw:"🍋",
+        finished:"🧃"
+      },
+      {
+        q:`Rahul spends his Sunday helping an elderly neighbour repair a fence without accepting any payment.
+
+What is the main value of Rahul's action?`,
+        options:[
+          "It increases his income.",
+          "It strengthens relationships and supports the community.",
+          "It creates business opportunities.",
+          "It increases taxes."
+        ],
+        answer:"It strengthens relationships and supports the community.",
+        category:"community",
+        raw:"🪵",
+        finished:"🤝"
+      },
+      {
+        q:`Two friends discuss work.
+
+Aman says, "Only activities that earn money are useful."
+Kavya says, "Activities that help people without earning money are also valuable."
+
+Who has the better understanding?`,
+        options:["Aman","Kavya","Both are equally correct.","Neither is correct."],
+        answer:"Kavya",
+        category:"community",
+        raw:"💬",
+        finished:"❤️"
+      },
+      {
+        assertion:"Volunteering to clean a public park is an important activity.",
+        reason:"It improves the environment and benefits the whole community.",
+        options:[
+          "Both A and R are true, and R correctly explains A.",
+          "Both A and R are true, but R does not explain A.",
+          "A is true, but R is false.",
+          "A is false, but R is true."
+        ],
+        answer:"Both A and R are true, and R correctly explains A.",
+        category:"community",
+        raw:"🧹",
+        finished:"🌿"
+      },
+      {
+        q:`A student recorded the following weekly activities.
+
+Activity — Hours per Week
+Helping in family shop — 12
+Playing with younger sister — 5
+Volunteering at library — 3
+Preparing handmade greeting cards for sale — 4
+
+Which statement is correct?`,
+        options:[
+          "The student spends more time on non-economic activities than economic activities.",
+          "Helping in the family shop and selling greeting cards are economic activities.",
+          "Playing with the younger sister is an economic activity.",
+          "All four activities are economic."
+        ],
+        answer:"Helping in the family shop and selling greeting cards are economic activities.",
+        category:"economic",
+        raw:"📊",
+        finished:"💼"
+      },
+      {
+        q:`A village has many tomatoes that spoil before reaching the market.
+
+Which solution shows value addition and reduces waste?`,
+        options:[
+          "Throw away extra tomatoes.",
+          "Sell fewer tomatoes.",
+          "Make tomato sauce or ketchup and sell it.",
+          "Stop growing tomatoes."
+        ],
+        answer:"Make tomato sauce or ketchup and sell it.",
+        category:"value",
+        raw:"🍅",
+        finished:"🥫"
+      },
+      {
+        q:`A self-help group prepares handmade cloth bags from old fabric. They sell some bags in the market and donate a few to elderly people in the village.
+
+Which statement is correct?`,
+        options:[
+          "Selling the bags is an economic activity, while donating them is a non-economic activity.",
+          "Both activities are economic.",
+          "Both activities are non-economic.",
+          "Donating bags is value addition."
+        ],
+        answer:"Selling the bags is an economic activity, while donating them is a non-economic activity.",
+        category:"economic",
+        raw:"🧵",
+        finished:"👜"
+      }
+    ];
+
+    const categoryTotals = questionBank.reduce((totals,item) => {
+      totals[item.category] += 1;
+      return totals;
+    }, {economic:0,value:0,community:0});
+
+    const screens = {
+      splash:document.getElementById("splash"),
+      welcome:document.getElementById("welcome"),
+      game:document.getElementById("game"),
+      final:document.getElementById("final")
+    };
+
+    const startBtn = document.getElementById("startBtn");
+    const replayBtn = document.getElementById("replayBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const questionArea = document.getElementById("questionArea");
+    const optionsBox = document.getElementById("options");
+    const feedback = document.getElementById("feedback");
+    const scoreChip = document.getElementById("scoreChip");
+    const engineCount = document.getElementById("engineCount");
+    const powerFill = document.getElementById("powerFill");
+    const progressMachine = document.getElementById("progressMachine");
+    const engineChamber = document.getElementById("engineChamber");
+    const gameShell = document.getElementById("gameShell");
+    const questionCard = document.getElementById("questionCard");
+
+    const gaugeEconomic = document.getElementById("gaugeEconomic");
+    const gaugeValue = document.getElementById("gaugeValue");
+    const gaugeCommunity = document.getElementById("gaugeCommunity");
+    const countEconomic = document.getElementById("countEconomic");
+    const countValue = document.getElementById("countValue");
+    const countCommunity = document.getElementById("countCommunity");
+    const fillEconomic = document.getElementById("fillEconomic");
+    const fillValue = document.getElementById("fillValue");
+    const fillCommunity = document.getElementById("fillCommunity");
+
+    const transformLayer = document.getElementById("transformLayer");
+    const rawToken = document.getElementById("rawToken");
+    const finishedToken = document.getElementById("finishedToken");
+
+    const correctSound = document.getElementById("correctSound");
+    const wrongSound = document.getElementById("wrongSound");
+    const clapSound = document.getElementById("clapSound");
+
+    let questions = [];
+    let index = 0;
+    let score = 0;
+    let attempts = 0;
+    let locked = false;
+    let solved = [];
+    let categoryCounts = {economic:0,value:0,community:0};
+    let audioContext = null;
+
+    function showScreen(name){
+      Object.values(screens).forEach(screen => screen.classList.remove("active"));
+      screens[name].classList.add("active");
+    }
+
+    function shuffle(list){
+      const arr = [...list];
+      for(let i = arr.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i],arr[j]] = [arr[j],arr[i]];
+      }
+      return arr;
+    }
+
+    function escapeHtml(value){
+      return value
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;");
+    }
+
+    function getAudioContext(){
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if(!AudioContextClass) return null;
+
+      if(!audioContext){
+        audioContext = new AudioContextClass();
+      }
+
+      if(audioContext.state === "suspended"){
+        audioContext.resume().catch(() => {});
+      }
+
+      return audioContext;
+    }
+
+    function playToneSequence(kind){
+      const ctx = getAudioContext();
+      if(!ctx) return;
+
+      const patterns = {
+        correct:[
+          {frequency:660,start:0.00,duration:0.12},
+          {frequency:880,start:0.13,duration:0.12},
+          {frequency:1046,start:0.27,duration:0.22}
+        ],
+        wrong:[
+          {frequency:260,start:0.00,duration:0.18},
+          {frequency:190,start:0.19,duration:0.30}
+        ],
+        clap:[
+          {frequency:523,start:0.00,duration:0.10},
+          {frequency:659,start:0.11,duration:0.10},
+          {frequency:784,start:0.22,duration:0.10},
+          {frequency:1046,start:0.33,duration:0.25}
+        ]
+      };
+
+      const now = ctx.currentTime + 0.02;
+
+      (patterns[kind] || patterns.correct).forEach(note => {
+        const oscillator = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        oscillator.type = kind === "wrong" ? "square" : "sine";
+        oscillator.frequency.setValueAtTime(note.frequency,now + note.start);
+
+        gain.gain.setValueAtTime(0.0001,now + note.start);
+        gain.gain.exponentialRampToValueAtTime(
+          kind === "wrong" ? 0.24 : 0.20,
+          now + note.start + 0.015
+        );
+        gain.gain.exponentialRampToValueAtTime(
+          0.0001,
+          now + note.start + note.duration
+        );
+
+        oscillator.connect(gain);
+        gain.connect(ctx.destination);
+        oscillator.start(now + note.start);
+        oscillator.stop(now + note.start + note.duration + 0.03);
+      });
+    }
+
+    function safePlay(audio,kind){
+      playToneSequence(kind);
+
+      if(!audio) return;
+
+      try{
+        audio.pause();
+        audio.currentTime = 0;
+        const promise = audio.play();
+        if(promise && typeof promise.catch === "function"){
+          promise.catch(() => {});
+        }
+      }catch(error){}
+    }
+
+    function resetEngine(){
+      score = 0;
+      solved = Array(questions.length).fill(false);
+      categoryCounts = {economic:0,value:0,community:0};
+      updateEngine();
+    }
+
+    function updateEngine(){
+      const completed = solved.filter(Boolean).length;
+      scoreChip.textContent = `Score: ${score}`;
+      engineCount.textContent = `${completed} of ${questions.length}`;
+      powerFill.style.width = `${(completed / questions.length) * 100}%`;
+
+      countEconomic.textContent = categoryCounts.economic;
+      countValue.textContent = categoryCounts.value;
+      countCommunity.textContent = categoryCounts.community;
+
+      fillEconomic.style.width =
+        `${(categoryCounts.economic / categoryTotals.economic) * 100}%`;
+
+      fillValue.style.width =
+        `${(categoryCounts.value / categoryTotals.value) * 100}%`;
+
+      fillCommunity.style.width =
+        `${(categoryCounts.community / categoryTotals.community) * 100}%`;
+    }
+
+    function pulseGauge(category){
+      const gauge = category === "economic"
+        ? gaugeEconomic
+        : category === "value"
+          ? gaugeValue
+          : gaugeCommunity;
+
+      gauge.classList.remove("pulse");
+      void gauge.offsetWidth;
+      gauge.classList.add("pulse");
+      setTimeout(() => gauge.classList.remove("pulse"),760);
+    }
+
+    function showTransformation(questionIndex){
+      const current = questions[questionIndex];
+
+      const shellRect = gameShell.getBoundingClientRect();
+      const cardRect = questionCard.getBoundingClientRect();
+      const chamberRect = engineChamber.getBoundingClientRect();
+
+      const fromX = cardRect.left - shellRect.left + cardRect.width / 2;
+      const fromY = cardRect.top - shellRect.top + 76;
+      const machineX = chamberRect.left - shellRect.left + chamberRect.width / 2;
+      const machineY = chamberRect.top - shellRect.top + chamberRect.height / 2;
+      const outX = Math.min(shellRect.width - 72,machineX + 190);
+      const outY = machineY - 6;
+
+      rawToken.textContent = current.raw;
+      finishedToken.textContent = current.finished;
+      engineChamber.textContent = current.finished;
+
+      transformLayer.style.setProperty("--from-x",`${fromX}px`);
+      transformLayer.style.setProperty("--from-y",`${fromY}px`);
+      transformLayer.style.setProperty("--machine-x",`${machineX}px`);
+      transformLayer.style.setProperty("--machine-y",`${machineY}px`);
+      transformLayer.style.setProperty("--out-x",`${outX}px`);
+      transformLayer.style.setProperty("--out-y",`${outY}px`);
+
+      progressMachine.classList.remove("processing");
+      transformLayer.classList.remove("show");
+      void transformLayer.offsetWidth;
+
+      progressMachine.classList.add("processing");
+      transformLayer.classList.add("show");
+
+      setTimeout(() => progressMachine.classList.remove("processing"),850);
+      setTimeout(() => transformLayer.classList.remove("show"),1600);
+    }
+
+    function beginGame(){
+      questions = shuffle(questionBank).map(item => ({
+        ...item,
+        options:shuffle(item.options)
+      }));
+
+      index = 0;
+      attempts = 0;
+      locked = false;
+
+      resetEngine();
+      showScreen("game");
+      renderQuestion();
+    }
+
+    function renderQuestion(){
+      attempts = 0;
+      locked = false;
+
+      feedback.className = "feedback";
+      feedback.textContent = "";
+      nextBtn.classList.remove("show");
+      optionsBox.innerHTML = "";
+      transformLayer.classList.remove("show");
+
+      const current = questions[index];
+
+      if(current.assertion && current.reason){
+        questionArea.innerHTML = `
+          <div class="ar-block">
+            <span class="ar-line"><strong>Assertion:</strong> ${escapeHtml(current.assertion)}</span>
+            <span class="ar-line reason"><strong>Reason:</strong> ${escapeHtml(current.reason)}</span>
+          </div>
+        `;
+      }else{
+        questionArea.innerHTML =
+          `<h2 class="question-text">${escapeHtml(current.q).replaceAll("\n","<br>")}</h2>`;
+      }
+
+      current.options.forEach(optionText => {
+        const button = document.createElement("button");
+        button.className = "option";
+        button.type = "button";
+        button.textContent = optionText;
+        button.addEventListener("click",() => chooseAnswer(button,optionText));
+        optionsBox.appendChild(button);
+      });
+
+      updateEngine();
+
+      const firstOption = optionsBox.querySelector(".option");
+      if(firstOption){
+        setTimeout(() => firstOption.focus({preventScroll:true}),80);
+      }
+    }
+
+    function finishQuestion(message,type){
+      locked = true;
+
+      optionsBox.querySelectorAll(".option").forEach(button => {
+        button.disabled = true;
+      });
+
+      feedback.textContent = message;
+      feedback.className = `feedback show ${type}`;
+      nextBtn.classList.add("show");
+      nextBtn.focus({preventScroll:true});
+    }
+
+    function chooseAnswer(button,selected){
+      if(locked || button.disabled) return;
+
+      attempts += 1;
+      const current = questions[index];
+
+      if(selected === current.answer){
+        button.classList.add("correct");
+        score += attempts === 1 ? 10 : 5;
+
+        solved[index] = true;
+        categoryCounts[current.category] += 1;
+
+        safePlay(correctSound,"correct");
+        updateEngine();
+        pulseGauge(current.category);
+        showTransformation(index);
+        finishQuestion("Correct!","good");
+        return;
+      }
+
+      button.classList.add("wrong","used");
+      button.disabled = true;
+
+      safePlay(wrongSound,"wrong");
+
+      if(attempts === 1){
+        feedback.textContent = "Incorrect. Try again.";
+        feedback.className = "feedback show try";
+      }else{
+        optionsBox.querySelectorAll(".option").forEach(optionButton => {
+          if(optionButton.textContent === current.answer){
+            optionButton.classList.add("correct");
+          }
+        });
+
+        finishQuestion(
+          `Incorrect. The correct answer is “${current.answer}”.`,
+          "reveal"
+        );
+      }
+    }
+
+    function nextStep(){
+      index += 1;
+      updateEngine();
+
+      if(index >= questions.length){
+        finishGame();
+      }else{
+        renderQuestion();
+      }
+    }
+
+    function finishGame(){
+      updateEngine();
+
+      const maximum = questions.length * 10;
+      const percentage = Math.round((score / maximum) * 100);
+
+      let message =
+        "You powered the engine and explored economic activities, value addition, and unpaid work that supports communities.";
+
+      if(percentage >= 85){
+        message =
+          "Outstanding work! You showed a strong understanding of economic work, value addition, and the importance of helping others.";
+      }else if(percentage >= 65){
+        message =
+          "Great work! You understood many important ideas about work, value, income, and community contribution.";
+      }
+
+      document.getElementById("finalResult").textContent =
+        `${message} Your score is ${score} out of ${maximum}.`;
+
+      showScreen("final");
+      safePlay(clapSound,"clap");
+    }
+
+    startBtn.addEventListener("click",() => {
+      getAudioContext();
+      beginGame();
+    });
+
+    replayBtn.addEventListener("click",() => {
+      getAudioContext();
+      beginGame();
+    });
+
+    nextBtn.addEventListener("click",nextStep);
+
+    setTimeout(() => showScreen("welcome"),5000);
+  </script>
+</body>
+</html>
