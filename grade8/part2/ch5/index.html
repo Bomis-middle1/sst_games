@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Demographic Hub: Population & Human Capital</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --navy-dark:#0b1329;
+  --panel-bg:#1c2541;
+  --accent-cyan:#48cae4;
+  --accent-yellow:#fcf300;
+  --text-white:#f8fafc;
+  --text-muted:#a5a5a5;
+  --correct-green:#38b000;
+  --wrong-red:#d90429;
+}
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background-color:var(--navy-dark);color:var(--text-white);min-height:100vh;display:flex;justify-content:center;align-items:center;padding:15px;overflow-x:hidden}
+
+/* ---- Loader / Brand Screen ---- */
+#splash{position:fixed;inset:0;background:#ffffff;display:flex;justify-content:center;align-items:center;z-index:9999}
+.splash-content{text-align:center}
+.splash-logo{max-width:230px;height:auto;animation:pulseEffect 2.2s ease-in-out infinite}
+@keyframes pulseEffect{0%,100%{transform:scale(0.97);opacity:0.95}50%{transform:scale(1.03);opacity:1}}
+
+.hidden{display:none!important}
+.screen{width:100%;max-width:880px;background:var(--panel-bg);border-radius:16px;border:1px solid rgba(72,202,228,0.25);box-shadow:0 15px 35px rgba(0,0,0,0.6);padding:28px;transition:all 0.3s ease}
+
+h1{font-size:30px;color:var(--accent-cyan);margin-bottom:12px;text-align:center;font-weight:800;letter-spacing:-0.5px}
+p{color:var(--text-white);line-height:1.6;margin-bottom:18px;font-size:14.5px}
+
+.btn{display:inline-block;background:var(--accent-cyan);color:var(--navy-dark);font-weight:700;padding:12px 28px;border:none;border-radius:8px;cursor:pointer;transition:all 0.2s ease;text-transform:uppercase;font-size:13.5px;letter-spacing:0.5px}
+.btn:hover{transform:translateY(-2px);box-shadow:0 6px 15px rgba(72,202,228,0.35)}
+
+/* ---- Game Interface Layout ---- */
+.game-header{display:flex;justify-content:space-between;align-items:center;background:rgba(11,19,41,0.65);padding:14px;border-radius:10px;margin-bottom:18px;border:1px solid rgba(255,255,255,0.05)}
+.metric-box{font-size:15px;font-weight:bold;color:var(--accent-yellow)}
+.timer-box{font-size:15px;font-weight:bold;color:var(--text-white)}
+
+/* Conveyor Runway Belt */
+.conveyor-belt{position:relative;width:100%;height:165px;background:#3a5a40;border-radius:10px;border:4px solid #344e41;overflow:hidden;margin-bottom:22px;box-shadow:inset 0 8px 16px rgba(0,0,0,0.5)}
+.conveyor-pattern{position:absolute;width:200%;height:100%;background:linear-gradient(90deg, transparent 45%, rgba(0,0,0,0.2) 50%, transparent 55%);background-size:35px 100%;animation:runBelt 2.8s linear infinite}
+@keyframes runBelt{0%{transform:translateX(0)}100%{transform:translateX(-35px)}}
+
+/* Moving Demographic Box */
+.conveyor-item{position:absolute;left:-250px;top:32px;width:235px;height:95px;background:linear-gradient(135deg, #1d3557, #457b9d);border:2px solid var(--accent-cyan);border-radius:8px;padding:10px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12.5px;font-weight:600;color:var(--text-white);box-shadow:0 6px 12px rgba(0,0,0,0.35);cursor:grab}
+
+/* Drop Target Zones */
+.bin-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.bin-target{background:#0b1329;border:2px dashed #3a5a40;border-radius:10px;padding:18px 8px;text-align:center;transition:all 0.2s ease;cursor:pointer}
+.bin-target:hover{border-color:var(--accent-cyan);background:rgba(72,202,228,0.08)}
+.bin-target.flash-correct{background:rgba(56,176,0,0.2);border-color:var(--correct-green)}
+.bin-target.flash-wrong{background:rgba(217,4,41,0.2);border-color:var(--wrong-red)}
+.bin-title{font-size:15px;font-weight:800;margin-bottom:4px}
+.bin-desc{font-size:10.5px;color:var(--text-muted)}
+.bin-hc{color:var(--accent-cyan)}
+.bin-dist{color:var(--accent-yellow)}
+.bin-comp{color:#e2e8f0}
+
+/* Feedback Feed Box */
+.info-feed{background:rgba(11,19,41,0.85);border-left:4px solid var(--accent-yellow);padding:14px;border-radius:6px;font-size:13px;line-height:1.5;min-height:55px}
+
+/* Summary Cards */
+.summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin:18px 0;text-align:left}
+.summary-card{background:rgba(0,0,0,0.25);padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.05)}
+.summary-card h4{font-size:13px;color:var(--accent-cyan);margin-bottom:4px}
+.summary-card p{font-size:12px;color:var(--text-white);margin:0;line-height:1.4}
+</style>
+</head>
+<body>
+
+<!-- Global Loader Screen -->
+<div id="splash">
+  <div class="splash-content">
+    <img src="sst_games/grade8/part2/ch5/assets/innovine-logo.png" alt="Innovine Logo" class="splash-logo">
+  </div>
+</div>
+
+<!-- WELCOME SCREEN -->
+<div class="screen hidden" id="welcomeScreen">
+  <div style="text-align:center; max-width:640px; margin:0 auto;">
+    <span style="font-size:48px">👥</span>
+    <h1>Demographic Hub: Sorting the Human Pool</h1>
+    <p style="margin-top:10px;">
+      Welcome to the Population Analysis Command. Core principles of Human Capital, Population Distribution, and Population Composition are arriving on the data conveyor. Your mission is to route each description to its correct category before it falls off the network!
+    </p>
+    <div class="info-feed" style="margin-bottom:22px; text-align:left;">
+      💡 <b>Instructions:</b> Read each moving card carefully. Click the corresponding category button below to route the card correctly. Keep the pipeline moving!
+    </div>
+    <button class="btn" onclick="startGame()">Initiate Calibration</button>
+  </div>
+</div>
+
+<!-- GAME CORE SCREEN -->
+<div class="screen hidden" id="gameScreen">
+  <div class="game-header">
+    <div class="metric-box">🎓 Progress: <span id="scoreVal">0</span> / 10</div>
+    <div class="timer-box">📦 Cards Remaining: <span id="itemsLeftVal">10</span></div>
+  </div>
+
+  <!-- Animated Belt Context Area -->
+  <div class="conveyor-belt" id="beltContainer">
+    <div class="conveyor-pattern"></div>
+    <div class="conveyor-item" id="movingItem">Processing transmission...</div>
+  </div>
+
+  <!-- Choice Target Bins -->
+  <div class="bin-row">
+    <div class="bin-target" onclick="submitChoice('human_capital')" id="bin-human_capital">
+      <div class="bin-title bin-hc">🎓 Human Capital</div>
+      <div class="bin-desc">Skills, Training, & Capabilities</div>
+    </div>
+    <div class="bin-target" onclick="submitChoice('distribution')" id="bin-distribution">
+      <div class="bin-title bin-dist">🗺️ Distribution</div>
+      <div class="bin-desc">Factors & Continent Density</div>
+    </div>
+    <div class="bin-target" onclick="submitChoice('composition')" id="bin-composition">
+      <div class="bin-title bin-comp">📊 Composition</div>
+      <div class="bin-desc">Pyramids, Sex Ratio, & Literacy</div>
+    </div>
+  </div>
+
+  <!-- Realtime Dynamic Knowledge Context Feed -->
+  <div class="info-feed" id="feedbackLog">
+    Pipeline initialized. Match the incoming descriptions to their proper demographic category!
+  </div>
+</div>
+
+<!-- FINAL EVALUATION SCOREBOARD -->
+<div class="screen hidden" id="finishScreen">
+  <div style="text-align:center; max-width:650px; margin:0 auto;">
+    <span style="font-size:52px" id="finishIcon">🏆</span>
+    <h1 id="finishTitle">Calibration Terminated</h1>
+    <p id="finishDesc" style="margin:12px 0;"></p>
+
+    <div class="summary-grid">
+      <div class="summary-card">
+        <h4>🎓 Human Capital</h4>
+        <p>Turning young human resources into productive capital through target programs like PMKVY and RPL.</p>
+      </div>
+      <div class="summary-card">
+        <h4>🗺️ Distribution Factors</h4>
+        <p>Uneven population densities driven by physical terrain, fertile soils, job opportunities, and climates.</p>
+      </div>
+      <div class="summary-card">
+        <h4>📊 Population Composition</h4>
+        <p>Analysed using age-sex pyramids (Triangular, Beehive) to trace vital dependency ratios.</p>
+      </div>
+      <div class="summary-card">
+        <h4>💡 Real-world Metrics</h4>
+        <p>Average density of 59.24 people/km² globally (2022) with distinct country-wide contrasts.</p>
+      </div>
+    </div>
+
+    <button class="btn" onclick="resetGame()">Recalibrate</button>
+  </div>
+</div>
+
+<script>
+// Audio clips calibrated for ch5 directory
+const correctSound = new Audio("sst_games/grade8/part2/ch5/assets/correct.mp3");
+const wrongSound = new Audio("sst_games/grade8/part2/ch5/assets/wrong.mp3");
+const clapsSound = new Audio("sst_games/grade8/part2/ch5/assets/freesound_community-claps-44774.mp3");
+
+// Curated deck mapping exactly to Chapter 5 content
+const itemDeck = [
+  { text: "Pradhan Mantri Kaushal Vikas Yojana (PMKVY) providing skill training to youth", cat: "human_capital", exp: "PMKVY focuses on equipping youth with employable competencies and vocational skills." },
+  { text: "More than 90% of the world's population residing on only 30% of the land surface", cat: "distribution", exp: "This massive imbalance highlights the highly uneven global pattern of population distribution." },
+  { text: "Age-sex structure representation of a country (Population Pyramid)", cat: "composition", exp: "Population pyramids visually show demographic characteristics like age and gender composition." },
+  { text: "The Recognition of Prior Learning (RPL) certifying informal skills", cat: "human_capital", exp: "RPL converts experienced workers into certified human capital, validating their skills." },
+  { text: "Fertile soils, availability of freshwater, and flat terrain attracting large populations", cat: "distribution", exp: "These physical factors dictate where communities gather and distribute across continents." },
+  { text: "Triangular population pyramid shape representing high birth rates in developing nations", cat: "composition", exp: "The triangular expanding shape is a key indicator of young demographic composition." },
+  { text: "Tara learning coding and Raj learning electrical engineering to add value to their town", cat: "human_capital", exp: "Acquiring specialized knowledge turns raw human resources into valuable human capital." },
+  { text: "Antarctica having no permanent population due to extreme climate and environmental conditions", cat: "distribution", exp: "Extreme physical and climatic barriers prevent settlement, driving sparse distribution." },
+  { text: "Expressing gender distribution as a sex ratio (number of females per 1000 males)", cat: "composition", exp: "Sex ratio is a fundamental component of analyzing a nation's population composition." },
+  { text: "Densely populated urban centers like Mumbai and Tokyo offering rich job opportunities", cat: "distribution", exp: "Economic opportunities act as a strong pull factor for population distribution." }
+];
+
+let activeIndex = 0;
+let score = 0;
+let animationId = null;
+let currentX = -250;
+let speed = 2.1; 
+let isTransitioning = false;
+
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('splash').style.display = 'none';
+    document.getElementById('welcomeScreen').classList.remove('hidden');
+  }, 5000);
+});
+
+function startGame() {
+  document.getElementById('welcomeScreen').classList.add('hidden');
+  document.getElementById('gameScreen').classList.remove('hidden');
+  activeIndex = 0;
+  score = 0;
+  isTransitioning = false;
+  
+  document.getElementById('scoreVal').textContent = score;
+  document.getElementById('itemsLeftVal').textContent = itemDeck.length;
+  
+  loadNextItem();
+}
+
+function loadNextItem() {
+  if (activeIndex >= itemDeck.length) {
+    endGame();
+    return;
+  }
+  
+  document.getElementById('itemsLeftVal').textContent = itemDeck.length - activeIndex;
+  const itemEl = document.getElementById('movingItem');
+  itemEl.textContent = itemDeck[activeIndex].text;
+  
+  currentX = -250; 
+  itemEl.style.left = currentX + 'px';
+  isTransitioning = false;
+  
+  cancelAnimationFrame(animationId);
+  runConveyorCrawl();
+}
+
+function runConveyorCrawl() {
+  if (isTransitioning) return;
+  
+  const beltWidth = document.getElementById('beltContainer').clientWidth;
+  currentX += speed;
+  document.getElementById('movingItem').style.left = currentX + 'px';
+  
+  if (currentX > beltWidth) {
+    playSound(wrongSound);
+    document.getElementById('feedbackLog').textContent = "⚠️ Data dropped off the grid! Moving to the next card.";
+    flashFeedbackBin(itemDeck[activeIndex].cat, false);
+    
+    isTransitioning = true;
+    setTimeout(() => {
+      activeIndex++;
+      loadNextItem();
+    }, 1500);
+    return;
+  }
+  
+  animationId = requestAnimationFrame(runConveyorCrawl);
+}
+
+function submitChoice(chosenCategory) {
+  if (isTransitioning || activeIndex >= itemDeck.length) return;
+  
+  isTransitioning = true;
+  cancelAnimationFrame(animationId);
+  
+  const correctCategory = itemDeck[activeIndex].cat;
+  const currentItem = itemDeck[activeIndex];
+  const feedbackLog = document.getElementById('feedbackLog');
+  
+  if (chosenCategory === correctCategory) {
+    score++;
+    document.getElementById('scoreVal').textContent = score;
+    playSound(correctSound);
+    feedbackLog.innerHTML = `✨ <b>Correct Routing!</b> ${currentItem.exp}`;
+    flashFeedbackBin(chosenCategory, true);
+  } else {
+    playSound(wrongSound);
+    feedbackLog.innerHTML = `❌ <b>Incorrect Target!</b> Note: ${currentItem.exp}`;
+    flashFeedbackBin(correctCategory, false);
+  }
+  
+  setTimeout(() => {
+    activeIndex++;
+    loadNextItem();
+  }, 3000);
+}
+
+function flashFeedbackBin(binId, isCorrect) {
+  const bin = document.getElementById('bin-' + binId);
+  const flashClass = isCorrect ? 'flash-correct' : 'flash-wrong';
+  bin.classList.add(flashClass);
+  setTimeout(() => bin.classList.remove(flashClass), 1200);
+}
+
+function playSound(audioObj) {
+  audioObj.currentTime = 0;
+  audioObj.play().catch(() => {});
+}
+
+function endGame() {
+  document.getElementById('gameScreen').classList.add('hidden');
+  document.getElementById('finishScreen').classList.remove('hidden');
+  
+  const title = document.getElementById('finishTitle');
+  const desc = document.getElementById('finishDesc');
+  const icon = document.getElementById('finishIcon');
+  
+  if (score >= 9) {
+    title.textContent = "🥇 Master Demographer Status Reached!";
+    desc.textContent = `Brilliant work! You achieved a score of ${score}/10. You demonstrated deep mastery over population variables, human resource development schemes, and density distributions.`;
+    icon.textContent = "🏆";
+    playSound(clapsSound);
+  } else if (score >= 6) {
+    title.textContent = "🥈 Advanced Analyst Status";
+    desc.textContent = `Great effort! You scored ${score}/10. Re-examine the dynamics of population structure pyramids and distribution patterns to secure a perfect score next run.`;
+    icon.textContent = "📈";
+  } else {
+    title.textContent = "⚠️ Demographic Intern";
+    desc.textContent = `You scored ${score}/10. Some parameters were misplaced. Take time to review the critical role of human capital and geographical physical variables before trying again!`;
+    icon.textContent = "🔍";
+  }
+}
+
+function resetGame() {
+  document.getElementById('finishScreen').classList.add('hidden');
+  document.getElementById('welcomeScreen').classList.remove('hidden');
+}
+</script>
+</body>
+</html>
