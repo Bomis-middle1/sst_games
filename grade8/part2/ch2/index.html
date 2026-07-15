@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Eco-Expedition: Global Conservation Quest</title>
+<style>
+  :root {
+    --bg-dark: #0f172a;
+    --card-dark: #1e293b;
+    --primary-mint: #10b981;
+    --accent-gold: #f59e0b;
+    --danger-red: #ef4444;
+    --text-light: #f8fafc;
+    --text-gray: #94a3b8;
+    --border-glow: rgba(16, 185, 129, 0.2);
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  body {
+    background-color: var(--bg-dark);
+    color: var(--text-light);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    overflow-x: hidden;
+  }
+
+  /* Flash Screen */
+  #flashScreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+
+  #flashScreen.fade-out {
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(1.05);
+  }
+
+  .logo-container {
+    text-align: center;
+    animation: pulseLogo 2s infinite ease-in-out;
+  }
+
+  .logo-img {
+    max-width: 320px;
+    width: 90%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+  }
+
+  /* Screens */
+  .screen {
+    width: 100%;
+    max-width: 1100px;
+    background: var(--card-dark);
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    padding: 30px;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
+
+  .hidden {
+    display: none !important;
+  }
+
+  /* Typography */
+  h1 {
+    font-size: clamp(24px, 4vw, 36px);
+    color: var(--primary-mint);
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 12px;
+  }
+
+  h2 {
+    font-size: 22px;
+    color: var(--text-light);
+    margin-bottom: 15px;
+  }
+
+  p {
+    color: var(--text-gray);
+    line-height: 1.6;
+    margin-bottom: 20px;
+    font-size: 15px;
+  }
+
+  /* Welcome Screen SPECIFICS */
+  .hero-graphic {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin: 25px 0;
+  }
+
+  .hero-badge {
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid var(--primary-mint);
+    padding: 15px 20px;
+    border-radius: 16px;
+    text-align: center;
+    flex: 1;
+    max-width: 180px;
+  }
+
+  .hero-badge span {
+    display: block;
+    font-size: 24px;
+    margin-bottom: 5px;
+  }
+
+  .hero-badge label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-gray);
+    font-weight: 700;
+  }
+
+  /* Main Layout Grid */
+  .grid-container {
+    display: grid;
+    grid-template-columns: 1fr 1.3fr;
+    gap: 25px;
+    margin-top: 20px;
+  }
+
+  @media (max-width: 850px) {
+    .grid-container {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Left Panel: Map & Navigation */
+  .map-panel {
+    background: rgba(15, 23, 42, 0.6);
+    border-radius: 18px;
+    padding: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+  }
+
+  .map-title {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--primary-mint);
+    margin-bottom: 15px;
+    font-weight: 800;
+  }
+
+  .mission-nodes {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .node {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1.5px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    text-align: left;
+  }
+
+  .node.active {
+    background: rgba(16, 185, 129, 0.08);
+    border-color: var(--primary-mint);
+    box-shadow: 0 0 15px var(--border-glow);
+  }
+
+  .node.locked {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .node.completed {
+    border-color: var(--accent-gold);
+    background: rgba(245, 158, 11, 0.05);
+  }
+
+  .node-icon {
+    font-size: 20px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .node.active .node-icon {
+    background: var(--primary-mint);
+    color: var(--bg-dark);
+  }
+
+  .node.completed .node-icon {
+    background: var(--accent-gold);
+    color: var(--bg-dark);
+  }
+
+  .node-info h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-light);
+  }
+
+  .node-info p {
+    margin: 2px 0 0;
+    font-size: 11px;
+    color: var(--text-gray);
+  }
+
+  /* Right Panel: Active Console */
+  .console-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background: rgba(30, 41, 59, 0.8);
+    border-radius: 18px;
+    padding: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    min-height: 420px;
+  }
+
+  .console-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 12px;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .console-badge {
+    background: var(--accent-gold);
+    color: var(--bg-dark);
+    font-size: 11px;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 999px;
+    text-transform: uppercase;
+  }
+
+  /* Scenario Gameplay Elements */
+  .scenario-desc {
+    font-size: 14px;
+    color: var(--text-light);
+    line-height: 1.6;
+    margin-bottom: 18px;
+    background: rgba(0,0,0,0.2);
+    padding: 15px;
+    border-radius: 12px;
+    border-left: 4px solid var(--primary-mint);
+  }
+
+  .interactive-zone {
+    margin: 15px 0;
+  }
+
+  /* Custom Interactive Tasks */
+  .task-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .btn-option {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-light);
+    border-radius: 12px;
+    padding: 14px;
+    text-align: left;
+    font-size: 13.5px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .btn-option:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--text-gray);
+    transform: translateY(-2px);
+  }
+
+  .btn-option.correct {
+    background: rgba(16, 185, 129, 0.15) !important;
+    border-color: var(--primary-mint) !important;
+    color: var(--primary-mint);
+  }
+
+  .btn-option.incorrect {
+    background: rgba(239, 68, 110, 0.15) !important;
+    border-color: var(--danger-red) !important;
+    color: var(--danger-red);
+  }
+
+  /* Global Status Hub (Header) */
+  .status-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(15, 23, 42, 0.4);
+    border-radius: 16px;
+    padding: 15px 20px;
+    margin-bottom: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .stat-block {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .stat-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    color: var(--text-gray);
+    letter-spacing: 1px;
+    font-weight: 700;
+  }
+
+  .stat-value {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text-light);
+  }
+
+  .gauge-container {
+    width: 100%;
+    background: rgba(255,255,255,0.05);
+    height: 8px;
+    border-radius: 999px;
+    overflow: hidden;
+    margin-top: 4px;
+  }
+
+  .gauge-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-gold), var(--primary-mint));
+    width: 50%;
+    transition: width 0.4s ease;
+  }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: var(--primary-mint);
+    color: var(--bg-dark);
+    font-weight: 800;
+    font-size: 14px;
+    padding: 12px 28px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--text-light);
+    border: 1.5px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .btn-secondary:hover {
+    border-color: var(--text-light);
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: none;
+  }
+
+  /* Feedback box styling */
+  .feedback-box {
+    margin-top: 15px;
+    padding: 12px 15px;
+    border-radius: 10px;
+    font-size: 13px;
+    line-height: 1.5;
+    animation: fadeIn 0.3s ease;
+  }
+
+  .feedback-success {
+    background: rgba(16, 185, 129, 0.1);
+    border-left: 4px solid var(--primary-mint);
+    color: #a7f3d0;
+  }
+
+  .feedback-fail {
+    background: rgba(239, 68, 68, 0.1);
+    border-left: 4px solid var(--danger-red);
+    color: #fca5a5;
+  }
+
+  /* Matching Task Design */
+  .matching-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .match-item {
+    background: rgba(255,255,255,0.05);
+    border: 1px dashed rgba(255,255,255,0.2);
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    text-align: center;
+    cursor: pointer;
+  }
+
+  .match-item.selected {
+    border-color: var(--accent-gold);
+    background: rgba(245, 158, 11, 0.1);
+  }
+
+  /* Finish screen badges */
+  .badge-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin: 20px 0;
+  }
+
+  .earned-badge {
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid var(--accent-gold);
+    padding: 10px 15px;
+    border-radius: 10px;
+    font-size: 12px;
+    color: var(--accent-gold);
+    font-weight: bold;
+  }
+
+  @keyframes pulseLogo {
+    0% { transform: scale(1); opacity: 0.95; }
+    50% { transform: scale(1.02); opacity: 1; }
+    100% { transform: scale(1); opacity: 0.95; }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<!-- INITIAL 5-SECOND FLASH SCREEN -->
+<div id="flashScreen">
+  <div class="logo-container">
+    <!-- Both local and absolute paths are defined within onerror checks to guarantee loading across environments -->
+    <img src="./sst_games/grade8/part2/ch2/assets/innovine-logo.png" 
+         alt="Innovine Logo" 
+         class="logo-img" 
+         onerror="this.onerror=null; this.src='sst_games/grade8/part2/ch2/assets/innovine-logo.png'; this.addEventListener('error', function(){ document.getElementById('altLogoText').style.display='block'; });" />
+    <h1 id="altLogoText" style="color: #0f172a; font-family: sans-serif; font-size: 42px; display: none; font-weight: 800; letter-spacing: -1px; margin-top: 15px;">INNOVINE</h1>
+  </div>
+</div>
+
+<!-- WELCOME SCREEN -->
+<div class="screen" id="welcomeScreen">
+  <div style="text-align: center; max-width: 700px; margin: 0 auto;">
+    <span style="font-size: 48px;">🌍</span>
+    <h1>Eco-Expedition</h1>
+    <h3 style="color: var(--text-gray); margin-bottom: 20px;">Global Conservation Strategy Console</h3>
+    <p>
+      Navigate 5 critical environmental hotspots across the globe. Witness the impact of human footprints on 
+      <strong>Land</strong>, <strong>Soil</strong>, <strong>Water</strong>, and <strong>Wildlife</strong>, and deploy sustainable conservation technologies to stabilize the Earth's ecosystems.
+    </p>
+
+    <div class="hero-graphic">
+      <div class="hero-badge">
+        <span>🏔️</span>
+        <label>Land & Slopes</label>
+      </div>
+      <div class="hero-badge">
+        <span>🌱</span>
+        <label>Soil Profiles</label>
+      </div>
+      <div class="hero-badge">
+        <span>💧</span>
+        <label>Water Scarcity</label>
+      </div>
+    </div>
+
+    <div style="margin-top: 30px;">
+      <button class="btn" onclick="startQuest()">Initialize Command Console</button>
+    </div>
+  </div>
+</div>
+
+<!-- QUEST RUNTIME SCREEN -->
+<div class="screen hidden" id="questScreen">
+  <!-- Status Hub Header -->
+  <div class="status-header">
+    <div class="stat-block">
+      <div>
+        <div class="stat-label">Eco-Stability Index</div>
+        <div class="stat-value" id="stabilityText">50%</div>
+        <div class="gauge-container" style="width: 140px;">
+          <div class="gauge-fill" id="stabilityGauge" style="width: 50%;"></div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="stat-block" style="text-align: right;">
+      <div>
+        <div class="stat-label">Missions Fully Resolved</div>
+        <div class="stat-value" id="completedCount">0 / 5</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-container">
+    <!-- Left Navigation Map -->
+    <div class="map-panel">
+      <div class="map-title">Hotspot Operations Map</div>
+      <div class="mission-nodes" id="nodesContainer">
+        <!-- Node elements will be populated by JS -->
+      </div>
+    </div>
+
+    <!-- Right Interaction Console -->
+    <div class="console-panel">
+      <div id="consoleContent">
+        <div class="console-header">
+          <span class="console-badge" id="activeNodeBadge">Zone 1</span>
+          <span style="font-size: 12px; color: var(--text-gray);" id="categoryLabel">LAND USE</span>
+        </div>
+        <h2 id="questTitle">Selecting Field Operations...</h2>
+        <div class="scenario-desc" id="questDesc">Choose an available hotspot mission on the left navigation panel to deploy resources and begin remediation.</div>
+        
+        <div class="interactive-zone" id="interactiveArea">
+          <!-- Interactive options or matching layout populated dynamically -->
+        </div>
+
+        <div class="feedback-box hidden" id="feedbackBox"></div>
+      </div>
+
+      <div style="text-align: right; margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px;">
+        <button class="btn btn-secondary hidden" id="actionBtn" onclick="handleConsoleAction()">Verify Alignment</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RESULTS / SUCCESS SCREEN -->
+<div class="screen hidden" id="finishScreen">
+  <div style="text-align: center; max-width: 650px; margin: 0 auto;">
+    <span style="font-size: 60px;" id="victoryIcon">🏆</span>
+    <h1 id="victoryTitle">Ecosystem Remediated!</h1>
+    <p id="victoryMessage">
+      You've completed all missions successfully. By making balanced ecological choices, you protected land resources and secured water-energy pathways.
+    </p>
+
+    <div class="status-header" style="justify-content: center; gap: 40px; margin: 25px 0;">
+      <div style="text-align: center;">
+        <div class="stat-label" style="font-size: 11px;">Final Stability Index</div>
+        <div class="stat-value" style="font-size: 32px; color: var(--primary-mint);" id="finalStability">85%</div>
+      </div>
+      <div style="text-align: center;">
+        <div class="stat-label" style="font-size: 11px;">Conserved Footprints</div>
+        <div class="stat-value" style="font-size: 32px; color: var(--accent-gold);" id="finalScore">450 pts</div>
+      </div>
+    </div>
+
+    <h3 style="margin-bottom: 10px; font-size: 14px; text-transform: uppercase; color: var(--text-gray);">Earned Operations Credentials</h3>
+    <div class="badge-grid" id="earnedBadgesContainer">
+      <!-- Badges -->
+    </div>
+
+    <button class="btn" style="margin-top: 20px;" onclick="resetQuest()">Run Another Climate Cycle</button>
+  </div>
+</div>
+
+<script>
+// Audio Elements Setup (Using relative paths pointing directly into the local folders)
+const correctSound = new Audio("./sst_games/grade8/part2/ch2/assets/correct.mp3");
+const wrongSound = new Audio("./sst_games/grade8/part2/ch2/assets/wrong.mp3");
+const clapsSound = new Audio("./sst_games/grade8/part2/ch2/assets/freesound_community-claps-44774.mp3");
+
+// Fallback logic for sound loading if absolute root index is used
+[correctSound, wrongSound, clapsSound].forEach(sound => {
+  sound.addEventListener('error', function() {
+    const originalSrc = sound.src;
+    // Attempt fallback to path without leading dot if a load error occurs
+    if(originalSrc.includes('./sst_games')) {
+      sound.src = originalSrc.replace('./sst_games', 'sst_games');
+    }
+  });
+});
+
+// Playback Helper Functions to handle potential browser autoplay blocks cleanly
+function playSound(sound) {
+  sound.currentTime = 0;
+  sound.play().catch(err => console.log("Audio play blocked until user interaction", err));
+}
+
+// Flash Screen timer (5 seconds / 5000ms)
+window.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => {
+    const flash = document.getElementById('flashScreen');
+    flash.classList.add('fade-out');
+    // Completely remove element from stack after transition finishes
+    setTimeout(() => {
+      flash.style.display = 'none';
+    }, 800);
+  }, 5000);
+});
+
+// Content structured directly from textbook sections
+const missions = [
+  {
+    id: 0,
+    title: "Kedarnath Slopes Remediation",
+    zone: "HOTSPOT 01",
+    cat: "LAND USE & DISASTERS",
+    icon: "🏔️",
+    desc: "In June 2013, uncontrolled construction, deforestation, and heavy rains triggered a catastrophic landslide around Kedarnath, Uttarakhand. Choose the optimal combination of engineering and biological techniques to reinforce vulnerable mountainous slopes against debris flows.",
+    type: "options",
+    choices: [
+      { text: "Enact strict local construction caps, build structural retaining walls, and initiate wide-scale afforestation.", correct: true, feedback: "Excellent choice! Stabilizing slopes with vegetative root anchoring combined with protective engineering minimizes landslide impacts." },
+      { text: "Increase tourism-related commercial building designs and install heavy warning alarms only.", correct: false, feedback: "Incorrect. Overdevelopment and deforestation were key causes of the 2013 disaster." },
+      { text: "Rely solely on local rivers to naturally carry debris flows out of the valley.", correct: false, feedback: "Incorrect. The Mandakini River valley flooded precisely because massive debris and landslides blocked channels, creating flash floods." }
+    ],
+    completed: false
+  },
+  {
+    id: 1,
+    title: "The Savanna Agricultural Zone",
+    zone: "HOTSPOT 02",
+    cat: "SOIL DEGRADATION",
+    icon: "🌾",
+    desc: "High agricultural activities have stripped soil ecosystems. To restore fertility and safeguard soil health, you must deploy conservation measures. Match each soil management method with its description.",
+    type: "match",
+    matches: [
+      { term: "Mulching", desc: "Covering soil with organic material like straw or compost to retain moisture." },
+      { term: "Contour Barriers", desc: "Placing grass, stones, or soil along natural slope contours to slow runoff." },
+      { term: "Shelter Belts", desc: "Planting rows of trees or shrubs to act as windbreaks." }
+    ],
+    completed: false
+  },
+  {
+    id: 2,
+    title: "Aquifer Reserve Assessment",
+    zone: "HOTSPOT 03",
+    cat: "WATER CONSERVATION",
+    icon: "💧",
+    desc: "Only 3% of Earth's water is freshwater, and a massive 69% of that is locked away in icecaps or glaciers, leaving less than 1% easily accessible in lakes and rivers. To optimize domestic conservation, which approach is most efficient?",
+    type: "options",
+    choices: [
+      { text: "Deploy drip irrigation to root zones and reuse household greywater for landscaping.", correct: true, feedback: "Correct! Drip irrigation reduces evaporation loss significantly, and greywater recycling utilizes municipal supplies efficiently." },
+      { text: "Construct wide, shallow lakes to capture the atmospheric cycle through direct solar evaporation.", correct: false, feedback: "Incorrect. Shifting water to open shallow surfaces increases evaporation losses rather than conserving the resource." },
+      { text: "Rely purely on expanding deep aquifer wells without checking extraction rates.", correct: false, feedback: "Incorrect. Deep well mining without replenishment collapses aquifers." }
+    ],
+    completed: false
+  },
+  {
+    id: 3,
+    title: "The Asian Elephant Corridor",
+    zone: "HOTSPOT 04",
+    cat: "WILDLIFE PROTECTION",
+    icon: "🐘",
+    desc: "The Asian Elephant is classified as endangered due to illegal ivory poaching and human-wildlife conflict arising from habitat destruction. Which legal and structural action offers the best protection?",
+    type: "options",
+    choices: [
+      { text: "Designate protected biological reserves, establish forest corridors, and enforce strict anti-poaching regulations.", correct: true, feedback: "Perfect! Protecting contiguous wilderness and applying strict laws keeps native elephant herds secure." },
+      { text: "Relocate the entire population into commercial theme parks inside cities.", correct: false, feedback: "Incorrect. This disrupts natural ecological distribution and fails to conserve species in their native habitats." },
+      { text: "Remove legal trade restrictions on ivory to reduce interest in hunting.", correct: false, feedback: "Incorrect. Legalizing trade often increases consumer demand, threatening wild elephant herds." }
+    ],
+    completed: false
+  },
+  {
+    id: 4,
+    title: "Madagascar Baobab Initiative",
+    zone: "HOTSPOT 05",
+    cat: "VEGETATION MANAGEMENT",
+    icon: "🌳",
+    desc: "Unique water-storing Baobab trees are facing threats from climate change and land clearing for agriculture. As an environmental leader, which international agreement directly assists with trade monitoring of endangered species?",
+    type: "options",
+    choices: [
+      { text: "CITES (Convention on International Trade in Endangered Species).", correct: true, feedback: "Spot on! CITES regulates global trade of over 40,000 threatened animal and plant species, helping prevent extinction." },
+      { text: "Global Industrial Agriculture League.", correct: false, feedback: "Incorrect. Industrial agricultural expansion is actually one of the causes of deforestation and land clearing." },
+      { text: "The Deep Ocean Navigation Accord.", correct: false, feedback: "Incorrect. That agreement manages global maritime shipping lanes, not native terrestrial flora conservation." }
+    ],
+    completed: false
+  }
+];
+
+let stabilityIndex = 50;
+let currentActiveId = 0;
+let matchingPairs = [];
+let selectedTermIndex = null;
+
+function startQuest() {
+  document.getElementById('welcomeScreen').classList.add('hidden');
+  document.getElementById('questScreen').classList.remove('hidden');
+  renderNodes();
+  loadMission(0);
+}
+
+function renderNodes() {
+  const container = document.getElementById('nodesContainer');
+  container.innerHTML = '';
+  
+  missions.forEach((m) => {
+    const node = document.createElement('div');
+    node.className = `node ${m.id === currentActiveId ? 'active' : ''} ${m.completed ? 'completed' : ''}`;
+    node.onclick = () => {
+      if (!m.completed || m.id === currentActiveId) {
+        loadMission(m.id);
+      }
+    };
+
+    node.innerHTML = `
+      <div class="node-icon">${m.completed ? '✅' : m.icon}</div>
+      <div class="node-info">
+        <h4>${m.title}</h4>
+        <p>${m.completed ? 'STABLE' : m.zone + ' • ' + m.cat}</p>
+      </div>
+    `;
+    container.appendChild(node);
+  });
+
+  // Update Status Header
+  document.getElementById('stabilityText').textContent = `${stabilityIndex}%`;
+  document.getElementById('stabilityGauge').style.width = `${stabilityIndex}%`;
+  const completedCount = missions.filter(m => m.completed).length;
+  document.getElementById('completedCount').textContent = `${completedCount} / 5`;
+
+  if (completedCount === 5) {
+    playSound(clapsSound);
+    setTimeout(showFinishScreen, 2200);
+  }
+}
+
+function loadMission(id) {
+  currentActiveId = id;
+  const m = missions[id];
+  
+  document.getElementById('activeNodeBadge').textContent = m.zone;
+  document.getElementById('categoryLabel').textContent = m.cat;
+  document.getElementById('questTitle').textContent = m.title;
+  document.getElementById('questDesc').innerHTML = m.desc;
+  
+  const interactArea = document.getElementById('interactiveArea');
+  interactArea.innerHTML = '';
+  
+  const feedback = document.getElementById('feedbackBox');
+  feedback.className = "feedback-box hidden";
+  
+  const actionBtn = document.getElementById('actionBtn');
+  actionBtn.classList.add('hidden');
+
+  if (m.completed) {
+    feedback.className = "feedback-box feedback-success";
+    feedback.textContent = "Mission successfully completed. This hotspot's ecological balance is currently protected!";
+    return;
+  }
+
+  if (m.type === "options") {
+    const optionsWrapper = document.createElement('div');
+    optionsWrapper.className = "task-options";
+    
+    m.choices.forEach((c, index) => {
+      const btn = document.createElement('button');
+      btn.className = "btn-option";
+      btn.innerHTML = c.text;
+      btn.onclick = () => submitOptionAnswer(index);
+      optionsWrapper.appendChild(btn);
+    });
+    interactArea.appendChild(optionsWrapper);
+  } else if (m.type === "match") {
+    interactArea.innerHTML = `<p style="font-size:12px; margin-bottom:10px;">Select a term on the left, then select its matching definition on the right.</p>`;
+    
+    const container = document.createElement('div');
+    container.className = "matching-container";
+    
+    const leftCol = document.createElement('div');
+    leftCol.style.display = "flex";
+    leftCol.style.flexDirection = "column";
+    leftCol.style.gap = "8px";
+    
+    const rightCol = document.createElement('div');
+    rightCol.style.display = "flex";
+    rightCol.style.flexDirection = "column";
+    rightCol.style.gap = "8px";
+    
+    const shuffledTerms = m.matches.map((item, idx) => ({ ...item, originalIdx: idx }));
+    const shuffledDescs = m.matches.map((item, idx) => ({ ...item, originalIdx: idx })).sort(() => Math.random() - 0.5);
+
+    shuffledTerms.forEach((t) => {
+      const item = document.createElement('div');
+      item.className = "match-item";
+      item.textContent = t.term;
+      item.dataset.idx = t.originalIdx;
+      item.onclick = () => selectTerm(item);
+      leftCol.appendChild(item);
+    });
+
+    shuffledDescs.forEach((d) => {
+      const item = document.createElement('div');
+      item.className = "match-item";
+      item.textContent = d.desc;
+      item.dataset.idx = d.originalIdx;
+      item.onclick = () => selectDesc(item);
+      rightCol.appendChild(item);
+    });
+
+    container.appendChild(leftCol);
+    container.appendChild(rightCol);
+    interactArea.appendChild(container);
+
+    matchingPairs = [];
+    selectedTermIndex = null;
+    actionBtn.classList.remove('hidden');
+    actionBtn.textContent = "Evaluate Alignments";
+  }
+
+  renderNodes();
+}
+
+function submitOptionAnswer(index) {
+  const m = missions[currentActiveId];
+  const choice = m.choices[index];
+  const buttons = document.querySelectorAll('.btn-option');
+  
+  buttons.forEach((b, i) => {
+    b.disabled = true;
+    if (i === index) {
+      b.classList.add(choice.correct ? 'correct' : 'incorrect');
+    } else if (m.choices[i].correct) {
+      b.classList.add('correct');
+    }
+  });
+
+  const feedback = document.getElementById('feedbackBox');
+  feedback.classList.remove('hidden');
+  
+  if (choice.correct) {
+    playSound(correctSound);
+    feedback.className = "feedback-box feedback-success";
+    feedback.textContent = choice.feedback;
+    stabilityIndex = Math.min(100, stabilityIndex + 10);
+    m.completed = true;
+  } else {
+    playSound(wrongSound);
+    feedback.className = "feedback-box feedback-fail";
+    feedback.textContent = choice.feedback;
+    stabilityIndex = Math.max(0, stabilityIndex - 5);
+  }
+
+  setTimeout(() => {
+    renderNodes();
+  }, 2000);
+}
+
+function selectTerm(el) {
+  const allTerms = el.parentElement.querySelectorAll('.match-item');
+  allTerms.forEach(t => t.classList.remove('selected'));
+  
+  el.classList.add('selected');
+  selectedTermIndex = el.dataset.idx;
+}
+
+function selectDesc(el) {
+  if (selectedTermIndex === null) return;
+  
+  const descIdx = el.dataset.idx;
+  const termEl = document.querySelector(`.matching-container .match-item[data-idx="${selectedTermIndex}"]:not([style*="display: none"])`);
+  
+  if (selectedTermIndex === descIdx) {
+    playSound(correctSound);
+    el.style.borderColor = "var(--primary-mint)";
+    el.style.background = "rgba(16,185,129,0.15)";
+    el.style.pointerEvents = "none";
+    if (termEl) {
+      termEl.style.borderColor = "var(--primary-mint)";
+      termEl.style.background = "rgba(16,185,129,0.15)";
+      termEl.style.pointerEvents = "none";
+    }
+    matchingPairs.push(selectedTermIndex);
+  } else {
+    playSound(wrongSound);
+    el.style.borderColor = "var(--danger-red)";
+    setTimeout(() => {
+      el.style.borderColor = "";
+    }, 800);
+  }
+  
+  selectedTermIndex = null;
+  const allTerms = document.querySelectorAll('.matching-container .match-item');
+  allTerms.forEach(t => t.classList.remove('selected'));
+}
+
+function handleConsoleAction() {
+  const m = missions[currentActiveId];
+  const feedback = document.getElementById('feedbackBox');
+  feedback.classList.remove('hidden');
+
+  if (matchingPairs.length === m.matches.length) {
+    playSound(correctSound);
+    feedback.className = "feedback-box feedback-success";
+    feedback.textContent = "Outstanding! You correctly mapped all soil conservation methods. Soil health is restored!";
+    stabilityIndex = Math.min(100, stabilityIndex + 10);
+    m.completed = true;
+    document.getElementById('actionBtn').classList.add('hidden');
+    setTimeout(() => {
+      renderNodes();
+    }, 2000);
+  } else {
+    playSound(wrongSound);
+    feedback.className = "feedback-box feedback-fail";
+    feedback.textContent = "Critical elements are unaligned. Finish aligning all terms correctly first.";
+  }
+}
+
+function showFinishScreen() {
+  document.getElementById('questScreen').classList.add('hidden');
+  const finish = document.getElementById('finishScreen');
+  finish.classList.remove('hidden');
+
+  document.getElementById('finalStability').textContent = `${stabilityIndex}%`;
+  document.getElementById('finalScore').textContent = `${stabilityIndex * 5} Saved Footprints`;
+
+  const bContainer = document.getElementById('earnedBadgesContainer');
+  bContainer.innerHTML = '';
+
+  const badges = [
+    "🏔️ Landslide Specialist",
+    "🌱 Soil Remediation Officer",
+    "💧 Hydro-Energy Guardian",
+    "🐘 Wildlife Sanctuary Protector"
+  ];
+
+  badges.forEach(badge => {
+    const el = document.createElement('div');
+    el.className = "earned-badge";
+    el.textContent = badge;
+    bContainer.appendChild(el);
+  });
+}
+
+function resetQuest() {
+  stabilityIndex = 50;
+  missions.forEach(m => m.completed = false);
+  document.getElementById('finishScreen').classList.add('hidden');
+  document.getElementById('questScreen').classList.remove('hidden');
+  renderNodes();
+  loadMission(0);
+}
+</script>
+</body>
+</html>
