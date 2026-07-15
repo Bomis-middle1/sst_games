@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Eco-Sphere Sorting Factory: Resource Challenge</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    min-height:100vh;
+    background:
+      radial-gradient(circle at top, rgba(255,255,255,.7), transparent 30%),
+      linear-gradient(180deg,#f2f8f6,#e1ede9);
+    color:#1e2925;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:10px;
+    overflow-x:hidden;
+  }
+  .splash-screen,.instructions-screen,.finish-screen{
+    position:fixed;inset:0;display:flex;justify-content:center;align-items:center;z-index:9999;
+    background:linear-gradient(180deg,rgba(242,248,246,.98),rgba(225,237,233,.97));
+    transition:opacity .5s ease, transform .5s ease;
+  }
+  .hidden{opacity:0;pointer-events:none;transform:scale(.98)}
+  .panel{
+    width:min(900px,100%);
+    background:rgba(255,255,255,.98);
+    border-radius:30px;
+    box-shadow:0 24px 70px rgba(4,120,87,.15);
+    padding:28px;
+    border:1px solid rgba(0,0,0,.06);
+    text-align:center;
+  }
+  .panel img{
+    width:150px;height:150px;object-fit:contain;display:block;margin:0 auto 12px;
+    filter:drop-shadow(0 10px 20px rgba(0,0,0,.12))
+  }
+  .panel h1,.panel h2{color:#047857;margin-bottom:10px;font-family:'Georgia',serif}
+  .panel p{line-height:1.6;margin-bottom:14px}
+  .mission{
+    text-align:left;max-width:760px;margin:0 auto 20px;padding:18px;border-radius:22px;
+    background:linear-gradient(180deg,#e6f7f2,#dcede8);border:2px solid #a7f3d0
+  }
+  .mission h3{margin-bottom:10px;color:#047857}
+  .mission ul{padding-left:20px;line-height:1.7}
+  .btn{
+    border:0;border-radius:16px;padding:12px 18px;font-weight:900;cursor:pointer;
+    box-shadow:0 16px 34px rgba(4,120,87,.18);font-size:15px
+  }
+  .primary{background:linear-gradient(135deg,#047857,#065f46);color:#fff}
+  .gold{background:linear-gradient(135deg,#d97706,#b45309);color:#fff}
+  .light{background:#fff;color:#1e2925}
+  .wrap{
+    width:min(1280px,100%);
+    opacity:0;
+    transition:opacity .5s ease;
+  }
+  .wrap.visible{opacity:1}
+  .topbar{
+    display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;
+    background:rgba(255,255,255,.62);backdrop-filter:blur(8px);
+    border:1px solid rgba(0,0,0,.06);border-radius:24px;padding:14px 16px;box-shadow:0 18px 36px rgba(4,120,87,.12)
+  }
+  .title h1{margin:0;font-size:clamp(20px,3vw,34px);line-height:1.1;color:#047857;font-family:'Georgia',serif}
+  .title p{margin-top:6px;font-size:13px;opacity:.8}
+  .stats{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:flex-end}
+  .pill{
+    background:#fff;border-radius:999px;padding:10px 14px;min-width:92px;text-align:center;
+    font-weight:900;box-shadow:0 8px 18px rgba(0,0,0,.05);border:1px solid rgba(0,0,0,.05)
+  }
+  .game{
+    margin-top:14px;display:grid;grid-template-columns:1.2fr 0.8fr;gap:14px
+  }
+  @media (max-width:980px){.game{grid-template-columns:1fr}}
+  .stage,.side{
+    background:rgba(255,255,255,.72);border:1px solid rgba(0,0,0,.06);border-radius:28px;box-shadow:0 18px 36px rgba(4,120,87,.12)
+  }
+  .stage{padding:20px}
+  .stageTop{
+    display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px
+  }
+  .levelBadge{
+    background:linear-gradient(135deg,#d97706,#b45309);color:#fff;
+    padding:10px 14px;border-radius:999px;font-weight:900
+  }
+  .progressWrap{width:100%;height:14px;background:#cbece1;border-radius:999px;overflow:hidden}
+  .progressBar{height:100%;width:0;background:linear-gradient(90deg,#059669,#047857);transition:width .3s ease}
+  
+  .conveyor-area{
+    background:linear-gradient(180deg,#fcfefe,#f0faf7);
+    border-radius:26px;padding:24px;border:2px solid #a7f3d0;
+    box-shadow:0 12px 24px rgba(0,0,0,.05);position:relative;margin-bottom:20px;
+    min-height:180px;display:flex;flex-direction:column;align-items:center;justify-content:center
+  }
+  .resource-item-card{
+    background:#fff;border:3px solid #047857;border-radius:20px;
+    padding:20px 40px;font-size:24px;font-weight:900;color:#047857;
+    box-shadow:0 10px 25px rgba(4,120,87,0.15);
+    animation:popIn 0.3s ease-out;text-align:center
+  }
+  @keyframes popIn{from{transform:scale(0.8);opacity:0}to{transform:scale(1);opacity:1}}
+  
+  .bins-grid{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:10px
+  }
+  @media (max-width:550px){.bins-grid{grid-template-columns:1fr}}
+  
+  .bin-btn{
+    background:#fff;border:2px solid #c2d6cf;border-radius:20px;padding:20px 10px;
+    cursor:pointer;transition:all 0.2s ease;display:flex;flex-direction:column;align-items:center;gap:10px;
+    box-shadow:0 8px 16px rgba(0,0,0,0.04)
+  }
+  .bin-btn:hover{
+    border-color:#047857;background:#e6f7f2;transform:translateY(-4px)
+  }
+  .bin-title{font-weight:900;font-size:16px;color:#047857}
+  .bin-desc{font-size:12px;opacity:0.7;text-align:center;line-height:1.4}
+  
+  .side{padding:16px;display:flex;flex-direction:column;gap:14px}
+  .card{
+    background:linear-gradient(180deg,#f5fbf9,#ecf7f3);
+    border:1px solid #c2d6cf;border-radius:22px;padding:14px
+  }
+  .card h3{margin:0 0 8px;font-size:18px;color:#047857}
+  .badge{
+    display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid rgba(0,0,0,.07);
+    padding:8px 12px;border-radius:999px;font-weight:800;margin:6px 8px 0 0;box-shadow:0 6px 12px rgba(0,0,0,.05);
+    font-size:12px;
+  }
+  .badge.earned{background:#e6f7f2;border-color:#34d399}
+  .chipRow{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+  .chip{padding:7px 10px;border-radius:999px;background:#fff;border:1px solid rgba(0,0,0,.08);font-weight:800;font-size:12px}
+  .small{font-size:13px;opacity:.82;line-height:1.5}
+  
+  .confetti{
+    position:fixed;pointer-events:none;z-index:40;font-size:24px;animation:fall 1000ms ease-in forwards
+  }
+  @keyframes fall{
+    from{transform:translateY(-20px) rotate(0deg);opacity:1}
+    to{transform:translateY(420px) rotate(360deg);opacity:0}
+  }
+  
+  .question-modal{
+    display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:1000;justify-content:center;align-items:center;padding:20px
+  }
+  .question-box{
+    background:white;border-radius:20px;padding:28px;max-width:620px;width:100%;max-height:90vh;overflow-y:auto;
+    animation:slideIn .25s ease-out
+  }
+  @keyframes slideIn{from{transform:translateY(-30px);opacity:0}to{transform:translateY(0);opacity:1}}
+  .question-box h2{color:#047857;margin-bottom:16px;font-family:'Georgia',serif}
+  .question-text{font-size:18px;margin-bottom:18px;line-height:1.6}
+  .options{display:flex;flex-direction:column;gap:12px}
+  .option-btn{
+    padding:14px 16px;border:2px solid #047857;border-radius:12px;background:white;color:#1e2925;font-size:16px;
+    cursor:pointer;transition:all .2s;text-align:left;font-weight:700
+  }
+  .option-btn:hover{background:#e6f7f2;transform:translateX(4px)}
+  .option-btn.correct{background:#059669;color:white;border-color:#059669}
+  .option-btn.wrong{background:#dc2626;color:white;border-color:#dc2626}
+  .feedbackBox{margin-top:16px;padding:14px;border-radius:10px;font-weight:bold;display:none}
+  .feedbackBox.correct{background:#dcfce7;color:#15803d}
+  .feedbackBox.wrong{background:#fee2e2;color:#991b1b}
+  
+  .finishCard{
+    width:min(720px,100%);background:#f5fbf9;border-radius:30px;box-shadow:0 28px 70px rgba(4,120,87,.25);
+    border:1px solid rgba(0,0,0,.06);padding:26px;text-align:center
+  }
+  .finishCard h2{margin:0 0 8px;font-size:clamp(28px,4vw,44px);color:#047857;font-family:'Georgia',serif}
+  .finishCard p{margin:0 auto 14px;max-width:620px;line-height:1.65;font-size:16px}
+  .resultLine{font-size:22px;font-weight:900;color:#047857;margin:10px 0 14px}
+</style>
+</head>
+<body>
+
+<div class="splash-screen" id="splashScreen">
+  <div class="panel">
+    <img src="assets/innovine-logo.png" alt="Logo">
+    <h1>Eco-Sphere Sorting Factory</h1>
+    <p>Classify materials & test your understanding of Resource Sustainability!</p>
+    <button class="btn primary" id="showInstructionsBtn">Continue</button>
+  </div>
+</div>
+
+<div class="instructions-screen hidden" id="instructionsScreen">
+  <div class="panel">
+    <h2>Mission Briefing: Sort & Conserve</h2>
+    <div class="mission">
+      <h3>How to play</h3>
+      <ul>
+        <li>Analyze the item showing up on the factory conveyor area.</li>
+        <li>Sort it into its proper category: <strong>Natural</strong>, <strong>Human-Made</strong>, or <strong>Human Resources</strong>.</li>
+        <li>Correct sorts increase your score and level gauge. Every 3 successful sorts unlock a Sustainable Development conceptual question.</li>
+        <li>Pass all modules to successfully balance the global resource lifecycle!</li>
+      </ul>
+    </div>
+    <button class="btn gold" id="startBtn">START QUEST</button>
+  </div>
+</div>
+
+<div class="wrap" id="mainContainer">
+  <div class="topbar">
+    <div class="title">
+      <h1>Eco-Sphere Sorting Factory</h1>
+      <p>Grade 8 Geography · Types of Resources & Sustainable Development</p>
+    </div>
+    <div class="stats">
+      <div class="pill">Score: <span id="scoreVal">0</span></div>
+      <div class="pill">Sorted: <span id="itemsSorted">0/9</span></div>
+      <div class="pill">Correct Qs: <span id="correctCount">0</span></div>
+      <button class="btn light" id="restartBtn">Restart</button>
+    </div>
+  </div>
+
+  <div class="game">
+    <div class="stage">
+      <div class="stageTop">
+        <div class="levelBadge" id="levelBadge">🏛 Processing Stage 1/9</div>
+        <div style="min-width:220px;flex:1">
+          <div class="progressWrap"><div class="progressBar" id="progressBar"></div></div>
+        </div>
+      </div>
+
+      <div class="conveyor-area">
+        <div style="font-size:14px;font-weight:bold;margin-bottom:10px;color:#a7f3d0;text-transform:uppercase;letter-spacing:1px">Incoming Asset</div>
+        <div class="resource-item-card" id="currentItemCard">---</div>
+      </div>
+
+      <div class="bins-grid">
+        <button class="bin-btn" data-category="natural">
+          <span class="bin-title">🍃 Natural</span>
+          <span class="bin-desc">Comes from nature and used directly (Air, Water, Forests, Minerals)</span>
+        </button>
+        <button class="bin-btn" data-category="human-made">
+          <span class="bin-title">🏗️ Human-Made</span>
+          <span class="bin-desc">Transformed from natural materials (Buildings, Roads, Machines)</span>
+        </button>
+        <button class="bin-btn" data-category="human">
+          <span class="bin-title">💡 Human Resource</span>
+          <span class="bin-desc">People with skills, knowledge, expertise & innovation</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="side">
+      <div class="card">
+        <h3>Environmental Badges</h3>
+        <div id="badgeList"></div>
+      </div>
+      <div class="card">
+        <h3>Completed Frameworks</h3>
+        <div class="chipRow" id="collection"></div>
+      </div>
+      <div class="card">
+        <h3>Chapter Summary Focus</h3>
+        <p class="small">Natural items are available freely for everyone. Human-made options help daily life and industry development. Sustainable Development focuses on balancing economic growth, environmental protection, and individual well-being.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="question-modal" id="questionModal">
+  <div class="question-box">
+    <h2>Sustainability Challenge Module</h2>
+    <div class="question-text" id="questionText"></div>
+    <div class="options" id="optionsContainer"></div>
+    <div class="feedbackBox" id="feedback"></div>
+  </div>
+</div>
+
+<div class="finish-screen hidden" id="finishScreen">
+  <div class="finishCard">
+    <h2>Ecosystem Balanced! 🏆</h2>
+    <div class="resultLine">Total Factory Efficiency: <span id="finalScore">0</span>%</div>
+    <p id="finalMessage">You've successfully secured the classification logic and sustainable frameworks for future generations.</p>
+    <div id="finalBadges"></div>
+    <button class="btn primary" id="playAgainBtn">🔄 Run Another Cycle</button>
+  </div>
+</div>
+
+<audio id="correctSound" src="assets/correct.mp3" preload="auto"></audio>
+<audio id="wrongSound" src="assets/wrong.mp3" preload="auto"></audio>
+<audio id="celebrationSound" src="assets/freesound_community-claps-44774.mp3" preload="auto"></audio>
+
+<script>
+// Data lists mapping directly to provided text assets
+const sortingItems = [
+  { name: "Freshwater Streams", cat: "natural" },
+  { name: "High-Speed Vehicles", cat: "human-made" },
+  { name: "Experienced Teachers", cat: "human" },
+  { name: "Iron Ore Minerals", cat: "natural" },
+  { name: "Industrial Machinery", cat: "human-made" },
+  { name: "Research Scientists", cat: "human" },
+  { name: "Deep Wood Forests", cat: "natural" },
+  { name: "Asphalt Highway Roads", cat: "human-made" },
+  { name: "Medical Doctors", cat: "human" }
+];
+
+const conceptsQuestions = [
+  {
+    question: "Which of the following describes renewable resources accurately?",
+    options: ["They took millions of years to form and deplete instantly", "They can naturally regenerate or replenish over time continuously", "They are created solely from steel or wood options", "They are limited assets that human lifetimes cannot restore"],
+    correct: 1
+  },
+  {
+    question: "Fossil fuels like coal, oil, and natural gas require what kind of management?",
+    options: ["Careful management because they are consumed faster than they can be replaced", "No management because they grow back if we manage forests safely", "Constant high-speed distribution because they are freely open forever", "Total transformation into human resources"],
+    correct: 0
+  },
+  {
+    question: "What is a main guiding principle of Sustainable Development?",
+    options: ["Maximize environmental consumption to boost economy faster", "Cease all usage of natural resources immediately", "Use resources efficiently, avoid waste, and minimize pollution", "Provide basic needs exclusively to modern technological buildings"],
+    correct: 2
+  }
+];
+
+const badgeNames = [
+  "🌱 Natural Allocation Master",
+  "🏗️ Structural Asset Wizard",
+  "💡 Human Capital Steward",
+  "🌍 Sustainable Development Leader"
+];
+
+let currentIndex = 0;
+let score = 0;
+let correctQsCount = 0;
+let itemsSortedCount = 0;
+let triggerCounter = 0;
+let currentQuestionPoolIndex = 0;
+
+const els = {
+  splashScreen: document.getElementById('splashScreen'),
+  instructionsScreen: document.getElementById('instructionsScreen'),
+  showInstructionsBtn: document.getElementById('showInstructionsBtn'),
+  startBtn: document.getElementById('startBtn'),
+  mainContainer: document.getElementById('mainContainer'),
+  scoreVal: document.getElementById('scoreVal'),
+  itemsSorted: document.getElementById('itemsSorted'),
+  correctCount: document.getElementById('correctCount'),
+  levelBadge: document.getElementById('levelBadge'),
+  progressBar: document.getElementById('progressBar'),
+  currentItemCard: document.getElementById('currentItemCard'),
+  badgeList: document.getElementById('badgeList'),
+  collection: document.getElementById('collection'),
+  questionModal: document.getElementById('questionModal'),
+  questionText: document.getElementById('questionText'),
+  optionsContainer: document.getElementById('optionsContainer'),
+  feedback: document.getElementById('feedback'),
+  restartBtn: document.getElementById('restartBtn'),
+  playAgainBtn: document.getElementById('playAgainBtn'),
+  finishScreen: document.getElementById('finishScreen'),
+  finalScore: document.getElementById('finalScore'),
+  finalMessage: document.getElementById('finalMessage'),
+  finalBadges: document.getElementById('finalBadges'),
+  correctSound: document.getElementById('correctSound'),
+  wrongSound: document.getElementById('wrongSound'),
+  celebrationSound: document.getElementById('celebrationSound')
+};
+
+function playSound(a){ try{ a.currentTime=0; a.play().catch(()=>{}); } catch(e){} }
+
+function showConfetti(count=15){
+  const icons = ['🌿','✨','⭐','☀️','💧','🏗️','🌍'];
+  for(let i=0;i<count;i++){
+    const d=document.createElement('div');
+    d.className='confetti';
+    d.textContent=icons[i%icons.length];
+    d.style.left=Math.random()*100+'vw';
+    d.style.top=(Math.random()*10)+'px';
+    d.style.fontSize=(18+Math.random()*16)+'px';
+    d.style.animationDuration=(800+Math.random()*700)+'ms';
+    document.body.appendChild(d);
+    setTimeout(()=>d.remove(),1600);
+  }
+}
+
+function updateUI(){
+  els.scoreVal.textContent = score;
+  els.itemsSorted.textContent = `${itemsSortedCount}/9`;
+  els.correctCount.textContent = correctQsCount;
+  els.progressBar.style.width = `${(itemsSortedCount / 9) * 100}%`;
+  els.levelBadge.textContent = `🏛️ Processing Stage ${Math.min(itemsSortedCount + 1, 9)}/9`;
+  
+  // Render Dynamic Badges
+  els.badgeList.innerHTML = '';
+  badgeNames.forEach((b,i)=>{
+    const earned = score >= (i+1)*20;
+    const div = document.createElement('div');
+    div.className = 'badge' + (earned ? ' earned' : '');
+    div.textContent = (earned ? '✅ ' : '🔒 ') + b;
+    els.badgeList.appendChild(div);
+  });
+
+  // Render Framework Chips
+  els.collection.innerHTML = '';
+  for(let i=0; i<itemsSortedCount; i++){
+    const s = document.createElement('span');
+    s.className = 'chip';
+    s.textContent = `Sorted Asset #${i+1}`;
+    els.collection.appendChild(s);
+  }
+}
+
+function nextItem(){
+  if(itemsSortedCount >= sortingItems.length){
+    finishGame();
+    return;
+  }
+  els.currentItemCard.textContent = sortingItems[itemsSortedCount].name;
+  updateUI();
+}
+
+function handleSort(chosenCategory){
+  const currentItem = sortingItems[itemsSortedCount];
+  if(chosenCategory === currentItem.cat){
+    score += 10;
+    triggerCounter++;
+    playSound(els.correctSound);
+    showConfetti(8);
+  } else {
+    score = Math.max(0, score - 5);
+    playSound(els.wrongSound);
+  }
+  
+  itemsSortedCount++;
+  
+  if(triggerCounter === 3 && currentQuestionPoolIndex < conceptsQuestions.length){
+    triggerCounter = 0;
+    setTimeout(() => showConceptualQuestion(), 600);
+  } else {
+    setTimeout(() => nextItem(), 400);
+  }
+}
+
+function showConceptualQuestion(){
+  const q = conceptsQuestions[currentQuestionPoolIndex];
+  els.questionText.textContent = q.question;
+  els.optionsContainer.innerHTML = '';
+  els.feedback.style.display = 'none';
+  
+  q.options.forEach((opt, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.textContent = opt;
+    btn.onclick = () => checkQuestionAnswer(idx, btn, q.correct);
+    els.optionsContainer.appendChild(btn);
+  });
+  
+  els.questionModal.style.display = 'flex';
+}
+
+function checkQuestionAnswer(selected, btn, correctIdx){
+  const buttons = [...els.optionsContainer.querySelectorAll('.option-btn')];
+  buttons.forEach(b => b.disabled = true);
+  
+  if(selected === correctIdx){
+    btn.classList.add('correct');
+    score += 15;
+    correctQsCount++;
+    els.feedback.textContent = "🎉 Excellent knowledge application! Sustainable framework secured.";
+    els.feedback.className = "feedbackBox correct";
+    playSound(els.correctSound);
+    playSound(els.celebrationSound);
+    showConfetti(15);
+  } else {
+    btn.classList.add('wrong');
+    buttons[correctIdx].classList.add('correct');
+    els.feedback.textContent = "❌ Sustainability mismatch. Review core ecological guidelines.";
+    els.feedback.className = "feedbackBox wrong";
+    playSound(els.wrongSound);
+  }
+  
+  els.feedback.style.display = 'block';
+  currentQuestionPoolIndex++;
+  
+  setTimeout(() => {
+    els.questionModal.style.display = 'none';
+    nextItem();
+  }, 2500);
+}
+
+function finishGame(){
+  els.finishScreen.classList.remove('hidden');
+  els.finishScreen.style.display = 'flex';
+  
+  const totalPossible = (9 * 10) + (3 * 15); // 135 max
+  const percentage = Math.round((score / totalPossible) * 100);
+  
+  els.finalScore.textContent = percentage;
+  
+  let message = "Fantastic sorting and resource knowledge! You saved the environmental cycle.";
+  if(percentage < 60) message = "Good effort! Try another cycle to align natural elements and human requirements seamlessly.";
+  els.finalMessage.textContent = message;
+  
+  els.finalBadges.innerHTML = '';
+  badgeNames.forEach((b,i)=>{
+    if(score >= (i+1)*20){
+      const s = document.createElement('span');
+      s.className = 'badge earned';
+      s.style.margin = '6px';
+      s.textContent = b;
+      els.finalBadges.appendChild(s);
+    }
+  });
+  playSound(els.celebrationSound);
+}
+
+function restartGame(){
+  currentIndex = 0;
+  score = 0;
+  correctQsCount = 0;
+  itemsSortedCount = 0;
+  triggerCounter = 0;
+  currentQuestionPoolIndex = 0;
+  
+  // Shuffle array
+  sortingItems.sort(() => Math.random() - 0.5);
+  
+  els.finishScreen.style.display = 'none';
+  els.finishScreen.classList.add('hidden');
+  nextItem();
+}
+
+// Event Listeners
+els.showInstructionsBtn.addEventListener('click', ()=>{
+  els.splashScreen.classList.add('hidden');
+  setTimeout(()=>els.instructionsScreen.classList.remove('hidden'), 450);
+});
+
+els.startBtn.addEventListener('click', ()=>{
+  els.instructionsScreen.classList.add('hidden');
+  els.mainContainer.classList.add('visible');
+  restartGame();
+});
+
+document.querySelectorAll('.bin-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const category = btn.getAttribute('data-category');
+    handleSort(category);
+  });
+});
+
+els.restartBtn.addEventListener('click', restartGame);
+els.playAgainBtn.addEventListener('click', restartGame);
+</script>
+</body>
+</html>
