@@ -22,6 +22,28 @@
             color: #333;
         }
 
+        /* Splash Screen Styling */
+        #splash-screen {
+            position: fixed;
+            inset: 0;
+            background: #ffffff !important;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 99999;
+            transition: opacity 0.5s ease;
+        }
+
+        #splash-screen.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .splash-logo {
+            max-width: 200px;
+            display: block;
+        }
+
         #game-container {
             background: white;
             width: 95%;
@@ -193,6 +215,11 @@
 </head>
 <body>
 
+<!-- Splash Screen (Innovine logo only on plain white background) -->
+<div id="splash-screen">
+    <img src="assets/innovine-logo.png" alt="Innovine Logo" class="splash-logo" onerror="this.style.display='none'">
+</div>
+
 <div id="game-container">
     <img src="assets/innovine-logo.png" alt="Innovine Logo" class="logo" onerror="this.style.display='none'">
     
@@ -246,13 +273,22 @@
 </div>
 
 <script>
-    // Asset mapping matching your uploaded path structural context
+    // Automatically hide splash screen after 2.5 seconds
+    window.addEventListener('load', () => {
+        setTimeout(() => {
+            const splash = document.getElementById('splash-screen');
+            if (splash) {
+                splash.classList.add('fade-out');
+                setTimeout(() => splash.remove(), 500);
+            }
+        }, 2500);
+    });
+
     const audioCorrect = new Audio('assets/correct.mp3');
     const audioWrong = new Audio('assets/wrong.mp3');
     const audioWin = new Audio('assets/freesound_community-claps-44774.mp3');
     let isMuted = false;
 
-    // Direct text-mapped contents compiled straight from Chapter 11 criteria
     const itemsData = [
         { name: "Anjali demands to play cricket with the boys under the Right to Equality.", type: "right" },
         { name: "Standing up respectfully during the singing of the National Anthem.", type: "duty" },
@@ -289,7 +325,6 @@
     }
 
     function startGame() {
-        // Randomly picks 8 questions out of the data pool for a clean, non-repetitive cycle
         gameItems = [...itemsData].sort(() => Math.random() - 0.5).slice(0, totalRounds);
         currentItemIndex = 0;
         score = 0;
@@ -304,7 +339,6 @@
             const displayEl = document.getElementById('current-item-display');
             displayEl.textContent = gameItems[currentItemIndex].name;
             
-            // Re-trigger modern entry pop animation
             displayEl.style.animation = 'none';
             displayEl.offsetHeight; 
             displayEl.style.animation = null;
@@ -331,7 +365,6 @@
         currentItemIndex++;
         updateStats();
 
-        // Delay step ensures responsive audio/visual feedback completes before loading next round card
         setTimeout(() => {
             feedbackEl.textContent = "";
             loadNextItem();
