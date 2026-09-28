@@ -87,25 +87,25 @@ canvas{display:block;width:100%;height:100%}
 .resultIcons{font-size:52px;margin:10px}
 
 @media(max-width:800px){
-  body{overflow:hidden}
-  .screen{min-height:100svh;padding:4px}
-  .shell{height:98vh;height:98svh;width:100%;gap:6px}
+  html,body{width:100%;height:100%;height:100svh;overflow:hidden;margin:0;padding:0}
+  .screen{min-height:unset;height:100vh;height:100svh;padding:4px;overflow:hidden;box-sizing:border-box}
+  .shell{width:100%;height:100%;max-height:100%;display:grid;grid-template-rows:auto auto 1fr;gap:4px;overflow:hidden;box-sizing:border-box}
   .top{grid-template-columns:repeat(3,1fr);gap:4px}
-  .hud{padding:6px 2px;font-size:9px;border-radius:12px}
-  .hud strong{font-size:15px}
-  .progress{height:8px;margin-top:3px}
-  .mission{padding:6px;font-size:13px;border-radius:12px}
-  .main{grid-template-columns:1fr;grid-template-rows:1fr 120px;gap:6px;min-height:0}
-  .panel{border-radius:16px;border-width:2px}
-  .left{padding:8px}
-  .qbox{min-height:44px;padding:8px;font-size:13px;border-radius:12px;border-width:2px}
-  .options{grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
-  .option{min-height:38px;padding:6px;font-size:11px;border-width:2px;border-radius:10px;gap:6px}
-  .option .letter{width:22px;height:22px;font-size:12px}
-  .feedback{padding:6px;font-size:11px;margin-top:4px;border-radius:10px}
-  #next{margin-top:4px;padding:8px 16px;font-size:13px}
-  .scene{min-height:120px;max-height:120px}
-  .control{bottom:6px;left:6px;right:6px;padding:4px;font-size:10px;border-radius:8px}
+  .hud{padding:4px 2px;font-size:8px;border-radius:8px;border-width:2px}
+  .hud strong{font-size:13px}
+  .progress{height:6px;margin-top:2px}
+  .mission{padding:4px 8px;font-size:12px;border-radius:8px;border-width:2px}
+  .main{grid-template-columns:1fr;grid-template-rows:1fr 85px;gap:4px;min-height:0;overflow:hidden}
+  .panel{border-radius:12px;border-width:2px;overflow:hidden;display:flex;flex-direction:column}
+  .left{padding:6px;justify-content:space-between}
+  .qbox{min-height:unset;padding:6px;font-size:12px;border-radius:8px;border-width:2px;line-height:1.25}
+  .options{grid-template-columns:1fr 1fr;gap:4px;margin-top:4px}
+  .option{min-height:30px;padding:4px 6px;font-size:10px;border-width:2px;border-radius:8px;gap:4px}
+  .option .letter{width:20px;height:20px;font-size:11px}
+  .feedback{padding:4px 6px;font-size:10px;margin-top:2px;border-radius:6px;line-height:1.2}
+  #next{margin-top:2px;padding:6px 12px;font-size:11px;border-radius:8px}
+  .scene{min-height:85px;max-height:85px;position:relative}
+  .control{bottom:4px;left:4px;right:4px;padding:2px 4px;font-size:9px;border-radius:6px}
 }
 </style>
 </head>
