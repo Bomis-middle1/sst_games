@@ -1,3 +1,6 @@
+Here is your complete, updated code. The small note box has been completely removed so the explorer is fully visible, and the mobile layout has been optimized with a balanced 50/50 split grid (`1fr 1fr`) to eliminate any unnecessary blank space and prevent scrolling.
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -83,7 +86,6 @@ body{
 #next{margin-top:10px;align-self:center}
 .scene{position:relative;background:linear-gradient(180deg,#8adfff 0%,#d7f6ff 42%,#9dd889 42%,#4e995d 100%);min-height:400px}
 canvas{display:block;width:100%;height:100%}
-.control{position:absolute;left:15px;right:15px;bottom:15px;background:#0b2554dc;border:2px solid #73e6ff;border-radius:14px;padding:10px;text-align:center;font-weight:900}
 .resultIcons{font-size:52px;margin:10px}
 
 @media(max-width:800px){
@@ -95,7 +97,7 @@ canvas{display:block;width:100%;height:100%}
   .hud strong{font-size:13px}
   .progress{height:6px;margin-top:2px}
   .mission{padding:4px 8px;font-size:12px;border-radius:8px;border-width:2px}
-  .main{grid-template-columns:1fr;grid-template-rows:1fr 85px;gap:4px;min-height:0;overflow:hidden}
+  .main{grid-template-columns:1fr;grid-template-rows:1fr 1fr;gap:4px;min-height:0;overflow:hidden}
   .panel{border-radius:12px;border-width:2px;overflow:hidden;display:flex;flex-direction:column}
   .left{padding:6px;justify-content:space-between}
   .qbox{min-height:unset;padding:6px;font-size:12px;border-radius:8px;border-width:2px;line-height:1.25}
@@ -104,8 +106,7 @@ canvas{display:block;width:100%;height:100%}
   .option .letter{width:20px;height:20px;font-size:11px}
   .feedback{padding:4px 6px;font-size:10px;margin-top:2px;border-radius:6px;line-height:1.2}
   #next{margin-top:2px;padding:6px 12px;font-size:11px;border-radius:8px}
-  .scene{min-height:85px;max-height:85px;position:relative}
-  .control{bottom:4px;left:4px;right:4px;padding:2px 4px;font-size:9px;border-radius:6px}
+  .scene{min-height:0;position:relative}
 }
 </style>
 </head>
@@ -150,7 +151,6 @@ canvas{display:block;width:100%;height:100%}
       </div>
       <div class="panel scene">
         <canvas id="sceneCanvas"></canvas>
-        <div class="control" id="status">Choose an answer to help the explorer move forward.</div>
       </div>
     </div>
   </div>
@@ -214,7 +214,6 @@ function loadQuestion(){
   document.getElementById("time").textContent=left;
   document.getElementById("next").classList.add("hidden");
   document.getElementById("feedback").classList.add("hidden");
-  document.getElementById("status").textContent="Choose an answer to help the explorer move forward.";
   document.getElementById("qnum").textContent=index+1;
   document.getElementById("bar").style.width=(index/questions.length*100)+"%";
 
@@ -261,7 +260,6 @@ function pick(el,i){
     score+=10;
     document.getElementById("score").textContent=score;
     feedback.textContent="Correct! "+d.e;
-    document.getElementById("status").textContent="Correct! The explorer is climbing towards the highest peak.";
     play("correct");
     setTimeout(()=>play("clap"),250);
 
@@ -275,7 +273,6 @@ function pick(el,i){
     attempts++;
     el.classList.add("wrong");
     play("wrong");
-    document.getElementById("status").textContent="The trail is blocked. Check the clue and try again.";
 
     if(attempts<2){
       feedback.textContent="Try again. One more chance!";
@@ -297,7 +294,6 @@ function reveal(msg){
   const feedback=document.getElementById("feedback");
   feedback.classList.remove("hidden");
   feedback.textContent=msg+" "+d.e;
-  document.getElementById("status").textContent="Correct path revealed. Continue to the next trail stage.";
   document.getElementById("next").classList.remove("hidden");
 }
 
@@ -570,3 +566,5 @@ draw();
 </script>
 </body>
 </html>
+
+```
