@@ -1,6 +1,3 @@
-Here is your complete, updated code. The small note box has been completely removed so the explorer is fully visible, and the mobile layout has been optimized with a balanced 50/50 split grid (`1fr 1fr`) to eliminate any unnecessary blank space and prevent scrolling.
-
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,7 +14,7 @@ body{
   margin:0;font-family:Arial,Helvetica,sans-serif;min-height:100vh;overflow:hidden;color:#fff;
   background:linear-gradient(180deg,#7ddcff 0%,#d9f6ff 37%,#8fcf77 37%,#4f9259 100%)
 }
-.screen{display:none;min-height:100vh;align-items:center;justify-content:center;padding:16px;position:relative;z-index:3}
+.screen{display:none;min-height:100vh;align-items:center;justify-content:center;padding:12px;position:relative;z-index:3}
 .active{display:flex}
 #splash{background:linear-gradient(135deg,#fff,#ebf9ff)}
 .splashBox{text-align:center}
@@ -47,66 +44,68 @@ body{
   color:#fff;font-size:18px;font-weight:900;cursor:pointer;box-shadow:0 7px 0 #0a235d
 }
 .btn:active{transform:translateY(5px);box-shadow:0 2px 0 #0a235d}
-#game{padding:10px}
-.shell{width:min(1190px,98vw);height:min(790px,96vh);display:grid;grid-template-rows:auto auto 1fr;gap:10px}
-.top{display:grid;grid-template-columns:1fr 1.35fr 1fr;gap:10px}
+#game{padding:6px}
+.shell{width:min(850px,98vw);height:min(790px,98vh);display:grid;grid-template-rows:auto auto 1fr;gap:8px}
+.top{display:grid;grid-template-columns:1fr 1.35fr 1fr;gap:8px}
 .hud{
-  background:linear-gradient(180deg,#273086,#11164e);border:3px solid #6a78ef;border-radius:22px;
-  padding:10px;text-align:center;font-weight:900;box-shadow:0 8px 20px #0005
+  background:linear-gradient(180deg,#273086,#11164e);border:3px solid #6a78ef;border-radius:18px;
+  padding:8px;text-align:center;font-weight:900;box-shadow:0 6px 15px #0005;font-size:11px
 }
-.hud strong{display:block;color:var(--yellow);font-size:28px}
-.progress{height:13px;background:#e4f8ff;border-radius:99px;overflow:hidden;margin-top:6px}
+.hud strong{display:block;color:var(--yellow);font-size:20px}
+.progress{height:10px;background:#e4f8ff;border-radius:99px;overflow:hidden;margin-top:4px}
 .progress span{display:block;height:100%;width:0;background:linear-gradient(90deg,#5be538,#efff48);transition:.3s}
 .mission{
-  background:linear-gradient(90deg,#214f75,#2f8d70);border:3px solid #73ecb0;border-radius:18px;
-  padding:10px 18px;text-align:center;font-size:clamp(17px,2.1vw,23px);font-weight:900
+  background:linear-gradient(90deg,#214f75,#2f8d70);border:3px solid #73ecb0;border-radius:14px;
+  padding:8px 14px;text-align:center;font-size:clamp(15px,1.8vw,20px);font-weight:900
 }
-.main{display:grid;grid-template-columns:1.08fr .92fr;gap:12px;min-height:0}
-.panel{background:linear-gradient(145deg,#fff,#eaf8ff);border:4px solid #56d9ff;border-radius:25px;box-shadow:0 16px 30px #0005;overflow:hidden}
-.left{padding:16px;display:flex;flex-direction:column;color:#10205a}
+.panel{
+  background:linear-gradient(145deg,#fff,#eaf8ff);border:4px solid #56d9ff;border-radius:20px;
+  box-shadow:0 12px 25px #0005;overflow:hidden;display:flex;flex-direction:column;padding:12px;gap:8px;color:#10205a
+}
 .qbox{
-  background:#fff;border:3px solid #6d57eb;border-radius:20px;padding:17px;min-height:155px;
-  display:flex;align-items:center;font-weight:900;font-size:clamp(17px,2vw,23px);line-height:1.4
+  background:#fff;border:3px solid #6d57eb;border-radius:16px;padding:12px 16px;
+  display:flex;align-items:center;font-weight:900;font-size:clamp(15px,1.9vw,21px);line-height:1.35;flex:0 0 auto
 }
-.options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.scene{
+  position:relative;background:linear-gradient(180deg,#8adfff 0%,#d7f6ff 42%,#9dd889 42%,#4e995d 100%);
+  border:3px solid #56d9ff;border-radius:16px;overflow:hidden;flex:1 1 auto;min-height:120px
+}
+canvas{display:block;width:100%;height:100%}
+.options{display:grid;grid-template-columns:1fr 1fr;gap:8px;flex:0 0 auto}
 .option{
-  border:3px solid #7b4ce8;border-radius:16px;background:#fff;padding:11px;min-height:68px;
-  font-weight:900;color:#111959;text-align:left;cursor:pointer;display:flex;gap:10px;align-items:center;
-  font-size:clamp(14px,1.7vw,18px);transition:.12s
+  border:3px solid #7b4ce8;border-radius:14px;background:#fff;padding:10px;min-height:56px;
+  font-weight:900;color:#111959;text-align:left;cursor:pointer;display:flex;gap:8px;align-items:center;
+  font-size:clamp(13px,1.6vw,17px);transition:.12s
 }
 .option:nth-child(2){border-color:#31a74a}.option:nth-child(3){border-color:#3478ef}.option:nth-child(4){border-color:#ff861c}
-.option .letter{width:38px;height:38px;border-radius:50%;background:#8147e7;color:#fff;display:grid;place-items:center;flex:0 0 auto;font-size:20px}
+.option .letter{width:32px;height:32px;border-radius:50%;background:#8147e7;color:#fff;display:grid;place-items:center;flex:0 0 auto;font-size:16px}
 .option:nth-child(2) .letter{background:#28a642}.option:nth-child(3) .letter{background:#3472e8}.option:nth-child(4) .letter{background:#ff7900}
 .option.selected{background:#fff4bd;transform:scale(1.01)}
 .option.correct{background:#cbffdc;border-color:#10a257}
 .option.wrong{background:#ffd4d4;border-color:#d93434;animation:shake .3s}
 @keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
-.feedback{margin-top:10px;background:#18235f;color:#fff;border-radius:14px;padding:10px 14px;font-weight:900;line-height:1.35}
+.feedback{background:#18235f;color:#fff;border-radius:12px;padding:8px 12px;font-weight:900;line-height:1.3;flex:0 0 auto;font-size:13px}
 .hidden{display:none!important}
-#next{margin-top:10px;align-self:center}
-.scene{position:relative;background:linear-gradient(180deg,#8adfff 0%,#d7f6ff 42%,#9dd889 42%,#4e995d 100%);min-height:400px}
-canvas{display:block;width:100%;height:100%}
+#next{align-self:center;padding:10px 20px;font-size:15px;flex:0 0 auto}
 .resultIcons{font-size:52px;margin:10px}
 
 @media(max-width:800px){
   html,body{width:100%;height:100%;height:100svh;overflow:hidden;margin:0;padding:0}
-  .screen{min-height:unset;height:100vh;height:100svh;padding:4px;overflow:hidden;box-sizing:border-box}
-  .shell{width:100%;height:100%;max-height:100%;display:grid;grid-template-rows:auto auto 1fr;gap:4px;overflow:hidden;box-sizing:border-box}
-  .top{grid-template-columns:repeat(3,1fr);gap:4px}
-  .hud{padding:4px 2px;font-size:8px;border-radius:8px;border-width:2px}
-  .hud strong{font-size:13px}
-  .progress{height:6px;margin-top:2px}
-  .mission{padding:4px 8px;font-size:12px;border-radius:8px;border-width:2px}
-  .main{grid-template-columns:1fr;grid-template-rows:1fr 1fr;gap:4px;min-height:0;overflow:hidden}
-  .panel{border-radius:12px;border-width:2px;overflow:hidden;display:flex;flex-direction:column}
-  .left{padding:6px;justify-content:space-between}
-  .qbox{min-height:unset;padding:6px;font-size:12px;border-radius:8px;border-width:2px;line-height:1.25}
-  .options{grid-template-columns:1fr 1fr;gap:4px;margin-top:4px}
-  .option{min-height:30px;padding:4px 6px;font-size:10px;border-width:2px;border-radius:8px;gap:4px}
-  .option .letter{width:20px;height:20px;font-size:11px}
-  .feedback{padding:4px 6px;font-size:10px;margin-top:2px;border-radius:6px;line-height:1.2}
-  #next{margin-top:2px;padding:6px 12px;font-size:11px;border-radius:8px}
-  .scene{min-height:0;position:relative}
+  .screen{min-height:unset;height:100vh;height:100svh;padding:3px;overflow:hidden;box-sizing:border-box}
+  .shell{width:100%;height:100%;max-height:100%;display:grid;grid-template-rows:auto auto 1fr;gap:3px;overflow:hidden;box-sizing:border-box}
+  .top{grid-template-columns:repeat(3,1fr);gap:3px}
+  .hud{padding:3px 2px;font-size:7px;border-radius:6px;border-width:2px}
+  .hud strong{font-size:11px}
+  .progress{height:5px;margin-top:2px}
+  .mission{padding:3px 6px;font-size:11px;border-radius:6px;border-width:2px}
+  .panel{border-radius:10px;border-width:2px;padding:4px;gap:3px;overflow:hidden;display:flex;flex-direction:column;height:100%}
+  .qbox{padding:4px 6px;font-size:11px;border-radius:6px;border-width:2px;line-height:1.15}
+  .scene{min-height:65px;border-radius:6px;border-width:2px}
+  .options{grid-template-columns:1fr 1fr;gap:3px}
+  .option{min-height:26px;padding:3px 5px;font-size:9px;border-width:2px;border-radius:6px;gap:3px}
+  .option .letter{width:18px;height:18px;font-size:10px}
+  .feedback{padding:3px 6px;font-size:9px;border-radius:6px;line-height:1.15}
+  #next{margin-top:0;padding:4px 10px;font-size:10px;border-radius:6px}
 }
 </style>
 </head>
@@ -142,16 +141,14 @@ canvas{display:block;width:100%;height:100%}
       <div class="hud">TIME<strong id="time">60</strong></div>
     </div>
     <div class="mission" id="missionTitle">Landform Mission</div>
-    <div class="main">
-      <div class="panel left">
-        <div class="qbox" id="question"></div>
-        <div class="options" id="options"></div>
-        <div class="feedback hidden" id="feedback"></div>
-        <button id="next" class="btn hidden" onclick="nextQuestion()">Next Trail Stage</button>
-      </div>
-      <div class="panel scene">
+    <div class="panel">
+      <div class="qbox" id="question"></div>
+      <div class="scene">
         <canvas id="sceneCanvas"></canvas>
       </div>
+      <div class="options" id="options"></div>
+      <div class="feedback hidden" id="feedback"></div>
+      <button id="next" class="btn hidden" onclick="nextQuestion()">Next Trail Stage</button>
     </div>
   </div>
 </section>
@@ -360,7 +357,7 @@ function draw(){
   // Sun
   ctx.fillStyle="#ffd95c";
   ctx.beginPath();
-  ctx.arc(w*.83,h*.14,32,0,Math.PI*2);
+  ctx.arc(w*.83,h*.14,28,0,Math.PI*2);
   ctx.fill();
 
   // Natural layered mountain silhouettes
@@ -380,8 +377,8 @@ function draw(){
   ],"#667486");
 
   // Snow caps on the two tallest peaks
-  drawSnowCap(w*.34,h*.34,28,18);
-  drawSnowCap(w*.60,h*.29,34,21);
+  drawSnowCap(w*.34,h*.34,24,15);
+  drawSnowCap(w*.60,h*.29,28,18);
 
   // Plateau on the left
   ctx.fillStyle="#95683f";
@@ -410,7 +407,7 @@ function draw(){
 
   // Clearly visible climbing trail
   ctx.strokeStyle="#d2a16f";
-  ctx.lineWidth=12;
+  ctx.lineWidth=10;
   ctx.lineCap="round";
   ctx.beginPath();
   ctx.moveTo(w*.08,h*.89);
@@ -431,7 +428,7 @@ function draw(){
   }
 
   const pt=trailPoint(explorer.p,w,h);
-  drawExplorer(pt.x,pt.y+Math.sin(t*4)*1.5);
+  drawExplorer(pt.x,pt.y+Math.sin(t*4)*1.2);
 
   requestAnimationFrame(draw);
 }
@@ -478,35 +475,35 @@ function trailPoint(p,w,h){
 function drawTent(x,y){
   ctx.fillStyle="#ff7c38";
   ctx.beginPath();
-  ctx.moveTo(x-26,y+28);
-  ctx.lineTo(x,y-10);
-  ctx.lineTo(x+26,y+28);
+  ctx.moveTo(x-22,y+24);
+  ctx.lineTo(x,y-8);
+  ctx.lineTo(x+22,y+24);
   ctx.closePath();
   ctx.fill();
 
   ctx.fillStyle="#6f3d24";
   ctx.beginPath();
-  ctx.moveTo(x,y-10);
-  ctx.lineTo(x+26,y+28);
-  ctx.lineTo(x+5,y+28);
+  ctx.moveTo(x,y-8);
+  ctx.lineTo(x+22,y+24);
+  ctx.lineTo(x+4,y+24);
   ctx.closePath();
   ctx.fill();
 
   ctx.strokeStyle="#4f3320";
-  ctx.lineWidth=3;
+  ctx.lineWidth=2.5;
   ctx.beginPath();
-  ctx.moveTo(x,y-10);
-  ctx.lineTo(x,y+28);
+  ctx.moveTo(x,y-8);
+  ctx.lineTo(x,y+24);
   ctx.stroke();
 
   ctx.strokeStyle="#5a3b24";
   ctx.beginPath();
-  ctx.moveTo(x+22,y-18);
-  ctx.lineTo(x+22,y+20);
+  ctx.moveTo(x+18,y-14);
+  ctx.lineTo(x+18,y+16);
   ctx.stroke();
 
   ctx.fillStyle="#ffdc49";
-  ctx.fillRect(x+22,y-16,25,12);
+  ctx.fillRect(x+18,y-12,20,10);
 }
 
 function drawExplorer(x,y){
@@ -515,49 +512,49 @@ function drawExplorer(x,y){
 
   // backpack
   ctx.fillStyle="#f3a13b";
-  ctx.fillRect(-15,-15,8,17);
+  ctx.fillRect(-12,-12,7,14);
 
   // body
   ctx.fillStyle="#2468d3";
-  ctx.fillRect(-8,-19,16,24);
+  ctx.fillRect(-6,-15,12,20);
 
   // head
   ctx.fillStyle="#f2c39d";
   ctx.beginPath();
-  ctx.arc(0,-29,9,0,Math.PI*2);
+  ctx.arc(0,-23,7.5,0,Math.PI*2);
   ctx.fill();
 
   // cap
   ctx.fillStyle="#e44e3d";
   ctx.beginPath();
-  ctx.arc(0,-33,10,Math.PI,Math.PI*2);
+  ctx.arc(0,-26,8,Math.PI,Math.PI*2);
   ctx.fill();
-  ctx.fillRect(0,-34,9,3);
+  ctx.fillRect(0,-27,7,2.5);
 
   // legs
   ctx.strokeStyle="#2f2a28";
-  ctx.lineWidth=4;
+  ctx.lineWidth=3.5;
   ctx.beginPath();
-  ctx.moveTo(-4,5);
-  ctx.lineTo(-8,19);
-  ctx.moveTo(4,5);
-  ctx.lineTo(9,19);
+  ctx.moveTo(-3,4);
+  ctx.lineTo(-6,15);
+  ctx.moveTo(3,4);
+  ctx.lineTo(7,15);
   ctx.stroke();
 
   // arms
   ctx.beginPath();
-  ctx.moveTo(-7,-12);
-  ctx.lineTo(-15,-2);
-  ctx.moveTo(7,-12);
-  ctx.lineTo(14,-2);
+  ctx.moveTo(-5,-10);
+  ctx.lineTo(-12,-2);
+  ctx.moveTo(5,-10);
+  ctx.lineTo(11,-2);
   ctx.stroke();
 
   // walking stick
   ctx.strokeStyle="#5a3b25";
-  ctx.lineWidth=3;
+  ctx.lineWidth=2.5;
   ctx.beginPath();
-  ctx.moveTo(14,-4);
-  ctx.lineTo(20,20);
+  ctx.moveTo(11,-3);
+  ctx.lineTo(16,16);
   ctx.stroke();
 
   ctx.restore();
@@ -566,5 +563,3 @@ draw();
 </script>
 </body>
 </html>
-
-```
