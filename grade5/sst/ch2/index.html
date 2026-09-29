@@ -30,6 +30,17 @@ canvas{display:block;width:100%;height:100%;}
 .next-btn:hover{transform:scale(1.05);}
 .score-screen{text-align:center;display:none;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:20px;}
 .score-circle{width:150px;height:150px;border-radius:50%;border:5px solid var(--accent-gold);display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:bold;color:var(--accent-gold);box-shadow:0 0 20px rgba(255,215,0,.2);}
+html,body{height:100%;}
+body{height:100dvh;overflow:hidden;justify-content:center;}
+.game-container{height:calc(100dvh - 24px);margin:12px 0;}
+.canvas-container{aspect-ratio:auto;height:100%;align-self:stretch;}
+canvas{object-fit:contain;}
+.control-panel{min-height:0;height:100%;overflow-y:auto;}
+.quiz-header{margin-bottom:14px;}
+#splash{position:fixed;inset:0;background:#fff;z-index:9999;display:flex;align-items:center;justify-content:center;transition:opacity .6s;}
+#splash img{max-width:60vw;max-height:40vh;}
+#splash.hide{opacity:0;pointer-events:none;}
+.splash-name{color:#222;font-size:40px;font-weight:bold;}
 html{-webkit-text-size-adjust:100%;}
 button{-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
 @media(max-width:900px){
@@ -54,14 +65,16 @@ h1{font-size:16px;letter-spacing:1px;padding:0 56px;line-height:1.3;}
 .score-screen{padding:10px 0;}
 .score-circle{width:120px;height:120px;font-size:30px;}
 }
-@media(max-width:400px){h1{font-size:14px;padding:0 44px;}}
+@media(max-width:900px){
+.game-container{margin:0;gap:0;height:100dvh;}
+.canvas-container{flex:none;height:34dvh;border-width:0 0 2px 0;}
+.control-panel{flex:1;height:auto;min-height:0;overflow-y:auto;border-width:0;padding:12px 14px 16px;}
+}
+@media(max-width:400px){.option-btn{font-size:13px;padding:11px 12px;}}
 </style>
 </head>
 <body>
-<header>
-<img src="assets/innovine-logo.png" alt="Innovine Logo" class="logo" onerror="this.style.display='none'">
-<h1>🚀 Our World - 5th Grade Mission Control 🌍</h1>
-</header>
+<div id="splash"><img src="assets/innovine-logo.png" alt="Innovine" onerror="this.outerHTML='<div class=&quot;splash-name&quot;>Innovine</div>'"></div>
 
 <div class="game-container">
 <div class="canvas-container"><canvas id="worldCanvas" width="750" height="550"></canvas></div>
@@ -72,7 +85,6 @@ h1{font-size:16px;letter-spacing:1px;padding:0 56px;line-height:1.3;}
 <span id="topicBadge" style="font-weight:bold;color:#a0aec0;">Module: Space Mechanics</span>
 <span class="progress-badge" id="progressText">Question 1/10</span>
 </div>
-<div class="bar"><div id="barFill"></div></div>
 <div class="case-box" id="caseText">Loading...</div>
 <div class="question-text" id="questionText">Loading...</div>
 <div class="options-grid" id="optionsBlock"></div>
@@ -152,7 +164,6 @@ document.getElementById('factBox').style.display='none';
 let q=cbqDatabase[currentQuestionIdx];
 visualMode=q.visual;
 document.getElementById('progressText').innerText=`Question ${currentQuestionIdx+1}/10`;
-document.getElementById('barFill').style.width=(currentQuestionIdx/10*100)+'%';
 document.getElementById('caseText').innerText=q.case;
 document.getElementById('questionText').innerText=q.question;
 let tb=document.getElementById('topicBadge');
@@ -182,7 +193,6 @@ for(let b of all)b.setAttribute('disabled','true');
 let fb=document.getElementById('factBox');
 fb.innerText="💡 Did you know? "+q.fact;
 fb.style.display='block';
-document.getElementById('barFill').style.width=((currentQuestionIdx+1)/10*100)+'%';
 document.getElementById('nextBtn').style.display='block';
 }
 function advanceQuestion(){
@@ -492,12 +502,14 @@ label('MISSION COMPLETE!',W/2,420,30,'#69f0ae');
 const scenes={startrails:sceneStarTrails,daynight:sceneDayNight,hurricane:sceneHurricane,revolution:sceneRevolution,seasons:sceneSeasons,climate_dry:sceneDry,climate_tropical:sceneTropical,capital:sceneCapital,culture:sceneCulture,india:sceneIndia,victory:sceneVictory};
 
 function runGraphicsRenderLoop(){
-T+=.01;K=Math.min(1.5,Math.max(1,560/(canvas.clientWidth||750)));
+T+=.01;K=Math.min(1.5,Math.max(1,560/(Math.min(canvas.clientWidth,canvas.clientHeight*750/550)||750)));
 ctx.clearRect(0,0,W,H);
 (scenes[visualMode]||sceneStarTrails)();
 requestAnimationFrame(runGraphicsRenderLoop);
 }
 
+const splash=document.getElementById('splash');
+setTimeout(()=>{splash.classList.add('hide');setTimeout(()=>splash.remove(),700);},5000);
 loadCurrentQuestion();
 runGraphicsRenderLoop();
 </script>
