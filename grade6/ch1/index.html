@@ -2,11 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Earth & Space Explorer Mission</title>
 <style>
 *{box-sizing:border-box}
 :root{--navy:#07184a;--blue:#1368d8;--cyan:#42d8ff;--yellow:#ffd84d;--pink:#ff6ccf;--green:#43d67f}
+html{-webkit-text-size-adjust:100%}
+button{-webkit-tap-highlight-color:transparent;touch-action:manipulation;font-family:inherit}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(180deg,#07133c,#19246d 46%,#0b4c78);color:#fff;min-height:100vh;overflow:hidden}
 #stars{position:fixed;inset:0;background-image:radial-gradient(#fff 1px,transparent 1px);background-size:34px 34px;opacity:.25;animation:drift 18s linear infinite}
 @keyframes drift{to{background-position:68px 34px}}
@@ -26,7 +28,7 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(
 .mission{background:linear-gradient(90deg,#12235e,#213c9a);border:3px solid #48dcff;border-radius:18px;padding:10px 18px;text-align:center;font-size:clamp(17px,2.1vw,23px);font-weight:900}
 .main{display:grid;grid-template-columns:1.08fr .92fr;gap:12px;min-height:0}
 .panel{background:linear-gradient(145deg,#f9fdff,#e8f7ff);border:4px solid #50d7ff;border-radius:25px;box-shadow:0 16px 30px #0005;overflow:hidden}
-.left{padding:16px;display:flex;flex-direction:column;color:#101b59}
+.left{padding:16px;display:flex;flex-direction:column;color:#101b59;overflow-y:auto}
 .qbox{background:#fff;border:3px solid #7865ef;border-radius:20px;padding:17px;min-height:145px;display:flex;align-items:center;font-weight:900;font-size:clamp(17px,2vw,23px);line-height:1.4}
 .options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
 .option{border:3px solid #7a4be8;border-radius:16px;background:#fff;padding:11px;min-height:66px;font-weight:900;color:#111959;text-align:left;cursor:pointer;display:flex;gap:10px;align-items:center;font-size:clamp(14px,1.7vw,18px)}
@@ -35,11 +37,34 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(
 .option.selected{background:#fff4bd;transform:scale(1.01)}.option.correct{background:#cbffdc;border-color:#10a257}.option.wrong{background:#ffd4d4;border-color:#d93434;animation:shake .3s}@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
 .feedback{margin-top:10px;background:#211766;color:#fff;border-radius:14px;padding:10px 14px;font-weight:900;line-height:1.35}.hidden{display:none!important}
 .scene{position:relative;background:linear-gradient(180deg,#081449,#1e2783 60%,#093f66);min-height:340px}
-canvas{display:block;width:100%;height:100%}
+canvas{display:block;position:absolute;inset:0;width:100%;height:100%}
 .control{position:absolute;left:15px;right:15px;bottom:15px;background:#0b144fd9;border:2px solid #66ddff;border-radius:14px;padding:10px;text-align:center;font-weight:900}
 #next{margin-top:10px;align-self:center}
 .resultStars{font-size:52px;margin:10px}
-@media(max-width:780px){body{overflow:auto}.screen{min-height:100svh}.shell{height:auto}.top{grid-template-columns:1fr}.main{grid-template-columns:1fr}.scene{min-height:300px}.options{grid-template-columns:1fr}}
+@media(max-width:780px),(max-height:600px){body{overflow:auto}.screen{min-height:100vh;min-height:100dvh}.shell{height:auto}.scene{min-height:300px}}
+@media(max-width:780px){
+#game{padding:8px}
+.shell{gap:8px}
+.top{grid-template-columns:1fr 1.25fr 1fr;gap:6px}
+.hud{padding:6px 4px;border-radius:14px;border-width:2px;font-size:10px}
+.hud strong{font-size:20px}
+.progress{height:9px;margin-top:3px}
+.mission{padding:7px 10px;font-size:15px;border-radius:14px;border-width:2px}
+.main{grid-template-columns:1fr;gap:10px}
+.panel{border-width:3px;border-radius:20px}
+.left{padding:12px}
+.qbox{min-height:0;padding:12px;font-size:16px;border-radius:16px}
+.options{grid-template-columns:1fr;gap:8px}
+.option{min-height:54px;padding:8px 10px;font-size:15px;border-radius:14px}
+.option .letter{width:32px;height:32px;font-size:17px}
+.feedback{font-size:14px;padding:9px 12px}
+.scene{min-height:240px}
+.control{left:8px;right:8px;bottom:8px;padding:7px;font-size:13px}
+.modal{padding:18px;border-radius:22px}
+.btn{padding:12px 20px;font-size:17px}
+.resultStars{font-size:40px}
+}
+@media(max-width:380px){.hud{font-size:9px}.hud strong{font-size:18px}.mission{font-size:14px}.option{font-size:14px}}
 </style>
 </head>
 <body>
@@ -129,6 +154,7 @@ const style=document.createElement("style");style.textContent="@keyframes fall{t
 
 function resize(){const r=cvs.parentElement.getBoundingClientRect();cvs.width=r.width*devicePixelRatio;cvs.height=r.height*devicePixelRatio;ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0)}
 addEventListener("resize",resize);
+addEventListener("orientationchange",()=>setTimeout(resize,250));
 
 function draw(){
  const w=cvs.width/devicePixelRatio,h=cvs.height/devicePixelRatio;
