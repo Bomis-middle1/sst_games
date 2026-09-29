@@ -1,614 +1,505 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grade 5 EVS Game: Our World Explorer</title>
-    <style>
-        :root {
-            --space-bg: #0a0b10;
-            --panel-bg: rgba(20, 24, 35, 0.95);
-            --accent-gold: #ffd700;
-            --text-light: #f0f4f8;
-            --success-green: #2e7d32;
-            --error-red: #c62828;
-            --ui-blue: #3b4861;
-        }
-
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: var(--space-bg);
-            color: var(--text-light);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            overflow-x: hidden;
-        }
-
-        header {
-            background: linear-gradient(180deg, #141923, transparent);
-            width: 100%;
-            text-align: center;
-            padding: 20px 0;
-            border-bottom: 2px solid #222b3c;
-            position: relative;
-        }
-
-        .logo {
-            position: absolute;
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            height: 40px;
-        }
-
-        h1 {
-            margin: 0;
-            font-size: 26px;
-            color: var(--accent-gold);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
-        }
-
-        .game-container {
-            display: flex;
-            width: 95vw;
-            max-width: 1300px;
-            margin: 25px 0;
-            gap: 25px;
-        }
-
-        .canvas-container {
-            flex: 1.3;
-            background: #000;
-            border: 3px solid var(--ui-blue);
-            border-radius: 16px;
-            position: relative;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.8);
-            overflow: hidden;
-            height: 550px;
-        }
-
-        canvas {
-            display: block;
-            width: 100%;
-            height: 100%;
-        }
-
-        .control-panel {
-            flex: 1;
-            background: var(--panel-bg);
-            border: 2px solid #2d384e;
-            border-radius: 16px;
-            padding: 25px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            height: 500px;
-        }
-
-        .quiz-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid #2d384e;
-            padding-bottom: 10px;
-            margin-bottom: 15px;
-        }
-
-        .progress-badge {
-            background: #1e2638;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 14px;
-            color: var(--accent-gold);
-            border: 1px solid #44567a;
-        }
-
-        .case-box {
-            background: rgba(255, 255, 255, 0.05);
-            border-left: 4px solid var(--accent-gold);
-            padding: 15px;
-            border-radius: 4px;
-            font-size: 15px;
-            line-height: 1.5;
-            margin-bottom: 15px;
-            font-style: italic;
-        }
-
-        .question-text {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 15px;
-        }
-
-        .options-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .option-btn {
-            background: #1e2638;
-            color: white;
-            border: 1px solid #3d4d6e;
-            padding: 14px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 15px;
-            text-align: left;
-            transition: all 0.25s ease;
-        }
-
-        .option-btn:hover:not([disabled]) {
-            background: #2b3752;
-            border-color: var(--accent-gold);
-            transform: translateX(5px);
-        }
-
-        .option-btn[disabled] {
-            cursor: not-allowed;
-        }
-
-        .action-container {
-            margin-top: 20px;
-            display: flex;
-            justify-content: flex-end;
-        }
-
-        .next-btn {
-            background: var(--accent-gold);
-            color: #000;
-            border: none;
-            padding: 12px 30px;
-            font-size: 16px;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            display: none;
-            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
-            transition: transform 0.2s;
-        }
-
-        .next-btn:hover {
-            transform: scale(1.05);
-        }
-
-        .score-screen {
-            text-align: center;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            gap: 20px;
-        }
-
-        .score-circle {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            border: 5px solid var(--accent-gold);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 36px;
-            font-weight: bold;
-            color: var(--accent-gold);
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grade 5 EVS Game: Our World Explorer</title>
+<style>
+:root{--space-bg:#0a0b10;--panel-bg:rgba(20,24,35,.95);--accent-gold:#ffd700;--text-light:#f0f4f8;--success-green:#2e7d32;--error-red:#c62828;--ui-blue:#3b4861;}
+body{margin:0;padding:0;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:var(--space-bg);color:var(--text-light);display:flex;flex-direction:column;align-items:center;overflow-x:hidden;}
+header{background:linear-gradient(180deg,#141923,transparent);width:100%;text-align:center;padding:20px 0;border-bottom:2px solid #222b3c;position:relative;}
+.logo{position:absolute;left:20px;top:50%;transform:translateY(-50%);height:40px;}
+h1{margin:0;font-size:26px;color:var(--accent-gold);text-transform:uppercase;letter-spacing:2px;text-shadow:0 0 10px rgba(255,215,0,.3);}
+.game-container{display:flex;width:95vw;max-width:1300px;margin:25px 0;gap:25px;align-items:stretch;}
+.canvas-container{flex:1.3;background:#000;border:3px solid var(--ui-blue);border-radius:16px;position:relative;box-shadow:0 15px 35px rgba(0,0,0,.8);overflow:hidden;aspect-ratio:750/550;height:auto;min-width:0;align-self:flex-start;}
+canvas{display:block;width:100%;height:100%;}
+.control-panel{flex:1;background:var(--panel-bg);border:2px solid #2d384e;border-radius:16px;padding:25px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 10px 30px rgba(0,0,0,.5);min-height:550px;box-sizing:border-box;}
+.quiz-header{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #2d384e;padding-bottom:10px;margin-bottom:10px;}
+.progress-badge{background:#1e2638;padding:6px 12px;border-radius:20px;font-size:14px;color:var(--accent-gold);border:1px solid #44567a;}
+.bar{height:8px;background:#1e2638;border-radius:6px;margin-bottom:14px;overflow:hidden;}
+.bar div{height:100%;width:0;background:linear-gradient(90deg,#ff9933,#ffd700,#43a047);transition:width .5s;}
+.case-box{background:rgba(255,255,255,.05);border-left:4px solid var(--accent-gold);padding:15px;border-radius:4px;font-size:15px;line-height:1.5;margin-bottom:15px;font-style:italic;}
+.question-text{font-size:18px;font-weight:600;margin-bottom:15px;}
+.options-grid{display:flex;flex-direction:column;gap:12px;}
+.option-btn{background:#1e2638;color:#fff;border:1px solid #3d4d6e;padding:14px 20px;border-radius:8px;cursor:pointer;font-size:15px;text-align:left;transition:all .25s ease;}
+.option-btn:hover:not([disabled]){background:#2b3752;border-color:var(--accent-gold);transform:translateX(5px);}
+.option-btn[disabled]{cursor:not-allowed;}
+.fact-box{display:none;margin-top:14px;background:rgba(255,215,0,.1);border:1px dashed var(--accent-gold);border-radius:8px;padding:10px 14px;font-size:14px;line-height:1.4;}
+.action-container{margin-top:20px;display:flex;justify-content:flex-end;}
+.next-btn{background:var(--accent-gold);color:#000;border:none;padding:12px 30px;font-size:16px;font-weight:bold;border-radius:8px;cursor:pointer;display:none;box-shadow:0 4px 15px rgba(255,215,0,.4);transition:transform .2s;}
+.next-btn:hover{transform:scale(1.05);}
+.score-screen{text-align:center;display:none;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:20px;}
+.score-circle{width:150px;height:150px;border-radius:50%;border:5px solid var(--accent-gold);display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:bold;color:var(--accent-gold);box-shadow:0 0 20px rgba(255,215,0,.2);}
+html{-webkit-text-size-adjust:100%;}
+button{-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
+@media(max-width:900px){
+body{width:100%;}
+header{padding:12px 0;}
+h1{font-size:16px;letter-spacing:1px;padding:0 56px;line-height:1.3;}
+.logo{height:26px;left:8px;}
+.game-container{flex-direction:column;width:100%;margin:10px 0;gap:12px;}
+.canvas-container{flex:none;width:100%;align-self:stretch;border-radius:0;border-width:2px 0;box-shadow:none;}
+.control-panel{flex:none;width:100%;min-height:0;border-radius:0;border-width:2px 0;padding:16px 14px 22px;}
+.quiz-header{flex-wrap:wrap;gap:6px;}
+#topicBadge{font-size:13px;}
+.progress-badge{font-size:13px;padding:4px 10px;}
+.case-box{font-size:14px;padding:10px 12px;}
+.question-text{font-size:16px;margin-bottom:12px;}
+.options-grid{gap:10px;}
+.option-btn{font-size:14px;padding:13px 14px;}
+.option-btn:hover:not([disabled]){transform:none;}
+.fact-box{font-size:13px;}
+.next-btn{width:100%;padding:14px;font-size:17px;}
+.action-container{margin-top:16px;}
+.score-screen{padding:10px 0;}
+.score-circle{width:120px;height:120px;font-size:30px;}
+}
+@media(max-width:400px){h1{font-size:14px;padding:0 44px;}}
+</style>
 </head>
 <body>
+<header>
+<img src="assets/innovine-logo.png" alt="Innovine Logo" class="logo" onerror="this.style.display='none'">
+<h1>🚀 Our World - 5th Grade Mission Control 🌍</h1>
+</header>
 
-    <header>
-        <img src="assets/innovine-logo.png" alt="Innovine Logo" class="logo" onerror="this.style.display='none'">
-        <h1>Our World - 5th Grade Mission Control</h1>
-    </header>
+<div class="game-container">
+<div class="canvas-container"><canvas id="worldCanvas" width="750" height="550"></canvas></div>
 
-    <div class="game-container">
-        <div class="canvas-container">
-            <canvas id="worldCanvas" width="750" height="550"></canvas>
-        </div>
+<div class="control-panel">
+<div id="quizActiveZone">
+<div class="quiz-header">
+<span id="topicBadge" style="font-weight:bold;color:#a0aec0;">Module: Space Mechanics</span>
+<span class="progress-badge" id="progressText">Question 1/10</span>
+</div>
+<div class="bar"><div id="barFill"></div></div>
+<div class="case-box" id="caseText">Loading...</div>
+<div class="question-text" id="questionText">Loading...</div>
+<div class="options-grid" id="optionsBlock"></div>
+<div class="fact-box" id="factBox"></div>
+<div class="action-container">
+<button class="next-btn" id="nextBtn" onclick="advanceQuestion()">Next Question ➡️</button>
+</div>
+</div>
 
-        <div class="control-panel">
-            <div id="quizActiveZone">
-                <div class="quiz-header">
-                    <span id="topicBadge" style="font-weight: bold; color: #a0aec0;">Module: Space Mechanics</span>
-                    <span class="progress-badge" id="progressText">Question 1/10</span>
-                </div>
+<div class="score-screen" id="scoreZone">
+<h2>🌍 Exploration Mission Accomplished!</h2>
+<div class="score-circle" id="scoreValue">0/10</div>
+<p id="feedbackStatement">Checking your score...</p>
+<button class="option-btn" style="text-align:center;" onclick="resetMission()">Restart Flight Mission</button>
+</div>
+</div>
+</div>
 
-                <div class="case-box" id="caseText">Loading case matrix context...</div>
-                <div class="question-text" id="questionText">Loading query question context...</div>
+<audio id="sndCorrect" src="assets/correct.mp3" preload="auto"></audio>
+<audio id="sndWrong" src="assets/wrong.mp3" preload="auto"></audio>
+<audio id="sndApplause" src="assets/freesound_community-claps-44774.mp3" preload="auto"></audio>
 
-                <div class="options-grid" id="optionsBlock">
-                    </div>
+<script>
+const canvas=document.getElementById('worldCanvas');
+const ctx=canvas.getContext('2d');
+const W=750,H=550;let K=1;
+let currentQuestionIdx=0,runningScore=0,visualMode="startrails",T=0,isAnswered=false;
 
-                <div class="action-container">
-                    <button class="next-btn" id="nextBtn" onclick="advanceQuestion()">Next Question ➡️</button>
-                </div>
-            </div>
+const cbqDatabase=[
+{case:"An amateur astronomer observes a star pattern over a 6-hour period at night and notices the stars appear to migrate sequentially across the night sky.",
+question:"What primary hidden planetary movement directly induces this localized stellar migration phenomenon?",
+options:["A) The linear orbit velocity of distant deep space star fields","B) The rotation of the Earth turning upon its internal vertical axis","C) The continuous rapid shrinking diameter of Earth's atmosphere","D) Local solar gravity pulling neighboring galaxies inward"],
+correct:1,visual:"startrails",fact:"Earth spins once every 24 hours. That is why stars seem to move across the night sky!"},
+{case:"A cargo jet takes off from Washington D.C. in bright afternoon sunshine and arrives in New Delhi, India where local ground crews are working under floodlights in the dark.",
+question:"Why does India experience deep nighttime conditions while the United States is illuminated by daytime?",
+options:["A) Clouds block all light entry from reaching Asia completely","B) The Earth's rotation places India on the side facing away from the Sun","C) India operates closer to deep polar ocean zones","D) The Sun briefly shuts off its fusion energy generation cycle every 12 hours"],
+correct:1,visual:"daynight",fact:"The half of Earth facing the Sun has day. The half facing away has night."},
+{case:"Satellite telemetry tracks massive hurricane cloud walls spinning in counter-clockwise circles while migrating across wide expanses of open tropical ocean waves.",
+question:"Which rotational force outcome creates these curving storm systems and distinct planetary trade wind patterns?",
+options:["A) Continuous heat generation inside deep core lava veins","B) The Earth's rotational momentum turning underneath atmospheric paths","C) Polar ice caps melting at accelerated seasonal speeds","D) Magnetic interference generated by deep communications towers"],
+correct:1,visual:"hurricane",fact:"Earth's spin bends winds into curves, so big storms swirl round and round."},
+{case:"A calendar system tracks a continuous extra 6-hour drift remainder over a clean 365-day block each time the planet finishes a single complete solar cycle run.",
+question:"How long does it take the Earth to complete one full revolution cycle around the Sun's orbital perimeter path?",
+options:["A) Exactly 24 standard working hours","B) Approximately 30 calendar days","C) Roughly 365 days and 6 hours","D) Exactly 100 days total"],
+correct:2,visual:"revolution",fact:"The extra 6 hours add up to one whole day every 4 years. That is our Leap Year (29 February)!"},
+{case:"In June, scientific installations located on the frozen South Pole experience continuous darkness, while regions in the Northern Hemisphere enjoy long, hot summer days.",
+question:"What physical structural position explains the intense summer conditions in the Northern Hemisphere during June?",
+options:["A) The North Pole is physically tilted toward the direct path of the Sun","B) The Sun changes its spatial orbit altitude profile closer to Earth","C) The Southern Hemisphere experiences sudden micro-volcanic action","D) The Earth ceases all regular orbital movement during June"],
+correct:0,visual:"seasons",fact:"Earth's axis is tilted by 23.5°. The half tilted toward the Sun gets summer."},
+{case:"An expedition team records extreme heat indices matching 45°C inside deep sand plains during the afternoon, followed by plummeting near-freezing temperatures immediately after sunset.",
+question:"Which ecosystem climate class matches this scenario based on the Sahara Desert geographic case model?",
+options:["A) Freezing and volatile Polar Climate Zone","B) Constant precipitation Tropical Rainforest Climate","C) Dry Climate characterized by negligible moisture and thermal swings","D) Moderate Temperate European Zone"],
+correct:2,visual:"climate_dry",fact:"Deserts have very few clouds, so heat escapes fast at night and it becomes cold."},
+{case:"Biologists monitoring canopy canals inside the deep Amazon basin record massive daily rain downpours combined with consistently high ambient heat indexes across all 12 calendar months.",
+question:"What planetary zone positioning dictates the warm and wet status profile of this iconic Tropical Climate region?",
+options:["A) Close strategic proximity to the highly irradiated solar equator line","B) Extended elevation placement directly inside polar wind networks","C) Massive underground refrigeration structures built inside bedrock layers","D) Extreme seasonal tilt variations shifting every two calendar weeks"],
+correct:0,visual:"climate_tropical",fact:"The Equator gets the most direct sunlight, so nearby places are hot and rainy all year."},
+{case:"Architects visiting New Delhi look at the structural geometries of the highly visited Lotus Temple before researching historical architectural patterns across different regional capitals.",
+question:"By definition, what central role distinguishes a sovereign global nation's designated Capital City?",
+options:["A) It must possess the highest physical mountain point inside the territory","B) It acts as the primary administrative seat where government leaders sit and work","C) It must possess a coastline with access to oceanic international shipping lanes","D) It represents the single coldest point designated inside regional maps"],
+correct:1,visual:"capital",fact:"New Delhi is India's capital. Parliament, the President and the Prime Minister work there."},
+{case:"A cultural exchange festival showcases traditional tartan wool kilts from Scotland alongside vibrant, intricately pleated silk sarees worn by performers from India.",
+question:"What underlying global reality does this diverse display of traditional clothing and distinctive national costumes illustrate?",
+options:["A) Industrial raw fabric material manufacturing constraints across regions","B) Every independent global culture adapts unique traditional identity traits","C) Uniform universal fashion directives issued across continental systems","D) Random resource allocation choices determined without historic background context"],
+correct:1,visual:"culture",fact:"Every culture has its own special clothes, food, music and festivals. Diversity makes the world colourful!"},
+{case:"Every single year on August 15th, citizens gather across India while the Prime Minister hoists the tricolor national flag over the historic stone walls of the Red Fort in New Delhi.",
+question:"Which landmark historical achievement is honored during this specific national recurring cultural festival?",
+options:["A) The adoption of the internal constitutional document rules in 1950","B) India's historic achievement of freedom and total sovereignty in 1947","C) The building foundation day of the central New Delhi capital municipality","D) The global transition of structural weather tracks into Autumn months"],
+correct:1,visual:"india",fact:"India became free on 15 August 1947. We celebrate Independence Day every year!"}
+];
 
-            <div class="score-screen" id="scoreZone">
-                <h2>🌍 Exploration Mission Accomplished!</h2>
-                <div class="score-circle" id="scoreValue">0/10</div>
-                <p id="feedbackStatement">Evaluating overall geographical navigation metrics...</p>
-                <button class="option-btn" style="text-align: center;" onclick="resetMission()">Restart Flight Mission</button>
-            </div>
-        </div>
-    </div>
+/* ---------- Quiz logic ---------- */
+function loadCurrentQuestion(){
+isAnswered=false;
+document.getElementById('nextBtn').style.display='none';
+document.getElementById('factBox').style.display='none';
+let q=cbqDatabase[currentQuestionIdx];
+visualMode=q.visual;
+document.getElementById('progressText').innerText=`Question ${currentQuestionIdx+1}/10`;
+document.getElementById('barFill').style.width=(currentQuestionIdx/10*100)+'%';
+document.getElementById('caseText').innerText=q.case;
+document.getElementById('questionText').innerText=q.question;
+let tb=document.getElementById('topicBadge');
+if(currentQuestionIdx<3)tb.innerText="Module: Planetary Rotation Dynamics";
+else if(currentQuestionIdx<5)tb.innerText="Module: Solar Orbital Revolution";
+else if(currentQuestionIdx<7)tb.innerText="Module: Global Climatology Vectors";
+else tb.innerText="Module: Global Geography & Human Culture";
+let ob=document.getElementById('optionsBlock');
+ob.innerHTML="";
+q.options.forEach((t,i)=>{let b=document.createElement('button');b.className="option-btn";b.innerText=t;b.onclick=()=>selectAnswer(i,b);ob.appendChild(b);});
+}
+function selectAnswer(idx,btn){
+if(isAnswered)return;
+isAnswered=true;
+let q=cbqDatabase[currentQuestionIdx];
+let all=document.getElementById('optionsBlock').getElementsByTagName('button');
+if(idx===q.correct){
+btn.style.background=varProps('--success-green');btn.style.borderColor="#81c784";
+document.getElementById('sndCorrect').play().catch(()=>{});
+runningScore++;
+}else{
+btn.style.background=varProps('--error-red');btn.style.borderColor="#e57373";
+all[q.correct].style.background=varProps('--success-green');all[q.correct].style.borderColor="#81c784";
+document.getElementById('sndWrong').play().catch(()=>{});
+}
+for(let b of all)b.setAttribute('disabled','true');
+let fb=document.getElementById('factBox');
+fb.innerText="💡 Did you know? "+q.fact;
+fb.style.display='block';
+document.getElementById('barFill').style.width=((currentQuestionIdx+1)/10*100)+'%';
+document.getElementById('nextBtn').style.display='block';
+}
+function advanceQuestion(){
+currentQuestionIdx++;
+if(currentQuestionIdx<cbqDatabase.length)loadCurrentQuestion();else displayEndGameScoreboard();
+}
+function displayEndGameScoreboard(){
+document.getElementById('quizActiveZone').style.display='none';
+document.getElementById('scoreZone').style.display='flex';
+document.getElementById('scoreValue').innerText=`${runningScore}/10`;
+visualMode="victory";
+let f="";
+if(runningScore>=9){f="Exceptional Performance! You are a master planetary navigator of cultures, climates, and rotation mechanics.";document.getElementById('sndApplause').play().catch(()=>{});}
+else if(runningScore>=6){f="Good work! You possess solid functional core geographical literacy.";}
+else{f="Review the core chapter text definitions regarding planetary axis vectors and try the exploration route again.";}
+document.getElementById('feedbackStatement').innerText=f;
+}
+function resetMission(){
+currentQuestionIdx=0;runningScore=0;
+document.getElementById('scoreZone').style.display='none';
+document.getElementById('quizActiveZone').style.display='block';
+loadCurrentQuestion();
+}
+function varProps(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim();}
 
-    <audio id="sndCorrect" src="assets/correct.mp3" preload="auto"></audio>
-    <audio id="sndWrong" src="assets/wrong.mp3" preload="auto"></audio>
-    <audio id="sndApplause" src="assets/freesound_community-claps-44774.mp3" preload="auto"></audio>
+/* ---------- Drawing helpers ---------- */
+function label(t,x,y,size=15,color='#fff'){
+ctx.font=`bold ${size*K}px sans-serif`;ctx.textAlign='center';
+ctx.shadowColor='rgba(0,0,0,.8)';ctx.shadowBlur=4;
+ctx.fillStyle=color;ctx.fillText(t,x,y);
+ctx.shadowBlur=0;ctx.textAlign='left';
+}
+function emoji(e,x,y,size){
+ctx.font=`${size}px "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif`;
+ctx.textAlign='center';ctx.fillStyle='#fff';ctx.fillText(e,x,y);ctx.textAlign='left';
+}
+function title(t){ctx.fillStyle='rgba(0,0,0,.5)';ctx.fillRect(0,0,W,30+14*K);label(t,W/2,20+9*K,19,'#ffd700');}
+function caption(t,y=515){
+ctx.font=`bold ${15*K}px sans-serif`;
+const w=ctx.measureText(t).width+34;
+ctx.fillStyle='rgba(0,0,0,.6)';ctx.fillRect(W/2-w/2,y-16-6*K,w,10+22*K);
+label(t,W/2,y,15,'#fff');
+}
+function pin(x,y,c){ctx.fillStyle=c;ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y,7,0,7);ctx.fill();ctx.stroke();}
+function space(){
+ctx.fillStyle='#030512';ctx.fillRect(0,0,W,H);
+ctx.fillStyle='#fff';
+for(let i=0;i<60;i++){ctx.globalAlpha=.3+.7*Math.abs(Math.sin(T*2+i));const s=i%3?1.5:2.5;ctx.fillRect((i*127)%W,(i*71)%H,s,s);}
+ctx.globalAlpha=1;
+}
+function sky(c1,c2){const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,c1);g.addColorStop(1,c2);ctx.fillStyle=g;ctx.fillRect(0,0,W,H);}
+function sun(x,y,r){
+ctx.save();ctx.translate(x,y);ctx.rotate(T*.5);ctx.strokeStyle='#ffd54a';ctx.lineWidth=4;ctx.lineCap='round';
+for(let i=0;i<12;i++){ctx.rotate(Math.PI/6);ctx.beginPath();ctx.moveTo(r+7,0);ctx.lineTo(r+18+Math.sin(T*4+i)*4,0);ctx.stroke();}
+ctx.restore();
+const g=ctx.createRadialGradient(x,y,r*.2,x,y,r);g.addColorStop(0,'#fff59d');g.addColorStop(1,'#ff9800');
+ctx.fillStyle=g;ctx.shadowColor='#ff9800';ctx.shadowBlur=30;ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill();ctx.shadowBlur=0;
+}
+function earth(x,y,r,spin,night){
+ctx.save();ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.clip();
+ctx.fillStyle='#2471a3';ctx.fillRect(x-r,y-r,2*r,2*r);
+ctx.fillStyle='#43a047';
+const blobs=[[0,-.4,.35],[.5,.1,.3],[1,-.2,.4],[1.5,.4,.3],[2,-.5,.28],[2.5,.15,.35]];
+const span=r*3,off=(spin*r*.4)%span;
+for(const b of blobs){const px=x-r*1.5+((b[0]*r+off)%span);ctx.beginPath();ctx.ellipse(px,y+b[1]*r,b[2]*r*1.2,b[2]*r*.8,0,0,7);ctx.fill();}
+ctx.fillStyle='#fff';
+ctx.beginPath();ctx.ellipse(x,y-r,r*.5,r*.14,0,0,7);ctx.fill();
+ctx.beginPath();ctx.ellipse(x,y+r,r*.5,r*.14,0,0,7);ctx.fill();
+if(night){
+ctx.fillStyle='rgba(2,4,25,.7)';ctx.fillRect(x,y-r,r,2*r);
+for(let i=0;i<12;i++){ctx.globalAlpha=.4+.6*Math.abs(Math.sin(T*3+i));ctx.fillStyle='#ffe082';ctx.fillRect(x+8+((i*37)%(r*.8)),y-r*.6+((i*53)%(r*1.2)),2.5,2.5);}
+ctx.globalAlpha=1;
+}
+ctx.restore();
+ctx.strokeStyle='rgba(120,200,255,.6)';ctx.lineWidth=3;ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.stroke();
+}
+function indiaFlag(x,y,w,h,wave=1){
+for(let i=0;i<w;i+=3){
+const dy=Math.sin(i*.09-T*6)*3*wave*(i/w+.2);
+ctx.fillStyle='#ff9933';ctx.fillRect(x+i,y+dy,3,h/3);
+ctx.fillStyle='#fff';ctx.fillRect(x+i,y+h/3+dy,3,h/3);
+ctx.fillStyle='#138808';ctx.fillRect(x+i,y+2*h/3+dy,3,h/3+.5);
+}
+const dy=Math.sin((w/2)*.09-T*6)*3*wave*.7;
+ctx.strokeStyle='#000080';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(x+w/2,y+h/2+dy,h/6,0,7);ctx.stroke();
+}
+function scotFlag(x,y,w,h){
+ctx.fillStyle='#0065bd';ctx.fillRect(x,y,w,h);
+ctx.strokeStyle='#fff';ctx.lineWidth=7;
+ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+w,y+h);ctx.moveTo(x+w,y);ctx.lineTo(x,y+h);ctx.stroke();
+}
+function thermometer(x,y,frac,txt){
+ctx.fillStyle='#fff';ctx.fillRect(x-9,y,18,180);
+ctx.beginPath();ctx.arc(x,y+195,22,0,7);ctx.fill();
+ctx.fillStyle='#e53935';ctx.fillRect(x-5,y+180-180*frac,10,180*frac+5);
+ctx.beginPath();ctx.arc(x,y+195,16,0,7);ctx.fill();
+label(txt,x,y-10,20,'#fff');
+}
 
-    <script>
-        const canvas = document.getElementById('worldCanvas');
-        const ctx = canvas.getContext('2d');
+/* ---------- Scenes ---------- */
+function sceneStarTrails(){
+sky('#050a24','#1b2a5a');
+title('⭐ Star Trails in the Night Sky');
+const px=375,py=170;
+for(let i=0;i<14;i++){
+const r=40+i*22,a=i*1.7+T*.4;
+ctx.strokeStyle=`rgba(255,255,255,${.2+.03*i})`;ctx.lineWidth=2;
+ctx.beginPath();ctx.arc(px,py,r,a-1.1,a);ctx.stroke();
+ctx.fillStyle='#fff8c4';ctx.beginPath();ctx.arc(px+Math.cos(a)*r,py+Math.sin(a)*r,3.5,0,7);ctx.fill();
+}
+emoji('⭐',px,py+9,28);label('Pole Star',px,py-20,12,'#ffd700');
+emoji('🌙',660,110,50);
+ctx.fillStyle='#0b1a12';ctx.beginPath();ctx.moveTo(0,H);ctx.lineTo(0,440);
+ctx.quadraticCurveTo(200,380,380,450);ctx.quadraticCurveTo(560,390,W,440);ctx.lineTo(W,H);ctx.fill();
+emoji('🔭',120,470,55);emoji('⛺',600,470,55);emoji('🧑‍🚀',200,480,40);
+label('Earth spins ↻ so the stars seem to move',W/2,510,16);
+}
+function sceneDayNight(){
+space();title('🌍 Day and Night');
+sun(90,290,55);
+ctx.save();ctx.strokeStyle='rgba(255,220,80,.7)';ctx.lineWidth=3;ctx.setLineDash([12,10]);ctx.lineDashOffset=-T*150;
+for(const k of [-60,0,60]){ctx.beginPath();ctx.moveTo(165,290+k*.6);ctx.lineTo(395,290+k);ctx.stroke();}
+ctx.restore();
+label('Sunlight →',280,265,13,'#ffe082');
+earth(500,290,105,T,true);
+pin(455,275,'#ff5252');pin(565,275,'#40c4ff');
+label('☀️ DAY',455,170,17,'#ffe082');label('USA',455,190,15);
+label('🌙 NIGHT',565,170,17,'#90caf9');label('INDIA',565,190,15);
+ctx.strokeStyle='rgba(255,255,255,.4)';ctx.lineWidth=1;
+ctx.beginPath();ctx.moveTo(455,195);ctx.lineTo(455,268);ctx.moveTo(565,195);ctx.lineTo(565,268);ctx.stroke();
+label('↻ Earth rotates',500,430,14,'#a5d6a7');
+caption('Facing the Sun = Day   |   Facing away = Night');
+}
+function sceneHurricane(){
+sky('#5c6b7a','#90a4ae');title('🌀 Hurricane – A Spinning Storm');
+const g=ctx.createLinearGradient(0,340,0,H);g.addColorStop(0,'#1565c0');g.addColorStop(1,'#0d3c78');
+ctx.fillStyle=g;ctx.fillRect(0,340,W,H-340);
+ctx.strokeStyle='rgba(255,255,255,.35)';ctx.lineWidth=2;
+for(let r=0;r<5;r++){ctx.beginPath();for(let x=0;x<=W;x+=10){const y=370+r*32+Math.sin(x*.04+T*3+r)*5;x?ctx.lineTo(x,y):ctx.moveTo(x,y);}ctx.stroke();}
+ctx.save();ctx.translate(375,215);ctx.lineCap='round';ctx.strokeStyle='rgba(255,255,255,.8)';ctx.lineWidth=15;
+for(let arm=0;arm<5;arm++){
+ctx.beginPath();
+for(let r=14;r<=175;r+=4){const a=arm*Math.PI*2/5-r*.035-T*1.5;const x=Math.cos(a)*r,y=Math.sin(a)*r*.55;r===14?ctx.moveTo(x,y):ctx.lineTo(x,y);}
+ctx.stroke();
+}
+ctx.fillStyle='#1b3a5c';ctx.beginPath();ctx.arc(0,0,15,0,7);ctx.fill();
+ctx.restore();
+label('EYE',375,219,11,'#fff');
+emoji('🌴',90,350,55);emoji('🚢',600+Math.sin(T*2)*15,430,55);emoji('💨',640,180,40);emoji('💨',110,150,40);
+label('↺ Spins counter-clockwise',375,335,15,'#ffd700');
+caption("Earth's spin bends winds into curved spirals");
+}
+function sceneRevolution(){
+space();title('🌞 One Trip Around the Sun = 1 Year');
+const cx=375,cy=280;
+sun(cx,cy,42);
+ctx.strokeStyle='rgba(255,255,255,.35)';ctx.lineWidth=2;ctx.setLineDash([8,8]);
+ctx.beginPath();ctx.ellipse(cx,cy,250,150,0,0,7);ctx.stroke();ctx.setLineDash([]);
+const m='JFMAMJJASOND';
+for(let i=0;i<12;i++){const a=i/12*Math.PI*2;const mx=cx+Math.cos(a)*250,my=cy+Math.sin(a)*150;
+ctx.fillStyle='#ffd54a';ctx.beginPath();ctx.arc(mx,my,3,0,7);ctx.fill();
+label(m[i],cx+Math.cos(a)*272,cy+Math.sin(a)*172+4,12,'#ffd54a');}
+const a=T*.7;
+earth(cx+Math.cos(a)*250,cy+Math.sin(a)*150,24,T*2,false);
+label('Earth',cx+Math.cos(a)*250,cy+Math.sin(a)*150-32,13,'#81d4fa');
+const d=Math.floor(((a%(Math.PI*2))/(Math.PI*2))*365)+1;
+label(`📅 Day ${d} of 365`,cx,cy+8,15,'#fff');
+caption('365 days + 6 hours = 1 year  (extra hours = Leap Year!)');
+}
+function sceneSeasons(){
+space();title('🌎 Earth\'s Tilt Makes Seasons – JUNE');
+sun(110,280,50);
+ctx.save();ctx.strokeStyle='rgba(255,220,80,.6)';ctx.lineWidth=3;ctx.setLineDash([12,10]);ctx.lineDashOffset=-T*150;
+for(const k of [-50,0,50]){ctx.beginPath();ctx.moveTo(180,280+k*.5);ctx.lineTo(375,280+k);ctx.stroke();}
+ctx.restore();
+earth(470,280,85,T*.6,true);
+ctx.save();ctx.translate(470,280);ctx.rotate(-.41);
+ctx.strokeStyle='#ff5252';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(0,-120);ctx.lineTo(0,120);ctx.stroke();
+label('N',0,-126,16,'#fff');label('S',0,144,16,'#fff');
+ctx.restore();
+label('Tilt 23.5°',400,150,14,'#ff8a80');
+emoji('🏖️',620,190,50);label('NORTH: Summer ☀️',620,225,14,'#ffe082');label('Tilted TOWARD Sun',620,243,12,'#fff');
+emoji('⛄',620,370,50);label('SOUTH: Winter ❄️',620,405,14,'#90caf9');label('Tilted AWAY from Sun',620,423,12,'#fff');
+caption('Leaning toward the Sun = Summer');
+}
+function sceneDry(){
+const cycle=(Math.sin(T*.8)+1)/2;
+sky('#ff9a3c','#ffe0a3');
+ctx.fillStyle='#ffee58';ctx.shadowColor='#ff9800';ctx.shadowBlur=40;ctx.beginPath();ctx.arc(560,130,60+Math.sin(T*3)*3,0,7);ctx.fill();ctx.shadowBlur=0;
+ctx.fillStyle='#e6b566';ctx.beginPath();ctx.moveTo(0,H);ctx.lineTo(0,380);ctx.quadraticCurveTo(180,300,380,390);ctx.quadraticCurveTo(560,320,W,380);ctx.lineTo(W,H);ctx.fill();
+ctx.fillStyle='#d9a34f';ctx.beginPath();ctx.moveTo(0,H);ctx.lineTo(0,450);ctx.quadraticCurveTo(250,400,450,460);ctx.quadraticCurveTo(620,420,W,455);ctx.lineTo(W,H);ctx.fill();
+emoji('🌵',150,430,65);emoji('🌵',640,420,55);emoji('🦂',330,505,35);emoji('🏜️',450,300,40);
+emoji('🐪',((T*30)%900)-100,445,75);
+ctx.fillStyle=`rgba(5,10,45,${(1-cycle)*.55})`;ctx.fillRect(0,0,W,H);
+if(cycle<.35)emoji('🌙',560,140,60);
+title('🏜️ Dry Climate – The Desert');
+const temp=Math.round(2+43*cycle);
+thermometer(75,95,cycle,`${temp}°C`);
+label(cycle>.5?'☀️ Hot day':'🌙 Cold night',75,335,14);
+caption('Little rain • Hot days • Cold nights');
+}
+function sceneTropical(){
+sky('#4fb3d9','#c9f0d6');
+emoji('☁️',((T*20)%900)-100,110,70);emoji('☁️',((T*14+400)%900)-100,80,55);
+ctx.fillStyle='#1b7a35';ctx.fillRect(0,400,W,H-400);
+for(const x of [60,190,330,470,610,720]){
+ctx.fillStyle='#6d4c41';ctx.fillRect(x-9,250,18,170);
+ctx.fillStyle='#2e9d4a';ctx.beginPath();ctx.arc(x,240,55,0,7);ctx.fill();
+ctx.fillStyle='#43b85d';ctx.beginPath();ctx.arc(x-20,225,35,0,7);ctx.arc(x+22,228,32,0,7);ctx.fill();
+}
+ctx.strokeStyle='rgba(180,225,255,.85)';ctx.lineWidth=2;
+for(let i=0;i<40;i++){const rx=(i*61)%W,ry=(T*260+i*37)%H;ctx.beginPath();ctx.moveTo(rx,ry);ctx.lineTo(rx-4,ry+16);ctx.stroke();}
+emoji('🦜',170,200+Math.sin(T*3)*6,45);emoji('🐒',500,395,55);emoji('🦋',((T*40)%800),300+Math.sin(T*4)*20,35);emoji('🌺',300,500,40);emoji('🌴',680,480,55);
+title('🌴 Tropical Rainforest');
+ctx.fillStyle='rgba(0,0,0,.45)';ctx.fillRect(600,60,140,120);
+ctx.fillStyle='#2471a3';ctx.beginPath();ctx.arc(670,110,38,0,7);ctx.fill();
+ctx.strokeStyle='#ff5252';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(632,110);ctx.lineTo(708,110);ctx.stroke();
+label('EQUATOR',670,172,12,'#ff8a80');
+caption('Near the Equator: warm 🌡️ and wet 🌧️ all year');
+}
+function sceneCapital(){
+sky('#2b4a85','#f2a65a');
+ctx.fillStyle='#3d8b47';ctx.fillRect(0,430,W,H-430);
+ctx.fillStyle='#777';ctx.fillRect(0,470,W,25);
+ctx.fillStyle='#c9a16a';ctx.fillRect(285,215,180,20);ctx.fillRect(300,235,150,195);
+ctx.fillRect(270,415,210,15);
+ctx.fillStyle='#4a3524';ctx.beginPath();ctx.arc(375,330,42,Math.PI,0);ctx.fillRect(333,330,84,100);ctx.fill();
+ctx.fillStyle='#ffb74d';ctx.beginPath();ctx.arc(375,200,10,0,7);ctx.fill();
+ctx.fillStyle='#ddd';ctx.fillRect(100,150,5,280);indiaFlag(105,152,60,38);
+ctx.fillRect(645,150,5,280);indiaFlag(650,152,60,38);
+emoji('🏛️',180,420,65);emoji('🏢',590,420,60);emoji('🧑‍💼',250,470,35);emoji('👩‍💼',520,470,35);
+const by=Math.sin(T*3)*6;
+emoji('⭐',375,150+by,45);
+label('NEW DELHI',375,110,20,'#ffd700');
+title('🏙️ Capital City');
+caption("Capital = where the country's government works");
+}
+function person(cx,skin){ctx.fillStyle=skin;ctx.beginPath();ctx.arc(cx,265,20,0,7);ctx.fill();ctx.fillStyle='#000';ctx.beginPath();ctx.arc(cx-7,263,2,0,7);ctx.arc(cx+7,263,2,0,7);ctx.fill();ctx.strokeStyle='#000';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(cx,270,7,.2,Math.PI-.2);ctx.stroke();}
+function sceneCulture(){
+sky('#b3e5fc','#fff8e1');
+ctx.fillStyle='#66bb6a';ctx.fillRect(0,430,W,H-430);
+const cols=['#ef5350','#ffca28','#42a5f5','#66bb6a','#ab47bc'];
+for(let i=0;i<15;i++){const x=i*50,y=52+Math.sin(i/14*Math.PI)*16;ctx.fillStyle=cols[i%5];ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+50,y);ctx.lineTo(x+25,y+30);ctx.fill();}
+title('🌏 Cultures Around the World');
+const bob=-Math.abs(Math.sin(T*3))*5;
+ctx.save();ctx.translate(0,bob);
+let cx=220;
+ctx.fillStyle='#f5cba7';ctx.fillRect(cx-18,395,12,35);ctx.fillRect(cx+6,395,12,35);
+ctx.fillStyle='#eee';ctx.fillRect(cx-18,408,12,22);ctx.fillRect(cx+6,408,12,22);
+ctx.fillStyle='#b71c1c';ctx.beginPath();ctx.moveTo(cx-35,340);ctx.lineTo(cx+35,340);ctx.lineTo(cx+42,398);ctx.lineTo(cx-42,398);ctx.fill();
+ctx.strokeStyle='rgba(0,110,0,.7)';ctx.lineWidth=3;for(let i=-30;i<=30;i+=12){ctx.beginPath();ctx.moveTo(cx+i,340);ctx.lineTo(cx+i*1.2,398);ctx.stroke();}
+ctx.strokeStyle='rgba(0,0,0,.5)';ctx.lineWidth=2;for(let y=352;y<398;y+=14){ctx.beginPath();ctx.moveTo(cx-40,y);ctx.lineTo(cx+40,y);ctx.stroke();}
+ctx.fillStyle='#1e3a5f';ctx.fillRect(cx-30,285,60,58);ctx.fillRect(cx-42,290,12,45);ctx.fillRect(cx+30,290,12,45);
+person(cx,'#f5cba7');
+ctx.fillStyle='#1565c0';ctx.beginPath();ctx.ellipse(cx,248,24,9,0,0,7);ctx.fill();
+ctx.fillStyle='#e53935';ctx.beginPath();ctx.arc(cx,238,5,0,7);ctx.fill();
+ctx.restore();
+ctx.save();ctx.translate(0,-bob*.8);
+cx=530;
+ctx.fillStyle='#e91e63';ctx.beginPath();ctx.moveTo(cx-28,290);ctx.lineTo(cx+28,290);ctx.lineTo(cx+48,430);ctx.lineTo(cx-48,430);ctx.fill();
+ctx.fillStyle='#ffc107';ctx.fillRect(cx-48,418,96,12);
+ctx.fillStyle='#f8bbd0';ctx.beginPath();ctx.moveTo(cx-28,290);ctx.lineTo(cx-8,290);ctx.lineTo(cx+42,420);ctx.lineTo(cx+20,420);ctx.fill();
+ctx.strokeStyle='#ffc107';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(cx-8,290);ctx.lineTo(cx+42,420);ctx.stroke();
+ctx.fillStyle='#ad1457';ctx.fillRect(cx-24,285,48,22);
+person(cx,'#d7a373');
+ctx.fillStyle='#111';ctx.beginPath();ctx.arc(cx,262,21,Math.PI,0);ctx.fill();ctx.beginPath();ctx.arc(cx+16,246,9,0,7);ctx.fill();
+ctx.fillStyle='#e53935';ctx.beginPath();ctx.arc(cx,255,2.5,0,7);ctx.fill();
+ctx.restore();
+scotFlag(150,110,90,56);indiaFlag(485,110,90,56,.6);
+label('SCOTLAND',195,182,14,'#0d47a1');label('Tartan Kilt',220,455,16,'#333');
+label('INDIA',530,182,14,'#e65100');label('Silk Saree',530,455,16,'#333');
+emoji('🌍',375,280+Math.sin(T*3)*8,70);emoji('🤝',375,370,45);
+caption('Every culture has its own special clothes!');
+}
+function sceneIndia(){
+sky('#ffcc80','#e8f5e9');
+ctx.fillStyle='#2e7d32';ctx.fillRect(0,450,W,H-450);
+const fw=[[130,150,0],[620,140,.33],[560,240,.66]];
+fw.forEach(([fx,fy,o],n)=>{
+const p=(T*.5+o)%1,rad=p*65;ctx.globalAlpha=1-p;
+for(let i=0;i<14;i++){const a=i/14*Math.PI*2;ctx.fillStyle=['#ff5252','#ffd740','#69f0ae','#40c4ff'][(i+n)%4];ctx.beginPath();ctx.arc(fx+Math.cos(a)*rad,fy+Math.sin(a)*rad,3.5,0,7);ctx.fill();}
+});
+ctx.globalAlpha=1;
+ctx.fillStyle='#a4432b';ctx.fillRect(130,300,490,150);
+ctx.fillRect(130,240,55,210);ctx.fillRect(565,240,55,210);
+for(let x=130;x<620;x+=30)ctx.fillRect(x,285,18,15);
+ctx.fillStyle='#f5e6c8';
+ctx.beginPath();ctx.arc(157,240,24,Math.PI,0);ctx.fill();ctx.beginPath();ctx.arc(592,240,24,Math.PI,0);ctx.fill();
+ctx.beginPath();ctx.arc(300,300,18,Math.PI,0);ctx.fill();ctx.beginPath();ctx.arc(450,300,18,Math.PI,0);ctx.fill();
+ctx.fillStyle='#3e2015';ctx.beginPath();ctx.arc(375,370,38,Math.PI,0);ctx.fillRect(337,370,76,80);ctx.fill();
+ctx.fillStyle='#ddd';ctx.fillRect(373,85,5,215);
+ctx.fillStyle='#ffd700';ctx.beginPath();ctx.arc(375,82,6,0,7);ctx.fill();
+indiaFlag(378,90,95,60);
+title('🇮🇳 Independence Day – The Red Fort');
+label('RED FORT, NEW DELHI',375,470,15,'#fff');
+caption('15 August 1947: India became FREE! 🎉');
+}
+function sceneVictory(){
+space();
+const cols=['#ff5252','#ffd740','#69f0ae','#40c4ff','#e040fb'];
+for(let i=0;i<70;i++){ctx.fillStyle=cols[i%5];ctx.fillRect((i*97)%W+Math.sin(T*3+i)*10,((T*80+i*53)%(H+20))-10,8,5);}
+emoji('🏆',W/2,290+Math.sin(T*3)*8,130);
+emoji('🌟',150,150+Math.sin(T*2)*10,50);emoji('🌟',600,170+Math.cos(T*2)*10,50);
+emoji('🚀',120,430-Math.abs(Math.sin(T*2))*30,55);emoji('🌍',630,430,55);
+label('MISSION COMPLETE!',W/2,420,30,'#69f0ae');
+}
+const scenes={startrails:sceneStarTrails,daynight:sceneDayNight,hurricane:sceneHurricane,revolution:sceneRevolution,seasons:sceneSeasons,climate_dry:sceneDry,climate_tropical:sceneTropical,capital:sceneCapital,culture:sceneCulture,india:sceneIndia,victory:sceneVictory};
 
-        // Dynamic State Configuration Variables
-        let currentQuestionIdx = 0;
-        let runningScore = 0;
-        let visualMode = "rotation"; 
-        let internalEngineAngle = 0;
-        let isAnswered = false;
+function runGraphicsRenderLoop(){
+T+=.01;K=Math.min(1.5,Math.max(1,560/(canvas.clientWidth||750)));
+ctx.clearRect(0,0,W,H);
+(scenes[visualMode]||sceneStarTrails)();
+requestAnimationFrame(runGraphicsRenderLoop);
+}
 
-        // Structured Array Matrix Container holding Case-Based Questions matching the specific learning outcomes
-        const cbqDatabase = [
-            {
-                case: "An amateur astronomer observes a star pattern over a 6-hour period at night and notices the stars appear to migrate sequentially across the night sky.",
-                question: "What primary hidden planetary movement directly induces this localized stellar migration phenomenon?",
-                options: ["A) The linear orbit velocity of distant deep space star fields", "B) The rotation of the Earth turning upon its internal vertical axis", "C) The continuous rapid shrinking diameter of Earth's atmosphere", "D) Local solar gravity pulling neighboring galaxies inward"],
-                correct: 1,
-                visual: "rotation"
-            },
-            {
-                case: "A cargo jet takes off from Washington D.C. in bright afternoon sunshine and arrives in New Delhi, India where local ground crews are working under floodlights in the dark.",
-                question: "Why does India experience deep nighttime conditions while the United States is illuminated by daytime?",
-                options: ["A) Clouds block all light entry from reaching Asia completely", "B) The Earth's rotation places India on the side facing away from the Sun", "C) India operates closer to deep polar ocean zones", "D) The Sun briefly shuts off its fusion energy generation cycle every 12 hours"],
-                correct: 1,
-                visual: "daynight"
-            },
-            {
-                case: "Satellite telemetry tracks massive hurricane cloud walls spinning in counter-clockwise circles while migrating across wide expanses of open tropical ocean waves.",
-                question: "Which rotational force outcome creates these curving storm systems and distinct planetary trade wind patterns?",
-                options: ["A) Continuous heat generation inside deep core lava veins", "B) The Earth's rotational momentum turning underneath atmospheric paths", "C) Polar ice caps melting at accelerated seasonal speeds", "D) Magnetic interference generated by deep communications towers"],
-                correct: 1,
-                visual: "rotation"
-            },
-            {
-                case: "A calendar system tracks a continuous extra 6-hour drift remainder over a clean 365-day block each time the planet finishes a single complete solar cycle run.",
-                question: "How long does it take the Earth to complete one full revolution cycle around the Sun's orbital perimeter path?",
-                options: ["A) Exactly 24 standard working hours", "B) Approximately 30 calendar days", "C) Roughly 365 days and 6 hours", "D) Exactly 100 days total"],
-                correct: 2,
-                visual: "revolution"
-            },
-            {
-                case: "In June, scientific installations located on the frozen South Pole experience continuous darkness, while regions in the Northern Hemisphere enjoy long, hot summer days.",
-                question: "What physical structural position explains the intense summer conditions in the Northern Hemisphere during June?",
-                options: ["A) The North Pole is physically tilted toward the direct path of the Sun", "B) The Sun changes its spatial orbit altitude profile closer to Earth", "C) The Southern Hemisphere experiences sudden micro-volcanic action", "D) The Earth ceases all regular orbital movement during June"],
-                correct: 0,
-                visual: "seasons"
-            },
-            {
-                case: "An expedition team records extreme heat indices matching $45^\circ\text{C}$ inside deep sand plains during the afternoon, followed by plummeting near-freezing temperatures immediately after sunset.",
-                question: "Which ecosystem climate class matches this scenario based on the Sahara Desert geographic case model?",
-                options: ["A) Freezing and volatile Polar Climate Zone", "B) Constant precipitation Tropical Rainforest Climate", "C) Dry Climate characterized by negligible moisture and thermal swings", "D) Moderate Temperate European Zone"],
-                correct: 2,
-                visual: "climate_dry"
-            },
-            {
-                case: "Biologists monitoring canopy canals inside the deep Amazon basin record massive daily rain downpours combined with consistently high ambient heat indexes across all 12 calendar months.",
-                question: "What planetary zone positioning dictates the warm and wet status profile of this iconic Tropical Climate region?",
-                options: ["A) Close strategic proximity to the highly irradiated solar equator line", "B) Extended elevation placement directly inside polar wind networks", "C) Massive underground refrigeration structures built inside bedrock layers", "D) Extreme seasonal tilt variations shifting every two calendar weeks"],
-                correct: 0,
-                visual: "climate_tropical"
-            },
-            {
-                case: "Architects visiting New Delhi look at the structural geometries of the highly visited Lotus Temple before researching historical architectural patterns across different regional capitals.",
-                question: "By definition, what central role distinguishes a sovereign global nation's designated Capital City?",
-                options: ["A) It must possess the highest physical mountain point inside the territory", "B) It acts as the primary administrative seat where government leaders sit and work", "C) It must possess a coastline with access to oceanic international shipping lanes", "D) It represents the single coldest point designated inside regional maps"],
-                correct: 1,
-                visual: "culture"
-            },
-            {
-                case: "A cultural exchange festival showcases traditional tartan wool kilts from Scotland alongside vibrant, intricately pleated silk sarees worn by performers from India.",
-                question: "What underlying global reality does this diverse display of traditional clothing and distinctive national costumes illustrate?",
-                options: ["A) Industrial raw fabric material manufacturing constraints across regions", "B) Every independent global culture adapts unique traditional identity traits", "C) Uniform universal fashion directives issued across continental systems", "D) Random resource allocation choices determined without historic background context"],
-                correct: 1,
-                visual: "culture"
-            },
-            {
-                case: "Every single year on August 15th, citizens gather across India while the Prime Minister hoists the tricolor national flag over the historic stone walls of the Red Fort in New Delhi.",
-                question: "Which landmark historical achievement is honored during this specific national recurring cultural festival?",
-                options: ["A) The adoption of the internal constitutional document rules in 1950", "B) India's historic achievement of freedom and total sovereignty in 1947", "C) The building foundation day of the central New Delhi capital municipality", "D) The global transition of structural weather tracks into Autumn months"],
-                correct: 1,
-                visual: "india"
-            }
-        ];
-
-        // Core UI Management Functions
-        function loadCurrentQuestion() {
-            isAnswered = false;
-            document.getElementById('nextBtn').style.display = 'none';
-            
-            let qData = cbqDatabase[currentQuestionIdx];
-            visualMode = qData.visual;
-
-            document.getElementById('progressText').innerText = `Question ${currentQuestionIdx + 1}/10`;
-            document.getElementById('caseText').innerText = qData.case;
-            document.getElementById('questionText').innerText = qData.question;
-
-            // Dynamically alter sub-topic context labels
-            if (currentQuestionIdx < 3) document.getElementById('topicBadge').innerText = "Module: Planetary Rotation Dynamics";
-            else if (currentQuestionIdx < 5) document.getElementById('topicBadge').innerText = "Module: Solar Orbital Revolution";
-            else if (currentQuestionIdx < 7) document.getElementById('topicBadge').innerText = "Module: Global Climatology Vectors";
-            else document.getElementById('topicBadge').innerText = "Module: Global Geography & Human Culture";
-
-            // Render option interface arrays
-            let optionsBlock = document.getElementById('optionsBlock');
-            optionsBlock.innerHTML = "";
-            
-            qData.options.forEach((optText, index) => {
-                let btn = document.createElement('button');
-                btn.className = "option-btn";
-                btn.innerText = optText;
-                btn.onclick = () => selectAnswer(index, btn);
-                optionsBlock.appendChild(btn);
-            });
-        }
-
-        function selectAnswer(chosenIdx, selectedBtn) {
-            if (isAnswered) return; // Lock interactive changes after choice
-            isAnswered = true;
-
-            let qData = cbqDatabase[currentQuestionIdx];
-            let allOptionBtns = document.getElementById('optionsBlock').getElementsByTagName('button');
-
-            // Trigger proper audio asset audio loops depending on accuracy
-            if (chosenIdx === qData.correct) {
-                selectedBtn.style.background = varProps('--success-green');
-                selectedBtn.style.borderColor = "#81c784";
-                document.getElementById('sndCorrect').play().catch(()=>{});
-                runningScore++;
-            } else {
-                selectedBtn.style.background = varProps('--error-red');
-                selectedBtn.style.borderColor = "#e57373";
-                allOptionBtns[qData.correct].style.background = varProps('--success-green');
-                allOptionBtns[qData.correct].style.borderColor = "#81c784";
-                document.getElementById('sndWrong').play().catch(()=>{});
-            }
-
-            // Disable further choice interactions across current set
-            for (let btn of allOptionBtns) {
-                btn.setAttribute('disabled', 'true');
-            }
-
-            // Reveal the Next Controller step button
-            document.getElementById('nextBtn').style.display = 'block';
-        }
-
-        function advanceQuestion() {
-            currentQuestionIdx++;
-            if (currentQuestionIdx < cbqDatabase.length) {
-                loadCurrentQuestion();
-            } else {
-                displayEndGameScoreboard();
-            }
-        }
-
-        function displayEndGameScoreboard() {
-            document.getElementById('quizActiveZone').style.display = 'none';
-            let scoreZone = document.getElementById('scoreZone');
-            scoreZone.style.display = 'flex';
-            
-            document.getElementById('scoreValue').innerText = `${runningScore}/10`;
-            visualMode = "victory";
-
-            let feedbackStr = "";
-            if (runningScore >= 9) {
-                feedbackStr = "Exceptional Performance! You are a master planetary navigator of cultures, climates, and rotation mechanics.";
-                document.getElementById('sndApplause').play().catch(()=>{});
-            } else if (runningScore >= 6) {
-                feedbackStr = "Good work! You possess solid functional core geographical literacy.";
-            } else {
-                feedbackStr = "Review the core chapter text definitions regarding planetary axis vectors and try the exploration route again.";
-            }
-            document.getElementById('feedbackStatement').innerText = feedbackStr;
-        }
-
-        function resetMission() {
-            currentQuestionIdx = 0;
-            runningScore = 0;
-            document.getElementById('scoreZone').style.display = 'none';
-            document.getElementById('quizActiveZone').style.display = 'block';
-            loadCurrentQuestion();
-        }
-
-        // Helper interface utility to pull hex values cleanly from variable trees
-        function varProps(varName) {
-            return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
-        }
-
-
-        // Graphical Real-Time Render Pipeline Engine
-        function runGraphicsRenderLoop() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            internalEngineAngle += 0.008;
-
-            // Space backdrop generation matrix
-            ctx.fillStyle = '#030508';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = 'rgba(255,255,255,0.4)';
-            for(let i=0; i<40; i++) {
-                let sx = (i * 123) % canvas.width;
-                let sy = (i * 71) % canvas.height;
-                ctx.fillRect(sx, sy, 1.5, 1.5);
-            }
-
-            let cx = canvas.width / 2;
-            let cy = canvas.height / 2;
-
-            switch(visualMode) {
-                case "rotation":
-                case "daynight":
-                    // Dynamic render mode for Day vs Night axial mechanics
-                    // Solar furnace anchor point
-                    ctx.beginPath();
-                    ctx.arc(80, cy, 50, 0, Math.PI * 2);
-                    ctx.fillStyle = '#ff9900';
-                    ctx.shadowColor = '#ff3300';
-                    ctx.shadowBlur = 30;
-                    ctx.fill();
-                    ctx.shadowBlur = 0; // standard clear
-
-                    // Planetary matrix coordinates
-                    let ex = 500, ey = cy, er = 100;
-                    
-                    ctx.save();
-                    ctx.translate(ex, ey);
-                    ctx.rotate(23.5 * Math.PI / 180); // Strict axial tilt projection alignment
-
-                    // Planet Water Base
-                    ctx.beginPath();
-                    ctx.arc(0, 0, er, 0, Math.PI * 2);
-                    ctx.fillStyle = '#21618c';
-                    ctx.fill();
-
-                    // Landmass transformations tracking planetary rotation
-                    ctx.fillStyle = '#27ae60';
-                    for(let i = -1; i <= 1; i++) {
-                        let dynamicX = ((internalEngineAngle * 40) % (er * 2)) - er + (i * er * 1.2);
-                        if (Math.abs(dynamicX) < er - 15) {
-                            ctx.beginPath();
-                            ctx.arc(dynamicX, i * 25, 30 - Math.abs(i * 5), 0, Math.PI * 2);
-                            ctx.fill();
-                        }
-                    }
-
-                    // Axis Line representation
-                    ctx.strokeStyle = '#e74c3c';
-                    ctx.lineWidth = 3;
-                    ctx.beginPath();
-                    ctx.moveTo(0, -er - 25);
-                    ctx.lineTo(0, er + 25);
-                    ctx.stroke();
-                    ctx.restore();
-
-                    // Translucent dark shadow mask representing night blocking exactly 50% opposite to illumination
-                    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-                    ctx.beginPath();
-                    ctx.arc(ex, ey, er, -Math.PI/2, Math.PI/2);
-                    ctx.fill();
-
-                    // Context UI descriptors
-                    ctx.fillStyle = '#fff';
-                    ctx.font = 'bold 12px sans-serif';
-                    ctx.fillText("☀️ INCOMING SUNLIGHT", 160, cy - 10);
-                    ctx.fillText("DAY SYSTEM", ex - 80, ey - 120);
-                    ctx.fillText("NIGHT SHADOW", ex + 15, ey - 120);
-                    break;
-
-                case "revolution":
-                case "seasons":
-                    // Central Sun orbital tracking framework
-                    ctx.beginPath();
-                    ctx.arc(cx, cy, 40, 0, Math.PI * 2);
-                    ctx.fillStyle = '#f39c12';
-                    ctx.fill();
-
-                    // Draw clean line ellipse tracking standard orbit pathway
-                    ctx.strokeStyle = '#2c3e50';
-                    ctx.lineWidth = 2;
-                    ctx.beginPath();
-                    ctx.ellipse(cx, cy, 240, 150, 0, 0, Math.PI * 2);
-                    ctx.stroke();
-
-                    // Locate planet positions matching orbital steps
-                    let revX = cx + Math.cos(internalEngineAngle * 0.7) * 240;
-                    let revY = cy + Math.sin(internalEngineAngle * 0.7) * 150;
-
-                    ctx.beginPath();
-                    ctx.arc(revX, revY, 20, 0, Math.PI * 2);
-                    ctx.fillStyle = '#3498db';
-                    ctx.fill();
-
-                    ctx.fillStyle = '#f1c40f';
-                    ctx.font = '13px sans-serif';
-                    ctx.fillText("365.25 Day Orbit track pathway", cx - 90, cy - 180);
-                    break;
-
-                case "climate_dry":
-                    // Render representation of dry arid desert terrain
-                    ctx.fillStyle = '#edc9af';
-                    ctx.fillRect(0, cy, canvas.width, cy);
-                    // Sun silhouette
-                    ctx.beginPath();
-                    ctx.arc(cx, cy - 20, 70, 0, Math.PI, true);
-                    ctx.fillStyle = '#f39c12';
-                    ctx.fill();
-                    ctx.fillStyle = '#fff';
-                    ctx.font = 'bold 16px sans-serif';
-                    ctx.fillText("DRY CLIMATE ZONE: Extreme Thermal Variances", 50, 60);
-                    break;
-
-                case "climate_tropical":
-                    // Render representation of tropical biome
-                    ctx.fillStyle = '#196f3d';
-                    ctx.fillRect(0, cy + 50, canvas.width, cy);
-                    // Precipitation drop generation trails
-                    ctx.strokeStyle = '#5dade2';
-                    ctx.lineWidth = 2;
-                    for(let i=0; i<15; i++) {
-                        let rx = (i * 61) % canvas.width;
-                        let ry = (internalEngineAngle * 200 + i * 37) % (cy + 50);
-                        ctx.beginPath();
-                        ctx.moveTo(rx, ry);
-                        ctx.lineTo(rx - 3, ry + 15);
-                        ctx.stroke();
-                    }
-                    ctx.fillStyle = '#fff';
-                    ctx.font = 'bold 16px sans-serif';
-                    ctx.fillText("TROPICAL MONSOON BIOME: High Annual Heat & Rainfall", 50, 60);
-                    break;
-
-                case "culture":
-                case "india":
-                    // Visualization mode for world maps or international exploration themes
-                    ctx.strokeStyle = '#34495e';
-                    ctx.lineWidth = 1;
-                    // Abstract stylistic representations of continental structures
-                    ctx.fillStyle = '#2e4053';
-                    ctx.beginPath();
-                    ctx.arc(200, 200, 70, 0, Math.PI * 1.5);
-                    ctx.fill();
-                    ctx.beginPath();
-                    ctx.arc(500, 350, 90, 0, Math.PI * 2);
-                    ctx.fill();
-
-                    ctx.fillStyle = varProps('--accent-gold');
-                    ctx.font = '15px sans-serif';
-                    ctx.fillText("🌐 Global Human Traditions & Cultural Landmarks Map", 50, 60);
-                    break;
-
-                case "victory":
-                    // Post-game celebratory geometric light lines wrapper
-                    ctx.fillStyle = '#27ae60';
-                    ctx.font = 'bold 24px sans-serif';
-                    ctx.fillText("MISSION COMPLETE", cx - 120, cy);
-                    break;
-            }
-
-            requestAnimationFrame(runGraphicsRenderLoop);
-        }
-
-        // Initialize Application Sequence Trigger
-        loadCurrentQuestion();
-        runGraphicsRenderLoop();
-    </script>
+loadCurrentQuestion();
+runGraphicsRenderLoop();
+</script>
 </body>
 </html>
