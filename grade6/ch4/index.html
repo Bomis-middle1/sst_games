@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+\<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -24,22 +24,26 @@
 
     *{box-sizing:border-box}
     html,body{height:100%}
+    html{-webkit-text-size-adjust:100%}
     body{
       margin:0;
+      height:100vh;
+      height:100dvh;
       color:var(--ink);
       font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background:
         radial-gradient(circle at 10% 10%, rgba(213,168,72,.13), transparent 28%),
         radial-gradient(circle at 92% 88%, rgba(47,111,143,.10), transparent 30%),
         linear-gradient(135deg,#f8f0df,#efe2c7);
-      overflow-x:hidden;
+      overflow:hidden;
     }
 
-    button{font:inherit}
+    button{font:inherit;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
     button:focus-visible{outline:4px solid rgba(47,111,143,.32);outline-offset:3px}
 
     .screen{
       min-height:100vh;
+      min-height:100dvh;
       display:none;
       align-items:center;
       justify-content:center;
@@ -68,7 +72,10 @@
       border:1px solid rgba(111,78,55,.18);
       border-radius:28px;
       box-shadow:var(--shadow);
-      overflow:hidden;
+      overflow-x:hidden;
+      overflow-y:auto;
+      max-height:calc(100vh - 24px);
+      max-height:calc(100dvh - 24px);
     }
 
     .welcome-grid{
@@ -213,14 +220,26 @@
     }
 
     /* Game */
-    #game{align-items:flex-start;padding-top:28px;padding-bottom:28px}
-    .game-shell{width:min(1180px,100%)}
+    #game{
+      align-items:stretch;
+      height:100vh;
+      height:100dvh;
+      padding:14px 22px;
+    }
+    .game-shell{
+      width:min(1180px,100%);
+      height:100%;
+      min-height:0;
+      display:flex;
+      flex-direction:column;
+    }
     .topbar{
       display:grid;
       grid-template-columns:1fr auto;
       gap:18px;
       align-items:center;
-      margin-bottom:18px;
+      margin-bottom:14px;
+      flex:0 0 auto;
     }
     .progress-wrap{
       background:rgba(255,250,240,.76);
@@ -264,12 +283,15 @@
     .game-grid{
       display:grid;
       grid-template-columns:300px 1fr;
+      grid-template-rows:minmax(0,1fr);
       gap:20px;
       align-items:stretch;
+      flex:1 1 auto;
+      min-height:0;
     }
 
     .journey{
-      min-height:620px;
+      min-height:0;
       position:relative;
       border-radius:25px;
       padding:28px 22px;
@@ -350,7 +372,9 @@
     }
 
     .question-panel{
-      min-height:620px;
+      min-height:0;
+      overflow-x:hidden;
+      overflow-y:auto;
       background:rgba(255,250,240,.97);
       border:1px solid rgba(111,78,55,.18);
       border-radius:25px;
@@ -359,6 +383,7 @@
       display:flex;
       flex-direction:column;
     }
+    .question-panel>*{flex-shrink:0}
     .chapter-tag{
       align-self:flex-start;
       margin:0 0 18px;
@@ -441,6 +466,9 @@
     /* Final */
     .final-card{
       width:min(790px,100%);
+      max-height:calc(100vh - 24px);
+      max-height:calc(100dvh - 24px);
+      overflow-y:auto;
       text-align:center;
       padding:48px 34px;
       background:rgba(255,250,240,.97);
@@ -477,10 +505,22 @@
       font-weight:900;
     }
 
+    /* Tablets and phones (portrait): stacked layout that fits one screen */
     @media(max-width:850px){
       .welcome-grid,.game-grid{grid-template-columns:1fr}
-      .welcome-art{min-height:390px}
-      .journey{min-height:190px;padding:22px}
+      .welcome-grid{min-height:0}
+      .welcome-art{display:none}
+      .welcome-copy{padding:32px 28px}
+      #game{padding:10px 14px}
+      .topbar{margin-bottom:10px;gap:12px}
+      .game-grid{grid-template-rows:auto minmax(0,1fr);gap:12px}
+      .journey{
+        min-height:0;
+        height:clamp(150px,19dvh,190px);
+        padding:16px 22px;
+      }
+      .journey h2{font-size:1.15rem;margin-bottom:4px}
+      .journey p{font-size:.82rem}
       .route{
         top:auto;
         left:42px;
@@ -500,18 +540,74 @@
         left:32px;
         transition:left .45s ease;
       }
-      .question-panel{min-height:560px}
+      .question-panel{padding:24px}
     }
 
+    /* Phones */
     @media(max-width:590px){
-      .screen{padding:12px}
-      .welcome-copy{padding:38px 25px}
-      .welcome-art{padding:24px}
-      .history-table{min-height:355px}
-      .question-panel{padding:24px 18px}
-      .topbar{grid-template-columns:1fr}
-      .score-chip{justify-self:stretch}
+      .screen{padding:10px}
+      .welcome-copy{padding:26px 22px}
+      h1{font-size:clamp(2rem,6.5dvh,3rem)}
+      .subtitle{margin:12px 0 16px;font-size:1rem;line-height:1.5}
+      .instructions{gap:8px;margin-bottom:20px}
+      .instruction{font-size:.92rem;line-height:1.35}
+      .primary{padding:11px 20px;box-shadow:0 6px 0 var(--brown-dark)}
       .journey{display:none}
+      #game{padding:8px}
+      .topbar{grid-template-columns:1fr auto;gap:8px;margin-bottom:8px}
+      .progress-wrap{padding:7px 10px;border-radius:14px}
+      .progress-label{margin-bottom:5px;font-size:.72rem}
+      .progress-track{height:9px}
+      .score-chip{min-width:0;padding:8px 12px;border-radius:14px;font-size:.85rem}
+      .game-grid{grid-template-rows:minmax(0,1fr)}
+      .question-panel{padding:12px;border-radius:18px}
+      .chapter-tag{margin:0 0 8px;padding:4px 9px;font-size:.66rem}
+      .question-text{margin:0 0 10px;font-size:clamp(.85rem,2.2dvh,1.3rem);line-height:1.32}
+      .options{gap:7px}
+      .option{padding:8px 11px;border-radius:12px;font-size:clamp(.78rem,1.9dvh,1rem);line-height:1.3}
+      .feedback{min-height:44px;margin-top:10px;padding:8px 11px;border-radius:12px;font-size:clamp(.74rem,1.75dvh,.95rem);line-height:1.3}
+      .next{margin-top:8px;padding:9px 18px}
+      .final-card{padding:26px 18px}
+      .final-icon{font-size:52px}
+      .final-card h2{font-size:clamp(1.7rem,5dvh,2.4rem)}
+      .final-card .result{font-size:.95rem;margin:6px auto 12px}
+      .seal-row{margin:12px 0 18px;gap:8px}
+      .seal{padding:7px 10px;font-size:.8rem}
+    }
+
+    /* Short screens (phones held sideways): single wide panel, still one screen */
+    @media(max-height:520px){
+      .screen{padding:8px}
+      .welcome-grid{grid-template-columns:1fr;min-height:0}
+      .welcome-art{display:none}
+      .welcome-copy{padding:16px 24px}
+      h1{font-size:2rem}
+      .subtitle{margin:8px 0 10px;font-size:.9rem;line-height:1.4}
+      .instructions{gap:5px;margin-bottom:12px}
+      .instruction{font-size:.8rem;line-height:1.3}
+      .instruction span:first-child{flex-basis:24px;width:24px;height:24px}
+      .primary{padding:9px 18px;box-shadow:0 5px 0 var(--brown-dark)}
+      #game{padding:6px 10px}
+      .topbar{grid-template-columns:1fr auto;margin-bottom:6px;gap:8px}
+      .progress-wrap{padding:5px 10px;border-radius:12px}
+      .progress-label{margin-bottom:3px;font-size:.68rem}
+      .progress-track{height:7px}
+      .score-chip{min-width:0;padding:6px 12px;border-radius:12px;font-size:.8rem}
+      .journey{display:none}
+      .game-grid{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr)}
+      .question-panel{padding:10px 14px;border-radius:16px}
+      .chapter-tag{margin:0 0 5px;padding:3px 8px;font-size:.62rem}
+      .question-text{margin:0 0 8px;font-size:.9rem;line-height:1.3}
+      .options{grid-template-columns:1fr 1fr;gap:6px}
+      .option{padding:6px 10px;font-size:.78rem;border-radius:10px;line-height:1.25}
+      .feedback{min-height:0;margin-top:6px;padding:5px 10px;font-size:.75rem;line-height:1.3}
+      .next{margin-top:6px;padding:7px 16px}
+      .final-card{padding:16px 20px}
+      .final-icon{font-size:40px}
+      .final-card h2{font-size:1.6rem;margin:4px 0}
+      .final-card .result{font-size:.85rem;margin:4px auto 8px}
+      .seal-row{margin:8px 0 12px;gap:6px}
+      .seal{padding:5px 9px;font-size:.72rem}
     }
 
     @media(prefers-reduced-motion:reduce){
@@ -781,7 +877,8 @@ What is the BEST conclusion?`,
       }else{
         routeFill.style.height = percent + "%";
         routeFill.style.width = "100%";
-        explorer.style.bottom = `calc(37px + ${Math.min(percent,100)}% * 4.8)`;
+        const trackH = Math.max(0, explorer.parentElement.clientHeight - 140);
+        explorer.style.bottom = (37 + Math.min(percent,100) / 100 * trackH) + "px";
       }
     }
 
@@ -892,6 +989,7 @@ What is the BEST conclusion?`,
     replayBtn.addEventListener("click", beginGame);
 
     window.addEventListener("resize", updateJourney);
+    window.addEventListener("orientationchange", () => setTimeout(updateJourney, 250));
 
     /* Logo remains visible for five seconds, then the game title appears. */
     setTimeout(() => showScreen("welcome"), 5000);
